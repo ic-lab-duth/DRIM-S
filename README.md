@@ -1,4 +1,4 @@
-## DRiM-S: Superscalar DUTH RISC-V Machine
+## DRiM-S: Superscalar DUTH RISC-V Microprocessor
 
 SystemVerilog RTL and versatile verification infrastructure will be added soon
 
