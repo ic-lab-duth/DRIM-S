@@ -1,0 +1,3 @@
+assert property (@(posedge clk) disable iff(!rst_n) new_requests.valid_request_1 |-> !(counter==ROB_ENTRIES)) else $error("Push on Full ROB!!");
+assert property (@(posedge clk) disable iff(!rst_n) new_requests.valid_request_2 |-> !(counter>=ROB_ENTRIES-1)) else $error("Second Push on Full ROB!!");
+assert property (@(posedge clk) disable iff(!rst_n) rob[head].valid_exception |-> 1'b1) else $error("ROB: Exception Found!!");

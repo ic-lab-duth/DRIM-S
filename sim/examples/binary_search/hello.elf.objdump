@@ -1,0 +1,230 @@
+
+hello.elf:     file format elf32-littleriscv
+
+
+Disassembly of section .text:
+
+00000000 <_start>:
+   0:	00002537          	lui	a0,0x2
+   4:	71050513          	addi	a0,a0,1808 # 2710 <array+0x2698>
+   8:	00050113          	mv	sp,a0
+   c:	008000ef          	jal	14 <notmain>
+
+00000010 <hang>:
+  10:	0000006f          	j	10 <hang>
+
+00000014 <notmain>:
+  14:	03100793          	li	a5,49
+  18:	06300613          	li	a2,99
+  1c:	00000693          	li	a3,0
+  20:	07800593          	li	a1,120
+  24:	55000513          	li	a0,1360
+  28:	55100813          	li	a6,1361
+  2c:	01c0006f          	j	48 <notmain+0x34>
+  30:	00178693          	addi	a3,a5,1
+  34:	00c68733          	add	a4,a3,a2
+  38:	01f75793          	srli	a5,a4,0x1f
+  3c:	00e787b3          	add	a5,a5,a4
+  40:	4017d793          	srai	a5,a5,0x1
+  44:	02d64863          	blt	a2,a3,74 <notmain+0x60>
+  48:	00279713          	slli	a4,a5,0x2
+  4c:	00e58733          	add	a4,a1,a4
+  50:	00072703          	lw	a4,0(a4)
+  54:	fce55ee3          	ble	a4,a0,30 <notmain+0x1c>
+  58:	01070e63          	beq	a4,a6,74 <notmain+0x60>
+  5c:	fff78613          	addi	a2,a5,-1
+  60:	00c68733          	add	a4,a3,a2
+  64:	01f75793          	srli	a5,a4,0x1f
+  68:	00e787b3          	add	a5,a5,a4
+  6c:	4017d793          	srai	a5,a5,0x1
+  70:	fcd65ce3          	ble	a3,a2,48 <notmain+0x34>
+  74:	00008067          	ret
+
+Disassembly of section .data:
+
+00000078 <array>:
+  78:	0029                	0x29
+  7a:	0000                	unimp
+  7c:	0041                	0x41
+  7e:	0000                	unimp
+  80:	004d                	0x4d
+  82:	0000                	unimp
+  84:	0000004f          	fnmadd.s	ft0,ft0,ft0,ft0,rne
+  88:	00000053          	fadd.s	ft0,ft0,ft0,rne
+  8c:	0059                	0x59
+  8e:	0000                	unimp
+  90:	0000005b          	custom2	0,0,0,0
+  94:	0060                	addi	s0,sp,12
+  96:	0000                	unimp
+  98:	007d                	0x7d
+  9a:	0000                	unimp
+  9c:	0089                	addi	ra,ra,2
+  9e:	0000                	unimp
+  a0:	00000093          	li	ra,0
+  a4:	0099                	addi	ra,ra,6
+  a6:	0000                	unimp
+  a8:	00a2                	slli	ra,ra,0x8
+  aa:	0000                	unimp
+  ac:	000000b3          	add	ra,zero,zero
+  b0:	00b8                	addi	a4,sp,72
+  b2:	0000                	unimp
+  b4:	00c1                	addi	ra,ra,16
+  b6:	0000                	unimp
+  b8:	00cc                	addi	a1,sp,68
+  ba:	0000                	unimp
+  bc:	00d8                	addi	a4,sp,68
+  be:	0000                	unimp
+  c0:	00e0                	addi	s0,sp,76
+  c2:	0000                	unimp
+  c4:	00ee                	slli	ra,ra,0x1b
+  c6:	0000                	unimp
+  c8:	000000f7          	0xf7
+  cc:	000000fb          	custom3	1,0,0,0
+  d0:	0104                	addi	s1,sp,128
+  d2:	0000                	unimp
+  d4:	00000117          	auipc	sp,0x0
+  d8:	011c                	addi	a5,sp,128
+  da:	0000                	unimp
+  dc:	0128                	addi	a0,sp,136
+  de:	0000                	unimp
+  e0:	012e                	slli	sp,sp,0xb
+  e2:	0000                	unimp
+  e4:	013a                	slli	sp,sp,0xe
+  e6:	0000                	unimp
+  e8:	0148                	addi	a0,sp,132
+  ea:	0000                	unimp
+  ec:	0151                	addi	sp,sp,20
+  ee:	0000                	unimp
+  f0:	0158                	addi	a4,sp,132
+  f2:	0000                	unimp
+  f4:	00000163          	beqz	zero,f6 <array+0x7e>
+  f8:	016e                	slli	sp,sp,0x1b
+  fa:	0000                	unimp
+  fc:	0179                	addi	sp,sp,30
+  fe:	0000                	unimp
+ 100:	0184                	addi	s1,sp,192
+ 102:	0000                	unimp
+ 104:	0000018f          	0x18f
+ 108:	0199                	addi	gp,gp,6
+ 10a:	0000                	unimp
+ 10c:	019a                	slli	gp,gp,0x6
+ 10e:	0000                	unimp
+ 110:	01a6                	slli	gp,gp,0x9
+ 112:	0000                	unimp
+ 114:	01b1                	addi	gp,gp,12
+ 116:	0000                	unimp
+ 118:	01bc                	addi	a5,sp,200
+ 11a:	0000                	unimp
+ 11c:	000001c7          	fmsub.s	ft3,ft0,ft0,ft0,rne
+ 120:	01d2                	slli	gp,gp,0x14
+ 122:	0000                	unimp
+ 124:	01dd                	addi	gp,gp,23
+ 126:	0000                	unimp
+ 128:	01e8                	addi	a0,sp,204
+ 12a:	0000                	unimp
+ 12c:	000001f3          	0x1f3
+ 130:	01f9                	addi	gp,gp,30
+ 132:	0000                	unimp
+ 134:	01ff                	0x1ff
+ 136:	0000                	unimp
+ 138:	020a                	slli	tp,tp,0x2
+ 13a:	0000                	unimp
+ 13c:	0215                	addi	tp,tp,5
+ 13e:	0000                	unimp
+ 140:	0220                	addi	s0,sp,264
+ 142:	0000                	unimp
+ 144:	0000022b          	custom1	4,0,0,0
+ 148:	0236                	slli	tp,tp,0xd
+ 14a:	0000                	unimp
+ 14c:	0241                	addi	tp,tp,16
+ 14e:	0000                	unimp
+ 150:	024c                	addi	a1,sp,260
+ 152:	0000                	unimp
+ 154:	00000257          	0x257
+ 158:	0261                	addi	tp,tp,24
+ 15a:	0000                	unimp
+ 15c:	00000263          	beqz	zero,160 <array+0xe8>
+ 160:	026e                	slli	tp,tp,0x1b
+ 162:	0000                	unimp
+ 164:	0279                	addi	tp,tp,30
+ 166:	0000                	unimp
+ 168:	0284                	addi	s1,sp,320
+ 16a:	0000                	unimp
+ 16c:	0000028f          	0x28f
+ 170:	029a                	slli	t0,t0,0x6
+ 172:	0000                	unimp
+ 174:	02a5                	addi	t0,t0,9
+ 176:	0000                	unimp
+ 178:	02b0                	addi	a2,sp,328
+ 17a:	0000                	unimp
+ 17c:	000002bb          	0x2bb
+ 180:	02bd                	addi	t0,t0,15
+ 182:	0000                	unimp
+ 184:	000002cb          	fnmsub.s	ft5,ft0,ft0,ft0,rne
+ 188:	02d2                	slli	t0,t0,0x14
+ 18a:	0000                	unimp
+ 18c:	02dd                	addi	t0,t0,23
+ 18e:	0000                	unimp
+ 190:	02e8                	addi	a0,sp,332
+ 192:	0000                	unimp
+ 194:	000002f3          	0x2f3
+ 198:	02fe                	slli	t0,t0,0x1f
+ 19a:	0000                	unimp
+ 19c:	0309                	addi	t1,t1,2
+ 19e:	0000                	unimp
+ 1a0:	0314                	addi	a3,sp,384
+ 1a2:	0000                	unimp
+ 1a4:	031f 
+      0000 
+      0329      	0x3290000031f
+ 1aa:	0000                	unimp
+ 1ac:	0000032b          	custom1	6,0,0,0
+ 1b0:	0336                	slli	t1,t1,0xd
+ 1b2:	0000                	unimp
+ 1b4:	0341                	addi	t1,t1,16
+ 1b6:	0000                	unimp
+ 1b8:	034c                	addi	a1,sp,388
+ 1ba:	0000                	unimp
+ 1bc:	00000357          	0x357
+ 1c0:	0362                	slli	t1,t1,0x18
+ 1c2:	0000                	unimp
+ 1c4:	036d                	addi	t1,t1,27
+ 1c6:	0000                	unimp
+ 1c8:	0378                	addi	a4,sp,396
+ 1ca:	0000                	unimp
+ 1cc:	00000383          	lb	t2,0(zero)
+ 1d0:	0389                	addi	t2,t2,2
+ 1d2:	0000                	unimp
+ 1d4:	0000038f          	0x38f
+ 1d8:	039a                	slli	t2,t2,0x6
+ 1da:	0000                	unimp
+ 1dc:	03a5                	addi	t2,t2,9
+ 1de:	0000                	unimp
+ 1e0:	03b0                	addi	a2,sp,456
+ 1e2:	0000                	unimp
+ 1e4:	000003bb          	0x3bb
+ 1e8:	03c6                	slli	t2,t2,0x11
+ 1ea:	0000                	unimp
+ 1ec:	03d1                	addi	t2,t2,20
+ 1ee:	0000                	unimp
+ 1f0:	03dc                	addi	a5,sp,452
+ 1f2:	0000                	unimp
+ 1f4:	000003e7          	jalr	t2,zero
+ 1f8:	0400                	addi	s0,sp,512
+ 1fa:	0000                	unimp
+ 1fc:	04e2                	slli	s1,s1,0x18
+ 1fe:	0000                	unimp
+ 200:	0551                	addi	a0,a0,20
+ 202:	0000                	unimp
+ 204:	00000623          	sb	zero,12(zero)
+
+Disassembly of section .comment:
+
+00000000 <.comment>:
+   0:	3a434347          	fmsub.d	ft6,ft6,ft4,ft7,rmm
+   4:	2820                	fld	fs0,80(s0)
+   6:	29554e47          	fmsub.s	ft8,fa0,fs5,ft5,rmm
+   a:	3520                	fld	fs0,104(a0)
+   c:	332e                	fld	ft6,232(sp)
+   e:	302e                	fld	ft0,232(sp)
+	...

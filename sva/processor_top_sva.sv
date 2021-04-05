@@ -1,0 +1,3 @@
+assert property (@(posedge clk) disable iff(!rst_n) (ir_valid_o_1) |-> (renamed_1.pc[1:0]==0)) else $warning("Processor: can not be aligned to 16bit boundary");
+assert property (@(posedge clk) disable iff(!rst_n) (ir_valid_o_2) |-> (renamed_2.pc[1:0]==0)) else $warning("Processor: can not be aligned to 16bit boundary -2");
+assert property (@(posedge clk) disable iff(!rst_n) (!VECTOR_ENABLED) |-> (!issue_vector)) else $warning("Processor: Vector Instr Found with Vector pipeline disabled");

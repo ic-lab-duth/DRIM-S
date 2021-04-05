@@ -1,0 +1,2 @@
+assert property (@(posedge clk) disable iff(!rst_n) load_valid |-> !store_valid) else $error("ERROR:Data_Cache: Two operations in the same cycle");
+assert property (@(posedge clk) disable iff(!rst_n) store_valid |-> !load_valid) else $error("ERROR:Data_Cache: Two operations in the same cycle");

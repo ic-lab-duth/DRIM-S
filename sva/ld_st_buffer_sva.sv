@@ -1,0 +1,2 @@
+assert property (@(posedge clk) disable iff(!rst_n) push |-> ready) else $error("ERROR:LD_ST Buffer: Push on Full");
+assert property (@(posedge clk) disable iff(!rst_n) pop |-> valid) else $error("ERROR:LD_ST Buffer: Pop on Empty");
