@@ -115,7 +115,7 @@ module data_cache #(
     assign request_l2_addr  = served_address;
     //Create the Write Requests towards the L2
     assign write_l2_valid = update_l2_valid & all_valid & dirty[lru_way][write_line_select];
-    assign write_l2_addr  = {overwritten_tag[lru_way],write_line_select};
+    assign write_l2_addr  = {overwritten_tag[lru_way],write_line_select, {OFFSET_BITS{1'b0}}};
     assign write_l2_data  = overwritten_data[lru_way];
 
     assign cache_will_block    = wt_invalidate;
@@ -208,7 +208,7 @@ module data_cache #(
             lru #(ASSOCIATIVITY,ENTRIES,INDEX_BITS,OUTPUT_BITS)
             LRU(.clk            (clk),
                 .rst_n          (rst_n),
-                .line_selector  (read_line_select),
+                .line_selector  (update_l2_valid ? update_l2_addr[OFFSET_BITS+INDEX_BITS-1 : OFFSET_BITS] : read_line_select),
                 .referenced_set (entry_used),
                 .lru_update     (lru_update),
                 .lru_way        (lru_way));
@@ -236,7 +236,12 @@ module data_cache #(
     //Pick the correct Data and Serve
     always_comb begin : DataServe
         if(serve==LD_IN) begin
-            if(wt_s_frw_hit) begin
+            if (load_dest == 0) begin
+                served     = 1'b1;
+                must_wait  = 1'b0;
+                lru_update = 1'b0;
+                served_output.data = 0;
+            end else if(wt_s_frw_hit) begin
                 //Forward from Wait Buffer
                 served     = 1'b1;
                 must_wait  = 1'b0;
@@ -248,6 +253,12 @@ module data_cache #(
                 must_wait  = 1'b0;
                 lru_update = 1'b0;
                 served_output.data = st_s_data;
+            end else if(st_s_phit) begin
+                //Store in wait buffer
+                served     = 1'b0;
+                must_wait  = 1'b1;
+                lru_update = 1'b0;
+                served_output.data = served_data;
             end else if(hit) begin
                 //Grab from Cache
                 served     = 1'b1;
@@ -287,16 +298,16 @@ module data_cache #(
                     served     = 1'b0;
                     must_wait  = 1'b1;
                     lru_update = 1'b0;
-                end else if(hit) begin
-                    //If hit Serve Normally
-                    served     = 1'b1;
-                    must_wait  = 1'b0;
-                    lru_update = 1'b1;
                 end else if(ld_s_phit) begin
                     //If load in LD Buffer, store in Wait Buffer
                     served     = 1'b0;
                     must_wait  = 1'b1;
                     lru_update = 1'b0;
+                end else if(hit) begin
+                    //If hit Serve Normally
+                    served     = 1'b1;
+                    must_wait  = 1'b0;
+                    lru_update = 1'b1;
                 end else begin
                     //Store in Store Buffer
                     served     = 1'b0;
