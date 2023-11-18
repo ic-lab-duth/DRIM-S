@@ -10,9 +10,9 @@ vlib work
 
 vlog -f files_rtl.f -f files_sim.f +incdir+../rtl/ +incdir+../sim/ +incdir+../sva/ +define+INCLUDE_SVAS
 
-vsim -novopt work.tb -onfinish "stop"
+vsim work.tb -novopt -onfinish "stop"
 log -r /*
-do wave.do
+do mywave.do
 onbreak {wave zoom full}
 run -all
 wave zoom full

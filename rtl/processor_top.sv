@@ -30,10 +30,23 @@ module processor_top #(
     parameter int CSR_DEPTH        = 64 ,
     parameter int VECTOR_ENABLED   = 0  ,
     parameter int VECTOR_ELEM      = 4  ,
-    parameter int VECTOR_ACTIVE_EL = 4
+    parameter int VECTOR_ACTIVE_EL = 4  ,
+    // VECTOR
+    parameter int VECTOR_DATA_FROM_SCALAR,
+    parameter int VECTOR_INSTRUCTION_BITS,
+    parameter int VECTOR_NUMBER_VECTOR_LANES,
+    parameter int VECTOR_LANES_DATA_WIDTH,
+    parameter int VECTOR_MICROOP_BIT,
+    parameter int VECTOR_NUMBER_OF_REGISTERS,
+    parameter int VECTOR_LENGTH_RANGE,
+    parameter int VECTOR_BUS_WIDTH,
+    parameter int VECTOR_MEMORY_BITS,
+    parameter int VECTOR_ADDR_RANGE,
+    parameter int VECTOR_MULTICYCLE_OPERATION_CYCLES,
+    parameter int VECTOR_VREG_BITS
 ) (
-    input  logic                           clk                ,
-    input  logic                           rst_n              ,
+    input  logic                           clk               ,
+    input  logic                           rst_n             ,
     //Input from ICache
     output logic [          ADDR_BITS-1:0] current_pc        ,
     input  logic                           hit_icache        ,
@@ -639,44 +652,78 @@ module processor_top #(
             // VECTOR INSTRUCTION QUEUE
             logic     valid_vector, vector_pop;
             to_vector t_vector_o;
+            // fifo_dual_ported #(
+            //     .DW   (97),
+            //     .DEPTH(4              )
+            // ) vector_instruction_queue (
+            //     .clk        (clk         ),
+            //     .rst        (~rst_n      ),
 
-            fifo_dual_ported #(
-                .DW   (VECTOR_INSTR_DW),
+            //     .valid_flush(1'b0        ),
+
+            //     .push_1     (issue_vector),
+            //     .ready_1    (vector_ready),
+            //     .push_data_1(t_vector    ),
+
+            //     .push_2     (1'b0        ),
+            //     .ready_2    (            ),
+            //     .push_data_2(            ),
+
+            //     .pop_data_1 (t_vector_o  ),
+            //     .valid_1    (valid_vector),
+            //     .pop_1      (vector_pop  ),
+
+            //     .pop_data_2 (            ),
+            //     .valid_2    (            ),
+            //     .pop_2      (1'b0        )
+            // );
+            logic vector_ready_o;
+            logic vector_push;
+            assign vector_push = t_vector.valid;
+            assign vector_pop = vector_ready_o & valid_vector;
+
+            fifo_duth #(
+                .DW   (97),
                 .DEPTH(4              )
             ) vector_instruction_queue (
                 .clk        (clk         ),
                 .rst        (~rst_n      ),
 
-                .valid_flush(1'b0        ),
+                .push     (vector_push),
+                .ready    (vector_ready),
+                .push_data(t_vector    ),
 
-                .push_1     (issue_vector),
-                .ready_1    (vector_ready),
-                .push_data_1(t_vector    ),
 
-                .push_2     (1'b0        ),
-                .ready_2    (            ),
-                .push_data_2(            ),
+                .pop_data (t_vector_o  ),
+                .valid    (valid_vector),
+                .pop      (vector_pop  )
 
-                .pop_data_1 (t_vector_o  ),
-                .valid_1    (valid_vector),
-                .pop_1      (vector_pop  ),
-
-                .pop_data_2 (            ),
-                .valid_2    (            ),
-                .pop_2      (1'b0        )
             );
 
+            logic [95:0] data_from_proc;
+            assign data_from_proc = {t_vector_o.instruction, t_vector_o.data2, t_vector_o.data1};
             //VECTOR PIPELINE
             vector_top #(
-                .VECTOR_ELEM     (VECTOR_ELEM     ),
-                .VECTOR_ACTIVE_EL(VECTOR_ACTIVE_EL) //Just a placeholder, should be a dynamic parameter configured at runtime
-            ) vector_top (
+                .LANES_DATA_WIDTH               (VECTOR_LANES_DATA_WIDTH),
+                .MICROOP_BIT                    (VECTOR_MICROOP_BIT),
+                .INSTRUCTION_BITS               (VECTOR_INSTRUCTION_BITS),
+                .NUMBER_VECTOR_LANES            (VECTOR_NUMBER_VECTOR_LANES),
+                .VREG_BITS                      (VECTOR_VREG_BITS),
+                .SCALAR_DATA_WIDTH              (DATA_WIDTH),
+                .ADDR_RANGE                     (VECTOR_ADDR_RANGE),
+                .LENGTH_RANGE                   (VECTOR_LENGTH_RANGE),
+                .BUS_WIDTH                      (VECTOR_BUS_WIDTH),
+                .MEMORY_BITS                    (VECTOR_MEMORY_BITS),
+                .REGISTER_NUMBERS               (VECTOR_NUMBER_OF_REGISTERS),
+                .DATA_FROM_SCALAR               (VECTOR_DATA_FROM_SCALAR),
+                .MULTICYCLE_OPERATION_CYCLES    (VECTOR_MULTICYCLE_OPERATION_CYCLES)
+            )vector_top (
                 .clk     (clk         ),
-                .rst_n   (rst_n       ),
+                .rst     (~rst_n      ),
                 //Instruction In
-                .valid_in(valid_vector),
-                .instr_in(t_vector_o  ),
-                .pop     (vector_pop  )
+                .valid_fifo(valid_vector),
+                .instruction(data_from_proc),
+                .ready     (vector_ready_o  )
                 //Memory Interface
             );
         end

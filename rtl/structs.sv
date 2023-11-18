@@ -152,15 +152,23 @@ typedef struct packed {
 //to Vector Pipeline
 typedef struct packed {
     logic          valid          ;
-    logic [31 : 0] pc             ;
 
-    logic [ 5 : 0] destination    ;
-    logic [ 5 : 0] source1        ;
-    logic [ 5 : 0] source2        ;
+    logic [31 : 0] data1          ;
+    logic [31 : 0] data2          ;
 
-    logic [31 : 0] data           ;
+    logic [31 : 0] instruction    ;
 
-    logic [31 : 0] immediate      ;
-    logic [ 1 : 0] functional_unit;
-    logic [ 4 : 0] microoperation ;
 } to_vector;
+
+typedef struct packed {
+    logic [31:0]    opA;
+    logic [31:0]    opB;
+
+    logic [2:0]     tagA;
+    logic [2:0]     tagB;
+
+    logic           pendingA;
+    logic           pendingB;
+
+    logic [3:0]     branch_if;
+} reservation_entry_t;

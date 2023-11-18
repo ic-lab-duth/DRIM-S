@@ -47,7 +47,7 @@ vsim top_tb +UVM_TESTNAME=top_test -novopt -voptargs=+acc -solvefaildebug -uvmco
 run 0
 log -r /*
 set NoQuitOnFinish 1
-do wave.do
+do mywave.do
 run -all
 
 #coverage report -file report.txt -byfile -detail -cvg

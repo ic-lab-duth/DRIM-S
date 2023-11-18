@@ -1,0 +1,67 @@
+--Dual Issue Enabled--
+time:                 240 pc:00000000 preg:32 write_data:1 data:00020000 
+time:                 270 pc:00000004 preg:33 write_data:1 data:00020000 
+time:                 280 pc:00000008 preg:34 write_data:1 data:0000000c 
+time:                 420 pc:00000010 preg:39 write_data:1 data:00000000 
+time:                 430 pc:00000014 preg:40 write_data:1 data:00000040 
+time:                 600 pc:00000018 preg:41 write_data:1 data:00000001 
+time:                 610 pc:0000001c preg:42 write_data:1 data:00000002 
+time:                 620 pc:00000020 preg:43 write_data:1 data:00000003 
+time:                 620 pc:00000024 preg: 0 write_data:0 data:00000000 
+time:                 650 pc:0000002c preg:46 write_data:1 data:0000001e 
+time:                 660 pc:00000030 preg: 0 write_data:0 data:00000034 
+time:                 730 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                 800 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                 890 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                 900 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                 910 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                 920 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                 960 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                 970 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                 980 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                 990 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1030 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1040 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1050 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1060 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1100 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1110 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1120 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1130 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1170 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1180 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1190 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1200 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1240 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1250 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1260 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1270 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1310 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1320 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1330 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1340 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1380 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1390 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1400 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1410 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1450 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1460 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1470 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1480 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1520 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1530 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1540 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1550 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1590 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1600 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1610 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1620 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1660 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1670 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1680 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1690 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1730 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1740 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1750 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1760 pc:0000000c preg: 0 write_data:0 data:00000010 
+time:                1800 pc:0000000c preg: 0 write_data:0 data:00000010 

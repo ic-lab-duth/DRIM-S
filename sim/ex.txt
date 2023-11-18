@@ -1,0 +1,12 @@
+--Dual Issue Enabled--
+time:                 420 data1:00000040 data2:00000000 imm:00000000 fu:0 microop:00001 data3:00000000 data4:0000001e imm:0000001e fu:2 microop:00000 
+time:                 440 data1:00000040 data2:00000004 imm:00000004 fu:0 microop:00001 
+time:                 460 data1:00000040 data2:00000008 imm:00000008 fu:0 microop:00001 
+time:                 670 data1:00000040 data2:00000034 imm:00000000 fu:0 microop:00001 
+time:                 690 data1:00000040 data2:00000034 imm:00000004 fu:0 microop:00001 data3:0000000c data4:00000000 imm:00000000 fu:3 microop:01010 
+time:                 740 data1:00000040 data2:00000010 imm:00000000 fu:0 microop:00001 
+time:                 760 data1:00000040 data2:00000010 imm:00000004 fu:0 microop:00001 data3:0000000c data4:00000000 imm:00000000 fu:3 microop:01010 
+time:                 780 data1:00000010 data2:00000010 imm:00000000 fu:0 microop:00100 data3:00000000 data4:00000040 imm:00000040 fu:2 microop:00000 
+time:                 810 data1:00000040 data2:00000010 imm:00000000 fu:0 microop:00001 
+time:                 830 data1:00000040 data2:00000010 imm:00000004 fu:0 microop:00001 
+time:                 850 data1:00000010 data2:00000010 imm:00000000 fu:0 microop:00100 data3:0000000c data4:00000000 imm:00000000 fu:3 microop:01010 

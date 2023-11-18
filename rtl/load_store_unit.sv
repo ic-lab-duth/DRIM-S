@@ -87,7 +87,7 @@ module load_store_unit #(
         end
     end
     //Valid Operation
-    assign valid_i = valid & input_data.valid;
+    assign valid_i = valid && input_data.valid;
     //Operation is store
     assign is_store         = (microoperation==5'b00110) | (microoperation==5'b00111) | (microoperation==5'b01000);
     assign misaligned_stall = ~is_store & frw_stall;

@@ -12,7 +12,7 @@
 * @param WR_PORTS   : # of Write Ports
 * @param RESETABLE  : Indicates if the entries will be resetable
 */
-module sram 
+module sram
     #(SIZE=1024,DATA_WIDTH=8, RD_PORTS=1, WR_PORTS=1, RESETABLE=0) (
     input  logic                                  clk          ,
     input  logic                                  rst_n        ,
@@ -25,7 +25,7 @@ module sram
     output logic [RD_PORTS-1:0][  DATA_WIDTH-1:0] data_out
 );
 
-    localparam SEL_BITS = $clog2(SIZE); 
+    localparam SEL_BITS = $clog2(SIZE);
 	// #Internal Signals#
 	logic [SIZE-1:0][DATA_WIDTH-1:0] Memory_Array;
 
@@ -59,6 +59,6 @@ module sram
             end
         end
     endgenerate
-	
+
 
 endmodule

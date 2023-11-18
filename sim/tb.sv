@@ -3,6 +3,7 @@ module tb();
 
 logic   rst_n, clk;
 integer f,c, d, e;
+integer int_alu_file;
 
 //Initialize the Module
     module_top  module_top(
@@ -20,6 +21,8 @@ task sim_initialize;
     c = $fopen("commits.txt","w");
     d = $fopen("data.txt","w");
     e = $fopen("ex.txt","w");
+    int_alu_file = $fopen("int ALU.csv", "w");
+    $fwrite(int_alu_file, "time,data 1,data 2,destination,micro operation\n");
     $display("Testbench Starting...");
     if (tb.module_top.DUAL_ISSUE) begin
         // $fwrite(f,"--Dual Issue Enabled--\n");
@@ -39,6 +42,7 @@ task sim_finish;
     $fclose(c);
     $fclose(d);
     $fclose(e);
+    $fclose(int_alu_file);
     $display("Testbench End (or deadlock) detected...");
     $finish;
 endtask
@@ -50,7 +54,7 @@ int   cycles_pc_unchanged;
 
 // Detect simulation end when PC hangs, since that is what the bootstrap is using
 assign pc_still_unchanged = (old_pc == tb.module_top.current_pc);
-assign sim_finished       = (cycles_pc_unchanged == 500) & rst_n;
+assign sim_finished       = (cycles_pc_unchanged == 100) & rst_n;
 
 always_ff @(posedge clk or negedge rst_n) begin
     if(~rst_n) begin
@@ -66,6 +70,7 @@ always_ff @(posedge clk or negedge rst_n) begin
 end
 
 initial begin
+    $readmemh("vmemory.txt",module_top.top_processor.genblk1.vector_top.mem_mod.comp.mem.memory);
     sim_initialize();
     rst_n=1;
     @(posedge clk);
@@ -95,10 +100,21 @@ logic           [   5:0] index     ;
 to_execution    [ 1 : 0] execution ;
 
 // Reconstruct the register file based on the last used register renames
+// always_comb begin : FinalRegFile
+//     for (int i = 0; i < 64; i++) begin
+//         if(i>7 & i<16) begin
+//             index            = tb.module_top.top_processor.rr.rat.CurrentRAT[i[2:0]];
+//             final_regfile[i] = tb.module_top.top_processor.issue.regfile.RegFile[index];
+//         end else begin
+//             index            = 0;
+//             final_regfile[i] = tb.module_top.top_processor.issue.regfile.RegFile[i];
+//         end
+//     end
+// end
 always_comb begin : FinalRegFile
     for (int i = 0; i < 64; i++) begin
-        if(i>7 & i<16) begin
-            index            = tb.module_top.top_processor.rr.rat.CurrentRAT[i[2:0]];
+        if(i<32) begin
+            index            = tb.module_top.top_processor.rr.rat.CurrentRAT[i];
             final_regfile[i] = tb.module_top.top_processor.issue.regfile.RegFile[index];
         end else begin
             index            = 0;
@@ -137,6 +153,13 @@ always @(posedge clk) begin
                 $fwrite(e," \n");
             end
         end
+    end
+end
+
+always_ff @( posedge clk ) begin : int_alu_log
+    if (tb.module_top.top_processor.execution.valid[2] && tb.module_top.top_processor.execution.input_data[2].valid) begin
+        $fwrite(int_alu_file, "%t,%d,%d,%d,%d\n",$time, tb.module_top.top_processor.execution.input_data[2].data1, tb.module_top.top_processor.execution.input_data[2].data2,
+        tb.module_top.top_processor.execution.input_data[2].destination, tb.module_top.top_processor.execution.input_data[2].microoperation);
     end
 end
 

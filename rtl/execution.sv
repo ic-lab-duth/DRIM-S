@@ -197,7 +197,7 @@ module execution #(
             if(i==fu_selector_1) begin
                 valid[i] = t_execution[0].valid;
             end else if(i==fu_selector_2) begin
-                valid[i] = t_execution[1].valid;;
+                valid[i] = t_execution[1].valid;
             end else begin
                 valid[i] = 0;
             end

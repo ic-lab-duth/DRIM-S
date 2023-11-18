@@ -86,7 +86,7 @@ module lrumore #(ASSOCIATIVITY=4,ENTRIES=256,INDEX_BITS=8,OUTPUT_BITS=2) (
 			//Retrieve Stored Data
 			assign selected_bank = stored_stats[line_selector];
 			//Choose one bank based on the stored data
-			assign lru_way       = selected_bank ? {0,lru_way1} : {1,lru_way2};
+			assign lru_way       = selected_bank ? {1'b0,lru_way1} : {1'b1,lru_way2}; //* bug was here
 			//Save the data (which of the 2 banks were used)
 			always_ff @(posedge clk or negedge rst_n) begin : Update
 				if(!rst_n) begin

@@ -27,7 +27,6 @@
 ../rtl/rr.sv
 ../rtl/rat.sv
 ../rtl/free_list.sv
-../rtl/vector_top.sv
 
 ../rtl/fifo_dual_ported.sv
 ../rtl/fifo_duth.sv
@@ -51,3 +50,11 @@
 ../rtl/ld_st_buffer.sv
 ../rtl/main_memory.sv
 ../rtl/structs.sv
+
+../rtl/vector/dispatch/*.sv
+../rtl/vector/memory_interface/*.sv
+../rtl/vector/vector_lane/*.sv
+../rtl/vector/vector_top/*.sv
+
+../rtl/reservation_station.sv
+../rtl/general/*.sv

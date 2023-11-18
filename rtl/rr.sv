@@ -63,9 +63,9 @@ module rr #(
     //First Instruction
         //renaming enablers
     assign instr_a_rd_rename = VECTOR_ENABLED ? (~instruction_1.is_vector & |instruction_1.destination) : |instruction_1.destination;
-    assign instr_a_s1_rename = VECTOR_ENABLED ? ~instruction_1.is_vector : 1'b1;
-    assign instr_a_s2_rename = VECTOR_ENABLED ? ~instruction_1.is_vector : 1'b1;
-    assign instr_a_s3_rename = VECTOR_ENABLED ? ~instruction_1.is_vector : 1'b1;
+    assign instr_a_s1_rename =  1'b1;
+    assign instr_a_s2_rename =  1'b1;
+    assign instr_a_s3_rename =  1'b1;
 
     assign instruction_o_1.pc                = instruction_1.pc;
     assign instruction_o_1.source1_pc        = instruction_1.source1_pc;
@@ -87,9 +87,9 @@ module rr #(
     //Second Instruction
         //renaming enablers
     assign instr_b_rd_rename = VECTOR_ENABLED ? (~instruction_2.is_vector & |instruction_2.destination) : |instruction_2.destination;
-    assign instr_b_s1_rename = VECTOR_ENABLED ? ~instruction_2.is_vector : 1'b1;
-    assign instr_b_s2_rename = VECTOR_ENABLED ? ~instruction_2.is_vector : 1'b1;
-    assign instr_b_s3_rename = VECTOR_ENABLED ? ~instruction_2.is_vector : 1'b1;
+    assign instr_b_s1_rename = 1'b1;
+    assign instr_b_s2_rename = 1'b1;
+    assign instr_b_s3_rename = 1'b1;
 
     assign instruction_o_2.pc                = instruction_2.pc;
     assign instruction_o_2.source1_pc        = instruction_2.source1_pc;
@@ -98,7 +98,7 @@ module rr #(
     assign instruction_o_2.functional_unit   = instruction_2.functional_unit;
     assign instruction_o_2.microoperation    = instruction_2.microoperation;
     assign instruction_o_2.rm                = instruction_2.rm;
-    assign instruction_o_2.ticket            = rob_status.ticket+1;
+    assign instruction_o_2.ticket            = instruction_1.is_vector ? rob_status.ticket  : rob_status.ticket + 1;
     assign instruction_o_2.is_vector         = instruction_2.is_vector;
     assign instruction_o_2.is_branch         = instruction_2.is_branch;
     assign instruction_o_2.is_valid          = instruction_2.is_valid;

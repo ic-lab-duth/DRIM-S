@@ -43,9 +43,23 @@ module module_top (
     //CSR Parameters        (DO NOT MODIFY)
     localparam CSR_DEPTH = 64;
     //Vector Parameters
-    localparam VECTOR_ENABLED   = 0;
+    localparam VECTOR_ENABLED   = 1;
     localparam VECTOR_ELEM      = 4;
     localparam VECTOR_ACTIVE_EL = 4;
+
+    // actual vector parameters
+    localparam VECTOR_DATA_FROM_SCALAR              = 96;
+    localparam VECTOR_INSTRUCTION_BITS              = 32;
+    localparam VECTOR_NUMBER_VECTOR_LANES           = 4;
+    localparam VECTOR_LANES_DATA_WIDTH              = 64;
+    localparam VECTOR_MICROOP_BIT                   = 9;
+    localparam VECTOR_NUMBER_OF_REGISTERS           = 32;
+    localparam VECTOR_LENGTH_RANGE                  = 32;
+    localparam VECTOR_BUS_WIDTH                     = 32;
+    localparam VECTOR_MEMORY_BITS                   = 32;
+    localparam VECTOR_ADDR_RANGE                    = 32768;
+    localparam VECTOR_MULTICYCLE_OPERATION_CYCLES   = 2;
+    localparam VECTOR_VREG_BITS                     = VECTOR_LANES_DATA_WIDTH*VECTOR_NUMBER_VECTOR_LANES;
     //===================================================================================
     logic                    icache_valid_i      ;
     logic                    dcache_valid_i      ;
@@ -113,7 +127,20 @@ module module_top (
         .CSR_DEPTH       (CSR_DEPTH       ),
         .VECTOR_ENABLED  (VECTOR_ENABLED  ),
         .VECTOR_ELEM     (VECTOR_ELEM     ),
-        .VECTOR_ACTIVE_EL(VECTOR_ACTIVE_EL)
+        .VECTOR_ACTIVE_EL(VECTOR_ACTIVE_EL),
+        // vector
+        .VECTOR_DATA_FROM_SCALAR            (VECTOR_DATA_FROM_SCALAR),
+        .VECTOR_INSTRUCTION_BITS            (VECTOR_INSTRUCTION_BITS),
+        .VECTOR_NUMBER_VECTOR_LANES         (VECTOR_NUMBER_VECTOR_LANES),
+        .VECTOR_LANES_DATA_WIDTH            (VECTOR_LANES_DATA_WIDTH),
+        .VECTOR_MICROOP_BIT                 (VECTOR_MICROOP_BIT),
+        .VECTOR_NUMBER_OF_REGISTERS         (VECTOR_NUMBER_OF_REGISTERS),
+        .VECTOR_LENGTH_RANGE                (VECTOR_LENGTH_RANGE),
+        .VECTOR_BUS_WIDTH                   (VECTOR_BUS_WIDTH),
+        .VECTOR_MEMORY_BITS                 (VECTOR_MEMORY_BITS),
+        .VECTOR_ADDR_RANGE                  (VECTOR_ADDR_RANGE),
+        .VECTOR_MULTICYCLE_OPERATION_CYCLES (VECTOR_MULTICYCLE_OPERATION_CYCLES),
+        .VECTOR_VREG_BITS                   (VECTOR_VREG_BITS)
     ) top_processor (
         .clk                (clk               ),
         .rst_n              (rst_n             ),

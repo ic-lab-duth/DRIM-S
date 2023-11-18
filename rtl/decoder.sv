@@ -70,6 +70,8 @@ module decoder #(INSTR_BITS = 32, PC_BITS=32) (
     assign output1 = output_full_a;
     assign output2 = output_full_b;
 
+    logic is_zero1, is_zero2;
+
     //Initialize 1 full-decoder for the 32-bit Instructions (full length instructions)
     decoder_full #(INSTR_BITS,PC_BITS) decoder_full_a (
         .clk             (clk             ),

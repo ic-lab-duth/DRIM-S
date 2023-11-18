@@ -20,6 +20,7 @@
 * @param ROB_INDEX_BITS: # ROB's ticket Bits
 * @param DATA_WIDTH    : # of Data Bits (default 32 bits)
 */
+
 `ifdef MODEL_TECH
     `include "structs.sv"
 `endif
@@ -84,10 +85,10 @@ module rob #(
 
     //Create the most up-to-date status pointers
     always_comb begin
-        if(new_requests.valid_request_2) begin
+        if(new_requests.valid_request_1 && new_requests.valid_request_2) begin
             counter_actual = counter +2;
             tail_actual    = tail +2;
-        end else if(new_requests.valid_request_1) begin
+        end else if(new_requests.valid_request_1 || new_requests.valid_request_2) begin
             counter_actual = counter +1;
             tail_actual    = tail +1;
         end else begin
@@ -293,17 +294,17 @@ module rob #(
         end else begin
             if (will_commit_2) begin
                 counter <= counter-2;
-                if (new_requests.valid_request_1) counter <= counter-1;
-                if (new_requests.valid_request_2) counter <= counter;
+                if (new_requests.valid_request_1 || new_requests.valid_request_2) counter <= counter-1;
+                if (new_requests.valid_request_1 && new_requests.valid_request_2) counter <= counter;
             end else if(will_commit) begin                //Instruction will Commit
                 counter <= counter-1;
-                if (new_requests.valid_request_1) counter <= counter;
-                if (new_requests.valid_request_2) counter <= counter +1;
+                if (new_requests.valid_request_1 || new_requests.valid_request_2) counter <= counter;
+                if (new_requests.valid_request_1 && new_requests.valid_request_2) counter <= counter +1;
                 //end else if(can_commit && !will_commit) begin //Exception Raised->Flush
                 //    counter <= 0;
             end else begin                               //No Commit - No Flush
-                if (new_requests.valid_request_1) counter <= counter +1;
-                if (new_requests.valid_request_2) counter <= counter +2;
+                if (new_requests.valid_request_1 || new_requests.valid_request_2) counter <= counter +1;
+                if (new_requests.valid_request_1 && new_requests.valid_request_2) counter <= counter +2;
             end
         end
     end
@@ -314,7 +315,7 @@ module rob #(
     //ROB Entry Management
     always_ff @(posedge clk) begin : ROB
         for (int i = 0; i < ROB_ENTRIES; i++) begin
-            if(new_requests.valid_request_2 &&  tail_plus_oh[i]) begin
+            if(new_requests.valid_request_2 && new_requests.valid_request_1 && tail_plus_oh[i]) begin
                 //Register Issue 2
                 rob[i].pending         <= 1;
                 rob[i].valid_dest      <= new_requests.valid_dest_2;
@@ -325,7 +326,18 @@ module rob #(
                 rob[i].valid_exception <= 0;
                 rob[i].is_store        <= 0;
                 rob[i].pc              <= new_requests.pc_2;
-                end else if(new_requests.valid_request_1 &&  tail_oh[i]) begin
+            end else if(new_requests.valid_request_2 && new_requests.valid_request_1 && tail_oh[i]) begin
+                //Register Issue 2
+                rob[i].pending         <= 1;
+                rob[i].valid_dest      <= new_requests.valid_dest_1;
+                rob[i].lreg            <= new_requests.lreg_1;
+                rob[i].preg            <= new_requests.preg_1;
+                rob[i].ppreg           <= new_requests.ppreg_1;
+                rob[i].microoperation  <= new_requests.microoperation_1;
+                rob[i].valid_exception <= 0;
+                rob[i].is_store        <= 0;
+                rob[i].pc              <= new_requests.pc_1;
+                end else if(new_requests.valid_request_1 && !new_requests.valid_request_2 &&  tail_oh[i]) begin
                 //Register Issue 1
                 rob[i].pending         <= 1;
                 rob[i].valid_dest      <= new_requests.valid_dest_1;
@@ -336,6 +348,17 @@ module rob #(
                 rob[i].valid_exception <= 0;
                 rob[i].is_store        <= 0;
                 rob[i].pc              <= new_requests.pc_1;
+                end else if(!new_requests.valid_request_1 && new_requests.valid_request_2 &&  tail_oh[i]) begin
+                //Register Issue 1
+                rob[i].pending         <= 1;
+                rob[i].valid_dest      <= new_requests.valid_dest_2;
+                rob[i].lreg            <= new_requests.lreg_2;
+                rob[i].preg            <= new_requests.preg_2;
+                rob[i].ppreg           <= new_requests.ppreg_2;
+                rob[i].microoperation  <= new_requests.microoperation_2;
+                rob[i].valid_exception <= 0;
+                rob[i].is_store        <= 0;
+                rob[i].pc              <= new_requests.pc_2;
             end else begin
                 if(store_valid && i==store_ticket) begin
                     //Register STORE update from Data Cache
@@ -363,9 +386,11 @@ module rob #(
             end
         end else begin
             for (int i = 0; i < ROB_ENTRIES; i++) begin
-                if(new_requests.valid_request_2 && tail_plus_oh[i]) begin
+                if(new_requests.valid_request_1 && new_requests.valid_request_2 && tail_plus_oh[i]) begin
                     rob[i].valid <= 1;
-                end else if(new_requests.valid_request_1 &&  tail_oh[i]) begin
+                end else if(new_requests.valid_request_1 && new_requests.valid_request_2 && tail_oh[i]) begin
+                    rob[i].valid <= 1;
+                end else if((new_requests.valid_request_1 || new_requests.valid_request_2) &&  tail_oh[i]) begin
                     rob[i].valid <= 1;
                 end else if (will_commit && head==i) begin
                     rob[i].valid <= 0;
@@ -380,9 +405,11 @@ module rob #(
         for (int i = 0; i < ROB_ENTRIES; i++) begin
             if (flush_valid && flush_wr_en[i]) begin
                 rob[i].flushed <= 1'b1;
-            end else if(new_requests.valid_request_2 && tail_plus_oh[i]) begin
+            end else if(new_requests.valid_request_1 && new_requests.valid_request_2 && tail_plus_oh[i]) begin
                 rob[i].flushed <= flush_valid;
-            end else if(new_requests.valid_request_1 &&  tail_oh[i]) begin
+            end else if(new_requests.valid_request_1 && new_requests.valid_request_2 && tail_oh[i]) begin
+                rob[i].flushed <= flush_valid;
+            end else if((new_requests.valid_request_1 || new_requests.valid_request_2) &&  tail_oh[i]) begin
                 rob[i].flushed <= flush_valid;
             end
         end
@@ -404,9 +431,9 @@ module rob #(
         if(!rst_n) begin
             tail <= 0;
         end else begin
-            if(new_requests.valid_request_2) begin
+            if(new_requests.valid_request_1 && new_requests.valid_request_2) begin
                 tail <= tail +2;
-            end else if(new_requests.valid_request_1) begin
+            end else if(new_requests.valid_request_1 || new_requests.valid_request_2) begin
                 tail <= tail +1;
             end
         end
