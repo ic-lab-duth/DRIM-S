@@ -90,6 +90,7 @@ module decoder_full #(INSTR_BITS=32, PC_BITS=32) (
         outputs.immediate         = 'b0;
         outputs.functional_unit   = 'b0;
         outputs.microoperation    = 'b0;
+        outputs.source3_valid     = 0;
         is_branch                 = 1'b0;
         unique case (opcode)
             //00xxx----------------------------
@@ -187,20 +188,56 @@ module decoder_full #(INSTR_BITS=32, PC_BITS=32) (
                     end
                 endcase
             end
-            // * VECTOR ->
+            // // * VECTOR ->
             5'b00001 : begin
-                outputs.source1           = {1'b0,source1};
-                outputs.source1_pc        = 1'b0;
-                outputs.immediate         = instruction_in;
-                outputs.source2           = {1'b0,source2};
-                outputs.source2_immediate = 1'b0;
-                outputs.functional_unit   = 2'b00;
-                is_branch                 = 1'b0;
-                outputs.microoperation    = 5'b00000;
-                outputs.destination       = 'b0;
-                valid_map                 = 1'b1;
-                outputs.is_vector         = 1'b1;
-                detected_instr            = FSW;
+            //     outputs.source1           = {1'b0,source1};
+            //     outputs.source1_pc        = 1'b0;
+            //     outputs.immediate         = instruction_in;
+            //     outputs.source2           = {1'b0,source2};
+            //     outputs.source2_immediate = 1'b0;
+            //     outputs.functional_unit   = 2'b00;
+            //     is_branch                 = 1'b0;
+            //     outputs.microoperation    = 5'b00000;
+            //     outputs.destination       = 'b0;
+            //     valid_map                 = 1'b1;
+            //     outputs.is_vector         = 1'b1;
+            //     detected_instr            = FSW;
+            // end
+
+                unique case (funct3)
+                    3'b010 : begin
+                        //FLW
+                        outputs.source1           = {1'b0,source1};
+                        outputs.source1_pc        = 1'b0;
+                        outputs.immediate         = {{20{immediate_i[11]}},immediate_i};
+                        outputs.source2           = 'b0;
+                        outputs.source2_immediate = 1'b1;
+                        outputs.functional_unit   = 2'b00;
+                        is_branch                 = 1'b0;
+                        outputs.microoperation    = 5'b00001;
+                        outputs.destination       = {1'b1,destination};
+                        valid_map                 = 1'b1;
+                        outputs.is_vector         = 1'b0;
+                        detected_instr            = FLW;
+                    end
+                    // 3'b011: begin
+                    //     //FLD
+                    // end
+                    default : begin
+                        outputs.source1           = {1'b0,source1};
+                        outputs.source1_pc        = 1'b0;
+                        outputs.immediate         = instruction_in;
+                        outputs.source2           = {1'b0,source2};
+                        outputs.source2_immediate = 1'b0;
+                        outputs.functional_unit   = 2'b00;
+                        is_branch                 = 1'b0;
+                        outputs.microoperation    = 5'b00000;
+                        outputs.destination       = 'b0;
+                        valid_map                 = 1'b1;
+                        outputs.is_vector         = 1'b1;
+                        detected_instr            = FSW;
+                    end
+                endcase
             end
             // * VECTOR ->
             5'b10101 : begin
@@ -526,19 +563,54 @@ module decoder_full #(INSTR_BITS=32, PC_BITS=32) (
             end
             // * VECTOR ->
             5'b01001 : begin
-                    //FSW
-                    outputs.source1           = {1'b0,source1};
-                    outputs.source1_pc        = 1'b0;
-                    outputs.immediate         = instruction_in;
-                    outputs.source2           = {1'b0,source2};
-                    outputs.source2_immediate = 1'b0;
-                    outputs.functional_unit   = 2'b00;
-                    is_branch                 = 1'b0;
-                    outputs.microoperation    = 5'b00000;
-                    outputs.destination       = 'b0;
-                    valid_map                 = 1'b1;
-                    outputs.is_vector         = 1'b1;
-                    detected_instr            = FSW;
+            //         //FSW
+            //         outputs.source1           = {1'b0,source1};
+            //         outputs.source1_pc        = 1'b0;
+            //         outputs.immediate         = instruction_in;
+            //         outputs.source2           = {1'b0,source2};
+            //         outputs.source2_immediate = 1'b0;
+            //         outputs.functional_unit   = 2'b00;
+            //         is_branch                 = 1'b0;
+            //         outputs.microoperation    = 5'b00000;
+            //         outputs.destination       = 'b0;
+            //         valid_map                 = 1'b1;
+            //         outputs.is_vector         = 1'b1;
+            //         detected_instr            = FSW;
+            // end
+            unique case (funct3)
+                    3'b010 : begin
+                        //FSW
+                        outputs.source1           = {1'b0,source1};
+                        outputs.source1_pc        = 1'b0;
+                        outputs.immediate         = {{20{immediate_i[11]}},immediate_i};
+                        outputs.source2           = {1'b1,source2};
+                        outputs.source2_immediate = 1'b0;
+                        outputs.functional_unit   = 2'b00;
+                        is_branch                 = 1'b0;
+                        outputs.microoperation    = 5'b00110;
+                        outputs.destination       = 'b0;
+                        valid_map                 = 1'b1;
+                        outputs.is_vector         = 1'b0;
+                        detected_instr            = FSW;
+                    end
+                    // 3'b011: begin
+                    //     //FSD
+                    // end
+                    default : begin
+                        outputs.source1           = {1'b0,source1};
+                        outputs.source1_pc        = 1'b0;
+                        outputs.immediate         = instruction_in;
+                        outputs.source2           = {1'b0,source2};
+                        outputs.source2_immediate = 1'b0;
+                        outputs.functional_unit   = 2'b00;
+                        is_branch                 = 1'b0;
+                        outputs.microoperation    = 5'b00000;
+                        outputs.destination       = 'b0;
+                        valid_map                 = 1'b1;
+                        outputs.is_vector         = 1'b1;
+                        detected_instr            = FSW;
+                    end
+                endcase
             end
             //LOAD -> custom-1
             // 5'b01010:begin
@@ -1042,11 +1114,14 @@ module decoder_full #(INSTR_BITS=32, PC_BITS=32) (
                         outputs.source2_immediate = 1'b0;
                         outputs.functional_unit   = 2'b01;
                         is_branch                 = 1'b0;
-                        outputs.microoperation    = 5'b10100;
+                        outputs.microoperation    = 5'b00011;
                         outputs.destination       = {1'b1,destination};
                         valid_map                 = 1'b1;
                         outputs.is_vector         = 1'b0;
                         detected_instr            = FMADDS;
+
+                        outputs.source3_valid = 1'b1;
+
                     end
                     // 2'b01:begin
                     //     //FMADD.D
@@ -1079,11 +1154,13 @@ module decoder_full #(INSTR_BITS=32, PC_BITS=32) (
                         outputs.source2_immediate = 1'b0;
                         outputs.functional_unit   = 2'b01;
                         is_branch                 = 1'b0;
-                        outputs.microoperation    = 5'b01001;
+                        outputs.microoperation    = 5'b01011;
                         outputs.destination       = {1'b1,destination};
                         valid_map                 = 1'b1;
                         outputs.is_vector         = 1'b0;
                         detected_instr            = FMSUBS;
+
+                        outputs.source3_valid = 1'b1;
                     end
                     // 2'b01: begin
                     //     //FMSUB.D
@@ -1116,11 +1193,13 @@ module decoder_full #(INSTR_BITS=32, PC_BITS=32) (
                         outputs.source2_immediate = 1'b0;
                         outputs.functional_unit   = 2'b01;
                         is_branch                 = 1'b0;
-                        outputs.microoperation    = 5'b01010;
+                        outputs.microoperation    = 5'b01111;
                         outputs.destination       = {1'b1,destination};
                         valid_map                 = 1'b1;
                         outputs.is_vector         = 1'b0;
                         detected_instr            = FNMSUBS;
+
+                        outputs.source3_valid = 1'b1;
                     end
                     // 2'b01: begin
                     //     //FNMSUB.D
@@ -1153,11 +1232,13 @@ module decoder_full #(INSTR_BITS=32, PC_BITS=32) (
                         outputs.source2_immediate = 1'b0;
                         outputs.functional_unit   = 2'b01;
                         is_branch                 = 1'b0;
-                        outputs.microoperation    = 5'b01000;
+                        outputs.microoperation    = 5'b00111;
                         outputs.destination       = {1'b1,destination};
                         valid_map                 = 1'b1;
                         outputs.is_vector         = 1'b0;
                         detected_instr            = FNMADDS;
+
+                        outputs.source3_valid = 1'b1;
                     end
                     // 2'b01: begin
                     //     //FNMADD.D
@@ -1190,7 +1271,7 @@ module decoder_full #(INSTR_BITS=32, PC_BITS=32) (
                         outputs.source2_immediate = 1'b0;
                         outputs.functional_unit   = 2'b01;
                         is_branch                 = 1'b0;
-                        outputs.microoperation    = 5'b00000;
+                        outputs.microoperation    = 5'b00010;
                         outputs.destination       = {1'b1,destination};
                         valid_map                 = 1'b1;
                         outputs.is_vector         = 1'b0;
@@ -1208,7 +1289,7 @@ module decoder_full #(INSTR_BITS=32, PC_BITS=32) (
                         outputs.source2_immediate = 1'b0;
                         outputs.functional_unit   = 2'b01;
                         is_branch                 = 1'b0;
-                        outputs.microoperation    = 5'b00001;
+                        outputs.microoperation    = 5'b01010;
                         outputs.destination       = {1'b1,destination};
                         valid_map                 = 1'b1;
                         outputs.is_vector         = 1'b0;
@@ -1226,7 +1307,7 @@ module decoder_full #(INSTR_BITS=32, PC_BITS=32) (
                         outputs.source2_immediate = 1'b0;
                         outputs.functional_unit   = 2'b01;
                         is_branch                 = 1'b0;
-                        outputs.microoperation    = 5'b00010;
+                        outputs.microoperation    = 5'b00001;
                         outputs.destination       = {1'b1,destination};
                         valid_map                 = 1'b1;
                         outputs.is_vector         = 1'b0;

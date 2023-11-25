@@ -18,15 +18,22 @@ module floating_alu
 	input to_execution input_data;
 
 	output logic busy_fu;
-	output ex_update fu_update;	
+	output ex_update fu_update;
 
-    assign busy_fu = 1'b1;
-    assign fu_update.valid_exception = 1'b0; 
-    assign fu_update.cause           = 'b0; 
-    assign fu_update.valid           = 1'b0;
-	assign fu_update.destination     = 'b0;
-	assign fu_update.ticket 		 = 'b0;
-	assign fu_update.data            = 'b0;
+    assign busy_fu = 1'b0;
+    assign fu_update.valid_exception = 1'b0;
+    assign fu_update.cause           = 'b0;
 
+	fma #(.FW(23), .EW(8)) fma (
+									.clk	(clk),
+									.rm		(input_data.rm),
+									.op		(input_data.microoperation[3:0]),
+									.opA	(input_data.data1),
+									.opB	(input_data.data2),
+									.opC	(input_data.data3),
+									.result	(fu_update.data)
+	);
+
+	delay #(.DATA_WIDTH(11), .DELAY(4)) delay (.clk(clk), .data_i({input_data.valid, input_data.destination, input_data.ticket}), .data_o({fu_update.valid, fu_update.destination, fu_update.ticket}));
 
 endmodule

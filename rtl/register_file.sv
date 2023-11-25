@@ -3,7 +3,7 @@
 *
 * @author VLSI Lab, EE dept., Democritus University of Thrace
 *
-* @brief The size and read ports can be parameterized. 
+* @brief The size and read ports can be parameterized.
 *		 Only one write port
 *        Regiter R0 is hardwired to value==0
 *
@@ -57,8 +57,8 @@ module register_file #(DATA_WIDTH=32, ADDR_WIDTH=6, SIZE=64, READ_PORTS=2) (
 	end
 	//Output Data
 	always_comb begin : ReadData
-		for (int i = 0; i < READ_PORTS; i++) begin		
-			data_Out[i] = RegFile[read_Addr[i]];		
+		for (int i = 0; i < READ_PORTS; i++) begin
+			data_Out[i] = RegFile[read_Addr[i]];
 		end
 	end
 

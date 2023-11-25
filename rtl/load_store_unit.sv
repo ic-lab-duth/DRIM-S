@@ -117,15 +117,15 @@ module load_store_unit #(
         .ready_i    (ppl_ready_i)
         );
     //Grab the Output Vector of the Internal Pipeline Register
-    assign cache_load_dest    = pipeline_vector_o[5:0];
-    assign cache_load_ticket  = pipeline_vector_o[8:6];
-    assign cache_load_microop = pipeline_vector_o[13:9];
-    assign data_o             = pipeline_vector_o[45:14];
-    assign cache_load_addr    = pipeline_vector_o[77:46];
-    assign misaligned_stall_o = pipeline_vector_o[78];
-    assign data_found_o       = pipeline_vector_o[79];
-    assign is_store_o         = pipeline_vector_o[80];
-    assign valid_o            = pipeline_vector_o[81];
+    assign cache_load_dest    = pipeline_vector_o[5+1:0];
+    assign cache_load_ticket  = pipeline_vector_o[8+1:6+1];
+    assign cache_load_microop = pipeline_vector_o[13+1:9+1];
+    assign data_o             = pipeline_vector_o[45+1:14+1];
+    assign cache_load_addr    = pipeline_vector_o[77+1:46+1];
+    assign misaligned_stall_o = pipeline_vector_o[78+1];
+    assign data_found_o       = pipeline_vector_o[79+1];
+    assign is_store_o         = pipeline_vector_o[80+1];
+    assign valid_o            = pipeline_vector_o[81+1];
 
     //Search the ROB on misalignment until no conflicts
     assign second_used = ppl_valid_o & valid_o & misaligned_stall_o;

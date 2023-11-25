@@ -30,7 +30,7 @@ module issue #(
     parameter C_NUM           	= 4 ,
     parameter DUAL_ISSUE      	= 1 ,
     parameter VECTOR_ENABLED  	= 0 ,
-	parameter STATIONS 			= 3
+	parameter STATIONS 			= 4
 ) (
     input  logic                                                      clk             ,
     input  logic                                                      rst_n           ,
@@ -57,8 +57,8 @@ module issue #(
     input  ex_update    [          FU_NUMBER-1:0]                     fu_update       ,
     input  ex_update    [          FU_NUMBER-1:0]                     fu_update_frw   ,
     //Forward Port from ROB
-    output logic        [                    3:0][ROB_INDEX_BITS-1:0] read_addr_rob   ,
-    input  logic        [                    3:0][    DATA_WIDTH-1:0] data_out_rob    ,
+    output logic        [                    5:0][ROB_INDEX_BITS-1:0] read_addr_rob   ,
+    input  logic        [                    5:0][    DATA_WIDTH-1:0] data_out_rob    ,
     //Signals towards the EX stage
     output to_execution [         STATIONS - 2:0]                     t_execution     ,
     output to_vector                                                  t_vector
@@ -73,18 +73,19 @@ module issue #(
     logic rd_ok_Ia, rd_ok_Ib;     //Rdst checking signals
     logic src1_ok_Ia, src1_ok_Ib; //Rsrc1 checking signals
     logic src2_ok_Ia, src2_ok_Ib; //Rsrc2 checking signals
+    logic src3_ok_Ia, src3_ok_Ib; //Rsrc3 checking signals
     logic fu_ok_Ia, fu_ok_Ib;     //Functional Unit checking signals
     logic Ib_dependent_Ia, common_fu;
     logic valid_dest1, valid_dest2;
     //Dummy Signals for indexing
-    logic         pending_Ia_src1, pending_Ia_src2, pending_Ib_src1, pending_Ib_src2, pendinga_rd, pendingb_rd;
-    logic         in_rob_Ia_src1, in_rob_Ia_src2, in_rob_Ib_src1, in_rob_Ib_src2;
-    logic [1 : 0] fu_Ia_src1, fu_Ia_src2, fu_Ib_src1, fu_Ib_src2;
+    logic         pending_Ia_src1, pending_Ia_src2, pending_Ib_src1, pending_Ib_src2, pending_Ia_src3, pending_Ib_src3, pendinga_rd, pendingb_rd;
+    logic         in_rob_Ia_src1, in_rob_Ia_src2, in_rob_Ib_src1, in_rob_Ib_src2, in_rob_Ia_src3, in_rob_Ib_src3;
+    logic [1 : 0] fu_Ia_src1, fu_Ia_src2, fu_Ib_src1, fu_Ib_src2, fu_Ia_src3, fu_Ib_src3;
     //for register file
-    logic [3:0][5 : 0]            read_Addr_RF;
-    logic [3:0][DATA_WIDTH-1 : 0] data_Out_RF;
+    logic [5:0][6 : 0]            read_Addr_RF;
+    logic [5:0][DATA_WIDTH-1 : 0] data_Out_RF;
     logic                  write_En, write_En_2;
-    logic [         5 : 0] write_Addr_RF, write_Addr_RF_2;
+    logic [         6 : 0] write_Addr_RF, write_Addr_RF_2;
     logic [DATA_WIDTH-1:0] write_Data, write_Data_2;
     //For Vector pipeline
     logic [C_NUM:0] branch_if   ;
@@ -95,7 +96,7 @@ module issue #(
 	logic Ib_dependent_Ia_rs1;
 	logic Ib_dependent_Ia_rs2;
 	to_execution [1:0] sfc_data_in;
-	to_execution [2:0][1:0] sfc_data_out;
+	to_execution [STATIONS - 1 : 0][1:0] sfc_data_out;
 
 	assign branch_if_a = branch_if[C_NUM:1];
 	assign branch_if_b = branch_if[C_NUM:1] << Instruction1.is_branch;
@@ -105,6 +106,8 @@ module issue #(
 	assign read_Addr_RF[1] = Instruction1.source2;
 	assign read_Addr_RF[2] = Instruction2.source1;
 	assign read_Addr_RF[3] = Instruction2.source2;
+	assign read_Addr_RF[4] = Instruction1.source3;
+	assign read_Addr_RF[5] = Instruction2.source3;
 	assign write_En        = writeback_1.valid_commit & writeback_1.valid_write & ~writeback_1.flushed;
 	assign write_Addr_RF   = writeback_1.pdst;
 	assign write_Data      = writeback_1.data;
@@ -114,9 +117,9 @@ module issue #(
 
 	register_file #(
 		.DATA_WIDTH(DATA_WIDTH     ),
-		.ADDR_WIDTH(6              ),
+		.ADDR_WIDTH(7              ),
 		.SIZE      (SCOREBOARD_SIZE),
-		.READ_PORTS(4              )
+		.READ_PORTS(6              )
 	) regfile (
 		.clk         (clk            ),
 		.rst_n       (rst_n          ),
@@ -144,6 +147,8 @@ module issue #(
 	assign read_addr_rob[1] = scoreboard[Instruction1.source2].ticket;
 	assign read_addr_rob[2] = scoreboard[Instruction2.source1].ticket;
 	assign read_addr_rob[3] = scoreboard[Instruction2.source2].ticket;
+	assign read_addr_rob[4] = scoreboard[Instruction1.source3].ticket;
+	assign read_addr_rob[5] = scoreboard[Instruction2.source3].ticket;
 
 	// Data just passing through to the next stage for the 2 Instructions
 	assign sfc_data_in[0].destination     = Instruction1.destination;
@@ -235,9 +240,10 @@ module issue #(
 
     assign Ib_dependent_Ia_rs1 = (Instruction2.source1==Instruction1.destination) & valid_dest1;
     assign Ib_dependent_Ia_rs2 = (Instruction2.source2==Instruction1.destination) & valid_dest1;
+    assign Ib_dependent_Ia_rs3 = (Instruction2.source3==Instruction1.destination) & valid_dest1;
 	// #Issue Logic_1#
 
-	logic [2:0] tag_Ia_src1,tag_Ia_src2;
+	logic [2:0] tag_Ia_src1,tag_Ia_src2,tag_Ia_src3;
 	// create dummy signals for Instruction 1
 	assign pending_Ia_src1 = scoreboard[Instruction1.source1].pending;
 	assign in_rob_Ia_src1  = scoreboard[Instruction1.source1].in_rob;
@@ -248,6 +254,11 @@ module issue #(
 	assign in_rob_Ia_src2  = scoreboard[Instruction1.source2].in_rob;
 	assign tag_Ia_src2  = scoreboard[Instruction1.source2].ticket;
 	assign fu_Ia_src2      = scoreboard[Instruction1.source2].fu;
+
+	assign pending_Ia_src3 = scoreboard[Instruction1.source3].pending;
+	assign in_rob_Ia_src3  = scoreboard[Instruction1.source3].in_rob;
+	assign tag_Ia_src3  = scoreboard[Instruction1.source3].ticket;
+	assign fu_Ia_src3      = scoreboard[Instruction1.source3].fu;
 
 	// Check FU_1
 	assign fu_ok_Ia = ~busy_fu[Instruction1.functional_unit];
@@ -316,10 +327,39 @@ module issue #(
 				sfc_data_in[0].data2 = data_Out_RF[1];
 			end
 		end
+		//Check rs3_1
+		if(~Instruction1.source3_valid) begin
+			src3_ok_Ia           = 1;
+			sfc_data_in[0].data3 = 0;
+		end else begin
+			if(pending_Ia_src3) begin
+				if(in_rob_Ia_src3 == 1) begin
+					//stall
+					src3_ok_Ia           = 1;
+					sfc_data_in[0].data3 = data_out_rob[4];
+				end else if(fu_update_frw[fu_Ia_src3].valid && fu_update_frw[fu_Ia_src3].destination==Instruction1.source3) begin
+					//grab Data from end of FU
+					src3_ok_Ia           = 1;
+					sfc_data_in[0].data3 = fu_update_frw[fu_Ia_src3].data;
+				end else if(fu_update[fu_Ia_src3].valid && fu_update[fu_Ia_src3].destination==Instruction1.source3) begin
+					//grab Data from end of FU
+					src3_ok_Ia           = 1;
+					sfc_data_in[0].data3 = fu_update[fu_Ia_src3].data;
+				end else begin
+					//Stall
+					src3_ok_Ia           = 0;
+					sfc_data_in[0].data3 = data_Out_RF[4];
+				end
+			end else begin
+				//grab Data from Register File
+				src3_ok_Ia           = 1;
+				sfc_data_in[0].data3 = data_Out_RF[4];
+			end
+		end
 	end
 
 	//#Issue Logic_2#
-	logic [2:0] tag_Ib_src1,tag_Ib_src2;
+	logic [2:0] tag_Ib_src1,tag_Ib_src2,tag_Ib_src3;
 	//create dummy signals
 	assign pending_Ib_src1 	= scoreboard[Instruction2.source1].pending;
 	assign in_rob_Ib_src1  	= scoreboard[Instruction2.source1].in_rob;
@@ -330,6 +370,11 @@ module issue #(
 	assign in_rob_Ib_src2  	= scoreboard[Instruction2.source2].in_rob;
 	assign tag_Ib_src2  	= Ib_dependent_Ia_rs2 ? Instruction1.ticket : scoreboard[Instruction2.source2].ticket;
 	assign fu_Ib_src2      	= scoreboard[Instruction2.source2].fu;
+
+	assign pending_Ib_src3 	= scoreboard[Instruction2.source3].pending;
+	assign in_rob_Ib_src3  	= scoreboard[Instruction2.source3].in_rob;
+	assign tag_Ib_src3  	= Ib_dependent_Ia_rs3 ? Instruction1.ticket : scoreboard[Instruction2.source3].ticket;
+	assign fu_Ib_src3      	= scoreboard[Instruction2.source3].fu;
 
 	// Check FU_2
 	assign fu_ok_Ib = ~busy_fu[Instruction2.functional_unit];
@@ -397,25 +442,56 @@ module issue #(
 				sfc_data_in[1].data2 = data_Out_RF[3];
 			end
 		end
+		//Check rs3_2
+		if(~Instruction2.source3_valid) begin
+			src3_ok_Ib           = 1;
+			sfc_data_in[1].data3 = 0;
+		end else begin
+			if(pending_Ia_src3) begin
+				if(in_rob_Ia_src3 == 1) begin
+					//stall
+					src3_ok_Ib           = 1;
+					sfc_data_in[1].data3 = data_out_rob[5];
+				end else if(fu_update_frw[fu_Ib_src3].valid && fu_update_frw[fu_Ib_src3].destination==Instruction2.source3) begin
+					//grab Data from end of FU
+					src3_ok_Ib           = 1;
+					sfc_data_in[1].data3 = fu_update_frw[fu_Ib_src3].data;
+				end else if(fu_update[fu_Ib_src3].valid && fu_update[fu_Ib_src3].destination==Instruction2.source3) begin
+					//grab Data from end of FU
+					src3_ok_Ib           = 1;
+					sfc_data_in[1].data3 = fu_update[fu_Ib_src3].data;
+				end else begin
+					//Stall
+					src3_ok_Ib           = 0;
+					sfc_data_in[1].data3 = data_Out_RF[5];
+				end
+			end else begin
+				//grab Data from Register File
+				src3_ok_Ib           = 1;
+				sfc_data_in[1].data3 = data_Out_RF[5];
+			end
+		end
 	end
 
-	logic [2:0][1:0] valid_signals;
+	logic [STATIONS - 1:0][1:0] valid_signals;
 	assign valid_signals[0] = {Instruction2.functional_unit == 0 && !Instruction2.is_vector, Instruction1.functional_unit == 0 && !Instruction1.is_vector}; // to memory station
-	assign valid_signals[1] = {Instruction2.functional_unit != 0 && !Instruction2.is_vector, Instruction1.functional_unit != 0 && !Instruction1.is_vector}; // to integer station
-	assign valid_signals[2] = {Instruction2.is_vector & branch_if[0] & !Instruction1.is_branch, Instruction1.is_vector & branch_if[0]}; // to vector station
+	assign valid_signals[1] = {	(Instruction2.functional_unit == 2 || Instruction2.functional_unit == 3)  && !Instruction2.is_vector,
+								(Instruction1.functional_unit == 2 || Instruction1.functional_unit == 3) && !Instruction1.is_vector}; // to integer station
+	assign valid_signals[2] = {Instruction2.functional_unit == 1 && !Instruction2.is_vector, Instruction1.functional_unit == 1 && !Instruction1.is_vector}; // to integer station
+	assign valid_signals[3] = {Instruction2.is_vector & branch_if[0] & !Instruction1.is_branch, Instruction1.is_vector & branch_if[0]}; // to vector station
 
-	logic [1:0][$bits(sfc_data_in[0]) + C_NUM + 8:0] sfc_all_in;
-	logic [2:0][1:0][$bits(sfc_data_in[0]) + C_NUM + 8:0] sfc_all_out;
-	assign sfc_all_in[0] = {sfc_data_in[0], tag_Ia_src1, tag_Ia_src2, ~src1_ok_Ia, ~src2_ok_Ia, Instruction1.is_vector, branch_if_a};
-	assign sfc_all_in[1] = {sfc_data_in[1], tag_Ib_src1, tag_Ib_src2, ~src1_ok_Ib | Ib_dependent_Ia_rs1, ~src2_ok_Ib | Ib_dependent_Ia_rs2, Instruction2.is_vector, branch_if_b};
+	logic [1:0][$bits(sfc_data_in[0]) + C_NUM + 12:0] sfc_all_in;
+	logic [STATIONS - 1:0][1:0][$bits(sfc_data_in[0]) + C_NUM + 12:0] sfc_all_out;
+	assign sfc_all_in[0] = {sfc_data_in[0], tag_Ia_src1, tag_Ia_src2, tag_Ia_src3, ~src1_ok_Ia, ~src2_ok_Ia, ~src3_ok_Ia, Instruction1.is_vector, branch_if_a};
+	assign sfc_all_in[1] = {sfc_data_in[1], tag_Ib_src1, tag_Ib_src2, tag_Ib_src3, ~src1_ok_Ib | Ib_dependent_Ia_rs1, ~src2_ok_Ib | Ib_dependent_Ia_rs2, ~src3_ok_Ib | Ib_dependent_Ia_rs3, Instruction2.is_vector, branch_if_b};
 
-	logic [2:0][1:0] sfc_push;
-	logic [2:0][1:0] sfc_ready_in;
+	logic [STATIONS - 1:0][1:0] sfc_push;
+	logic [STATIONS - 1:0][1:0] sfc_ready_in;
 	smart_flow_control 	#(
 							.INPUT_PORTS	(2),
 							.OUTPUT_PORTS	(2),
-							.DATA_WIDTH		($bits(sfc_data_in[0]) + C_NUM + 9),
-							.FIFOS			(3))
+							.DATA_WIDTH		($bits(sfc_data_in[0]) + C_NUM + 13),
+							.FIFOS			(STATIONS))
 	smart_flow_control 	(
 							.clk			(clk),
 							.rst			(~rst_n),
@@ -429,24 +505,27 @@ module issue #(
 							.data_out		(sfc_all_out),
 							.smart_push_ready({wr_en_2, wr_en_1})
 						);
-	logic [2:0][1:0][C_NUM - 1 : 0] branches_in_flight;
-	logic [2:0][1:0][2:0] tag1, tag2;
-	logic [2:0][1:0] pending1, pending2, inst_is_vector;
-	always_comb for (int i = 0; i < 3; ++i) for (int j = 0; j < 2; ++j)
-		{sfc_data_out[i][j], tag1[i][j], tag2[i][j], pending1[i][j], pending2[i][j], inst_is_vector[i][j], branches_in_flight[i][j]} = sfc_all_out[i][j];
+	logic [STATIONS - 1:0][1:0][C_NUM - 1 : 0] branches_in_flight;
+	logic [STATIONS - 1:0][1:0][2:0] tag1, tag2, tag3;
+	logic [STATIONS - 1:0][1:0] pending1, pending2, pending3, inst_is_vector;
+	always_comb for (int i = 0; i < STATIONS; ++i) for (int j = 0; j < 2; ++j)
+		{sfc_data_out[i][j], tag1[i][j], tag2[i][j], tag3[i][j], pending1[i][j], pending2[i][j], pending3[i][j], inst_is_vector[i][j], branches_in_flight[i][j]} = sfc_all_out[i][j];
 
-	reservation_entry_t [2:0][1:0] res_data_in;
-	reservation_entry_t [2:0] res_data_out;
-	logic [2:0][1:0][85:0] res_extra_in;
-	logic [2:0][85:0] res_extra_out;
-	logic [2:0] res_valid_out;
-	always_comb for (int i = 0; i < 3; ++i) for (int j = 0; j < 2; ++j) begin
+	reservation_entry_t [STATIONS - 1:0][1:0] res_data_in;
+	reservation_entry_t [STATIONS - 1:0] res_data_out;
+	logic [STATIONS - 1:0][1:0][86:0] res_extra_in;
+	logic [STATIONS - 1:0][86:0] res_extra_out;
+	logic [STATIONS - 1:0] res_valid_out;
+	always_comb for (int i = 0; i < STATIONS; ++i) for (int j = 0; j < 2; ++j) begin
 		res_data_in[i][j].opA 		= sfc_data_out[i][j].data1;
 		res_data_in[i][j].opB 		= sfc_data_out[i][j].data2;
+		res_data_in[i][j].opC 		= sfc_data_out[i][j].data3;
 		res_data_in[i][j].tagA 		= tag1[i][j];
 		res_data_in[i][j].tagB 		= tag2[i][j];
+		res_data_in[i][j].tagC 		= tag3[i][j];
 		res_data_in[i][j].pendingA 	= pending1[i][j];
 		res_data_in[i][j].pendingB 	= pending2[i][j];
+		res_data_in[i][j].pendingC 	= pending3[i][j];
 		res_data_in[i][j].branch_if	= branches_in_flight[i][j];
 
 		res_extra_in[i][j] =
@@ -454,7 +533,87 @@ module issue #(
 			sfc_data_out[i][j].functional_unit, sfc_data_out[i][j].microoperation, sfc_data_out[i][j].rm, sfc_data_out[i][j].rat_id, sfc_data_out[i][j].ticket};
 	end
 
+	genvar gv;
+	generate
+		for (gv = 0; gv < STATIONS - 1; ++gv) begin : create_stations
+			reservation_station #(
+									.INPUT_PORTS		(2),
+									.OUTPUT_PORTS		(1),
+									.SEARCH_PORTS		(FU_NUMBER),
+									.ROB_DEPTH			(2**ROB_INDEX_BITS),
+									.OPERAND_WIDTH		(DATA_WIDTH),
+									.DEPTH				(4),
+									.EXTRA_DATA_WIDTH	(87))
+			station			(
+								.clk			(clk),
+								.rst			(~rst_n),
+								.branch_resolved(pr_update.valid_jump),
+								.flush			(flush_valid),
+								.ready_out		(sfc_ready_in[gv]),
+								.valid_in		(sfc_push[gv]),
+								.data_in		(res_data_in[gv]),
+								.extra_in		(res_extra_in[gv]),
+								.valid_out		(res_valid_out[gv]),
+								.ready_in		(t_execution[gv].valid),
+								.data_out		(res_data_out[gv]),
+								.extra_out		(res_extra_out[gv]),
+								.search_valid	({fu_update[3].valid, fu_update[2].valid, fu_update[1].valid, fu_update[0].valid}),
+								.search_tags	({fu_update[3].ticket, fu_update[2].ticket, fu_update[1].ticket, fu_update[0].ticket}),
+								.search_data	({fu_update[3].data, fu_update[2].data, fu_update[1].data, fu_update[0].data})
+							);
+		end
+	endgenerate
 
+	// reservation_station #(
+	// 						.INPUT_PORTS		(2),
+	// 						.OUTPUT_PORTS		(1),
+	// 						.SEARCH_PORTS		(FU_NUMBER),
+	// 						.ROB_DEPTH			(2**ROB_INDEX_BITS),
+	// 						.OPERAND_WIDTH		(DATA_WIDTH),
+	// 						.DEPTH				(4),
+	// 						.EXTRA_DATA_WIDTH	(86))
+	// integer_station	(
+	// 					.clk			(clk),
+	// 					.rst			(~rst_n),
+	// 					.branch_resolved(pr_update.valid_jump),
+	// 					.flush			(flush_valid),
+	// 					.ready_out		(sfc_ready_in[1]),
+	// 					.valid_in		(sfc_push[1]),
+	// 					.data_in		(res_data_in[1]),
+	// 					.extra_in		(res_extra_in[1]),
+	// 					.valid_out		(res_valid_out[1]),
+	// 					.ready_in		(t_execution[1].valid),
+	// 					.data_out		(res_data_out[1]),
+	// 					.extra_out		(res_extra_out[1]),
+	// 					.search_valid	({fu_update[3].valid, fu_update[2].valid, fu_update[1].valid, fu_update[0].valid}),
+	// 					.search_tags	({fu_update[3].ticket, fu_update[2].ticket, fu_update[1].ticket, fu_update[0].ticket}),
+	// 					.search_data	({fu_update[3].data, fu_update[2].data, fu_update[1].data, fu_update[0].data})
+	// 				);
+	// reservation_station #(
+	// 						.INPUT_PORTS		(2),
+	// 						.OUTPUT_PORTS		(1),
+	// 						.SEARCH_PORTS		(FU_NUMBER),
+	// 						.ROB_DEPTH			(2**ROB_INDEX_BITS),
+	// 						.OPERAND_WIDTH		(DATA_WIDTH),
+	// 						.DEPTH				(4),
+	// 						.EXTRA_DATA_WIDTH	(86))
+	// floating_station	(
+	// 					.clk			(clk),
+	// 					.rst			(~rst_n),
+	// 					.branch_resolved(pr_update.valid_jump),
+	// 					.flush			(flush_valid),
+	// 					.ready_out		(sfc_ready_in[2]),
+	// 					.valid_in		(sfc_push[2]),
+	// 					.data_in		(res_data_in[2]),
+	// 					.extra_in		(res_extra_in[2]),
+	// 					.valid_out		(res_valid_out[2]),
+	// 					.ready_in		(t_vector.valid),
+	// 					.data_out		(res_data_out[2]),
+	// 					.extra_out		(res_extra_out[2]),
+	// 					.search_valid	({fu_update[3].valid, fu_update[2].valid, fu_update[1].valid, fu_update[0].valid}),
+	// 					.search_tags	({fu_update[3].ticket, fu_update[2].ticket, fu_update[1].ticket, fu_update[0].ticket}),
+	// 					.search_data	({fu_update[3].data, fu_update[2].data, fu_update[1].data, fu_update[0].data})
+	// 				);
 	reservation_station #(
 							.INPUT_PORTS		(2),
 							.OUTPUT_PORTS		(1),
@@ -462,76 +621,26 @@ module issue #(
 							.ROB_DEPTH			(2**ROB_INDEX_BITS),
 							.OPERAND_WIDTH		(DATA_WIDTH),
 							.DEPTH				(4),
-							.EXTRA_DATA_WIDTH	(86))
-	memory_station	(
-						.clk			(clk),
-						.rst			(~rst_n),
-						.branch_resolved(pr_update.valid_jump),
-						.flush			(flush_valid),
-						.ready_out		(sfc_ready_in[0]),
-						.valid_in		(sfc_push[0]),
-						.data_in		(res_data_in[0]),
-						.extra_in		(res_extra_in[0]),
-						.valid_out		(res_valid_out[0]),
-						.ready_in		(t_execution[0].valid),
-						.data_out		(res_data_out[0]),
-						.extra_out		(res_extra_out[0]),
-						.search_valid	({fu_update[3].valid, fu_update[2].valid, fu_update[1].valid, fu_update[0].valid}),
-						.search_tags	({fu_update[3].ticket, fu_update[2].ticket, fu_update[1].ticket, fu_update[0].ticket}),
-						.search_data	({fu_update[3].data, fu_update[2].data, fu_update[1].data, fu_update[0].data})
-					);
-	reservation_station #(
-							.INPUT_PORTS		(2),
-							.OUTPUT_PORTS		(1),
-							.SEARCH_PORTS		(FU_NUMBER),
-							.ROB_DEPTH			(2**ROB_INDEX_BITS),
-							.OPERAND_WIDTH		(DATA_WIDTH),
-							.DEPTH				(4),
-							.EXTRA_DATA_WIDTH	(86))
-	integer_station	(
-						.clk			(clk),
-						.rst			(~rst_n),
-						.branch_resolved(pr_update.valid_jump),
-						.flush			(flush_valid),
-						.ready_out		(sfc_ready_in[1]),
-						.valid_in		(sfc_push[1]),
-						.data_in		(res_data_in[1]),
-						.extra_in		(res_extra_in[1]),
-						.valid_out		(res_valid_out[1]),
-						.ready_in		(t_execution[1].valid),
-						.data_out		(res_data_out[1]),
-						.extra_out		(res_extra_out[1]),
-						.search_valid	({fu_update[3].valid, fu_update[2].valid, fu_update[1].valid, fu_update[0].valid}),
-						.search_tags	({fu_update[3].ticket, fu_update[2].ticket, fu_update[1].ticket, fu_update[0].ticket}),
-						.search_data	({fu_update[3].data, fu_update[2].data, fu_update[1].data, fu_update[0].data})
-					);
-	reservation_station #(
-							.INPUT_PORTS		(2),
-							.OUTPUT_PORTS		(1),
-							.SEARCH_PORTS		(FU_NUMBER),
-							.ROB_DEPTH			(2**ROB_INDEX_BITS),
-							.OPERAND_WIDTH		(DATA_WIDTH),
-							.DEPTH				(4),
-							.EXTRA_DATA_WIDTH	(86))
+							.EXTRA_DATA_WIDTH	(87))
 	vector_station	(
 						.clk			(clk),
 						.rst			(~rst_n),
 						.branch_resolved(pr_update.valid_jump),
 						.flush			(flush_valid),
-						.ready_out		(sfc_ready_in[2]),
-						.valid_in		(sfc_push[2]),
-						.data_in		(res_data_in[2]),
-						.extra_in		(res_extra_in[2]),
-						.valid_out		(res_valid_out[2]),
+						.ready_out		(sfc_ready_in[STATIONS - 1]),
+						.valid_in		(sfc_push[STATIONS - 1]),
+						.data_in		(res_data_in[STATIONS - 1]),
+						.extra_in		(res_extra_in[STATIONS - 1]),
+						.valid_out		(res_valid_out[STATIONS - 1]),
 						.ready_in		(t_vector.valid),
-						.data_out		(res_data_out[2]),
-						.extra_out		(res_extra_out[2]),
+						.data_out		(res_data_out[STATIONS - 1]),
+						.extra_out		(res_extra_out[STATIONS - 1]),
 						.search_valid	({fu_update[3].valid, fu_update[2].valid, fu_update[1].valid, fu_update[0].valid}),
 						.search_tags	({fu_update[3].ticket, fu_update[2].ticket, fu_update[1].ticket, fu_update[0].ticket}),
 						.search_data	({fu_update[3].data, fu_update[2].data, fu_update[1].data, fu_update[0].data})
 					);
 
-	always_comb for (int i = 0; i < 2; ++i) begin
+	always_comb for (int i = 0; i < STATIONS - 1; ++i) begin
 		{t_execution[i].valid,
 		t_execution[i].pc,
 		t_execution[i].destination,
@@ -542,12 +651,13 @@ module issue #(
 		t_execution[i].rat_id,
 		t_execution[i].ticket} = res_extra_out[i];
 
-		t_execution[i].valid &= ~(res_data_out[i].pendingA | res_data_out[i].pendingB);
+		t_execution[i].valid &= ~(res_data_out[i].pendingA | res_data_out[i].pendingB | res_data_out[i].pendingC);
 		t_execution[i].valid &= res_valid_out[i];
 		t_execution[i].valid &= ~busy_fu[t_execution[i].functional_unit];
 
 		t_execution[i].data1 = res_data_out[i].opA;
 		t_execution[i].data2 = res_data_out[i].opB;
+		t_execution[i].data3 = res_data_out[i].opC;
 	end
 	to_execution ex_dummy;
 	always_comb begin
@@ -559,15 +669,15 @@ module issue #(
 		ex_dummy.microoperation,
 		ex_dummy.rm,
 		ex_dummy.rat_id,
-		ex_dummy.ticket} = res_extra_out[2];
+		ex_dummy.ticket} = res_extra_out[STATIONS - 1];
 
-		t_vector.valid &= ~(res_data_out[2].pendingA | res_data_out[2].pendingB);
-		t_vector.valid &= res_valid_out[2];
+		t_vector.valid &= ~(res_data_out[STATIONS - 1].pendingA | res_data_out[STATIONS - 1].pendingB);
+		t_vector.valid &= res_valid_out[STATIONS - 1];
 		t_vector.valid &= vector_q_ready;
 		// t_vector.valid &= branch_if[0];
 
-		t_vector.data1 = res_data_out[2].opA;
-		t_vector.data2 = res_data_out[2].opB;
+		t_vector.data1 = res_data_out[STATIONS - 1].opA;
+		t_vector.data2 = res_data_out[STATIONS - 1].opB;
 	end
 
 	//#Update Scoreboard#
@@ -604,7 +714,7 @@ module issue #(
 				// Register new FU updates
 				for (int j = 0; j < FU_NUMBER; j++) begin
 					if(masked_write_en[j] && fu_update[j].destination==i) begin
-	 					scoreboard[i].in_rob <= 1;
+						scoreboard[i].in_rob <= 1;
 					end
 				end
 			end

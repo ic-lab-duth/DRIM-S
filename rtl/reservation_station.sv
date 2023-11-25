@@ -116,13 +116,17 @@ module reservation_station   #(
         for (int i = 0; i < DEPTH; i += 1) begin
             data[i].branch_if <= data[i].branch_if >> branch_resolved;
             for (int k = 0; k < SEARCH_PORTS; k += 1) begin
-                if (data[i].tagA == search_tags[k] && search_valid[k]) begin
+                if (data[i].tagA == search_tags[k] && search_valid[k] && data[i].pendingA) begin
                     data[i].opA         <= search_data[k];
                     data[i].pendingA    <= 0;
                 end
-                if (data[i].tagB == search_tags[k] && search_valid[k]) begin
+                if (data[i].tagB == search_tags[k] && search_valid[k] && data[i].pendingB) begin
                     data[i].opB         <= search_data[k];
                     data[i].pendingB    <= 0;
+                end
+                if (data[i].tagC == search_tags[k] && search_valid[k] && data[i].pendingC) begin
+                    data[i].opC         <= search_data[k];
+                    data[i].pendingC    <= 0;
                 end
             end
             if (tail[(i + INPUT_PORTS - 1)%DEPTH] & tail[i]) begin
@@ -131,13 +135,17 @@ module reservation_station   #(
                         data[(i + j)%DEPTH]     <= data_in[j];
                         extra[(i + j)%DEPTH]    <= extra_in[j];
                         for (int k = 0; k < SEARCH_PORTS; k += 1) begin
-                            if (data_in[j].tagA == search_tags[k] && search_valid[k]) begin
+                            if (data_in[j].tagA == search_tags[k] && search_valid[k] && data[i].pendingA) begin
                                 data[(i + j)%DEPTH].opA         <= search_data[k];
                                 data[(i + j)%DEPTH].pendingA    <= 0;
                             end
-                            if (data_in[j].tagB == search_tags[k] && search_valid[k]) begin
+                            if (data_in[j].tagB == search_tags[k] && search_valid[k] && data[i].pendingB) begin
                                 data[(i + j)%DEPTH].opB         <= search_data[k];
                                 data[(i + j)%DEPTH].pendingB    <= 0;
+                            end
+                            if (data_in[j].tagC == search_tags[k] && search_valid[k] && data[i].pendingC) begin
+                                data[(i + j)%DEPTH].opC         <= search_data[k];
+                                data[(i + j)%DEPTH].pendingC    <= 0;
                             end
                         end
                     end

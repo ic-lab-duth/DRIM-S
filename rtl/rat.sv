@@ -6,7 +6,7 @@
  * @param P_ADDR_WIDTH : # of Preg Bits
  * @param L_ADDR_WIDTH : # of Lreg Bits
  * @param C_NUM        : # of Checkpoints
- */ 
+ */
 module rat #(
 	P_ADDR_WIDTH = 7,
 	L_ADDR_WIDTH = 5,
@@ -70,8 +70,11 @@ module rat #(
     always_ff @(posedge clk or negedge rst_n) begin : DRAT
         if(!rst_n) begin
             //Initialize all Registers paired to R8+
-            for (int i = 0; i < L_REGS; i++) begin
+            for (int i = 0; i < L_REGS/2; i++) begin
                 CurrentRAT[i] <= i;
+            end
+            for (int i = 0; i < L_REGS/2; i++) begin
+                CurrentRAT[L_REGS/2 + i] <= L_REGS + i;
             end
         end else begin
             //Restore the Chkp RAT
@@ -81,7 +84,7 @@ module rat #(
             end else begin
                 //Store new Allocations
                 if (write_en_1) CurrentRAT[write_addr_1] <= write_data_1;
-                if (write_en_2) CurrentRAT[write_addr_2] <= write_data_2;         
+                if (write_en_2) CurrentRAT[write_addr_2] <= write_data_2;
             end
         end
     end
@@ -92,7 +95,7 @@ module rat #(
             if(dual_branch) begin
                 CheckpointedRAT[next_ckp]      <= CurrentRAT;
                 CheckpointedRAT[next_ckp_plus] <= CurrentRAT;
-                if (write_en_1) begin 
+                if (write_en_1) begin
                     CheckpointedRAT[next_ckp][write_addr_1] <= write_data_1;
                     CheckpointedRAT[next_ckp_plus][write_addr_1] <= write_data_1;
                 end
@@ -131,5 +134,5 @@ module rat #(
     assign read_data_6 = CurrentRAT[read_addr_6];
     assign read_data_7 = CurrentRAT[read_addr_7];
     assign read_data_8 = CurrentRAT[read_addr_8];
-    
+
 endmodule

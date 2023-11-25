@@ -9,7 +9,8 @@
 module free_list
   #(parameter int DATA_WIDTH    = 7,
     parameter int RAM_DEPTH	    = 128,
-    parameter int L_REGISTERS   = 32)
+    parameter int L_REGISTERS   = 32,
+    parameter int OFFSET        = 32)
 
    (input  logic clk,
     input  logic rst,
@@ -104,7 +105,7 @@ module free_list
     always_ff @(posedge clk) begin
         if(rst) begin
             for (int i = 0; i < (RAM_DEPTH-L_REGISTERS); i++) begin
-                mem[i] <= 32+i;
+                mem[i] <= OFFSET+i;
             end
         end else begin
             for (int i = 0; i < RAM_DEPTH; i++) begin
@@ -126,6 +127,8 @@ module free_list
     end
 
     assign pop_pnt_2 = {pop_pnt[RAM_DEPTH-2:0], pop_pnt[RAM_DEPTH-1]};
+
+    logic[DATA_WIDTH-1:0]    pop_data_2_temp;
     and_or_mux #(
         .INPUTS(RAM_DEPTH ),
         .DW    (DATA_WIDTH)
@@ -141,8 +144,10 @@ module free_list
     ) mux_out_2 (
         .data_in (mem       ),
         .sel     (pop_pnt_2 ),
-        .data_out(pop_data_2)
+        .data_out(pop_data_2_temp)
     );
+
+    assign pop_data_2 = pop_2 & ~pop_1 ? pop_data_1 : pop_data_2_temp;
 
 `ifdef INCLUDE_SVAS
     `include "free_list_sva.sv"

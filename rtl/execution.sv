@@ -35,11 +35,12 @@ module execution #(
     parameter R_ADDR         = 6 ,
     parameter MICROOP_WIDTH  = 5 ,
     parameter ROB_INDEX_BITS = 3 ,
-    parameter CSR_DEPTH      = 64
+    parameter CSR_DEPTH      = 64,
+    parameter STATIONS       = 4
 ) (
     input  logic                             clk                  ,
     input  logic                             rst_n                ,
-    input  to_execution [               1:0] t_execution          ,
+    input  to_execution [    STATIONS - 2:0] t_execution          ,
     input  ex_update                         cache_fu_update      ,
     input  logic                             cache_load_blocked   ,
     //Forward Interface
@@ -73,7 +74,7 @@ module execution #(
 );
 	// #Internal Signals#
     to_execution [FU_NUMBER-1 : 0] input_data;
-    logic        [          1 : 0] fu_selector_1, fu_selector_2;
+    logic        [          1 : 0] fu_selector_1, fu_selector_2, fu_selector_3;
     logic        [FU_NUMBER-1 : 0] valid;
 
     logic valid_ret, dual_ret;
@@ -179,14 +180,17 @@ module execution #(
     //Create the Selectors
     assign fu_selector_1 = t_execution[0].functional_unit;
     assign fu_selector_2 = t_execution[1].functional_unit;
+    assign fu_selector_3 = t_execution[2].functional_unit;
 
     //Route the Data to the Correct FU
     always_comb begin : ReRoute_Data
         for (int i = 0; i < FU_NUMBER; i++) begin
             if(i==fu_selector_1) begin
                 input_data[i] = t_execution[0];
-            end else begin
+            end else if (i==fu_selector_2) begin
                 input_data[i] = t_execution[1];
+            end else begin
+                input_data[i] = t_execution[2];
             end
         end
     end
@@ -198,6 +202,8 @@ module execution #(
                 valid[i] = t_execution[0].valid;
             end else if(i==fu_selector_2) begin
                 valid[i] = t_execution[1].valid;
+            end else if(i==fu_selector_3) begin
+                valid[i] = t_execution[2].valid;
             end else begin
                 valid[i] = 0;
             end

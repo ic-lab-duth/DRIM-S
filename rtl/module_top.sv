@@ -37,7 +37,7 @@ module module_top (
     localparam ADDR_BITS      = 32        ; //default: 32
     localparam DATA_WIDTH     = 32        ; //default: 32
     localparam FETCH_WIDTH    = 64        ; //default: 64
-    localparam R_WIDTH        = 6         ; //default: 6
+    localparam R_WIDTH        = 7         ; //default: 6
     localparam MICROOP_W      = 5         ; //default: 5
     localparam UNCACHEABLE_ST = 4294901760; //default: 4294901760
     //CSR Parameters        (DO NOT MODIFY)

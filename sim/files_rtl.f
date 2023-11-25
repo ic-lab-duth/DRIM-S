@@ -58,3 +58,4 @@
 
 ../rtl/reservation_station.sv
 ../rtl/general/*.sv
+../rtl/fpu/*.sv

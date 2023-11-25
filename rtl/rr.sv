@@ -49,13 +49,15 @@ module rr #(
     localparam P_ADDR_WIDTH = $clog2(P_REGISTERS);
     localparam L_ADDR_WIDTH = $clog2(L_REGISTERS);
     // #Internal Signals#
-    logic [P_ADDR_WIDTH-1 : 0] alloc_p_reg_1, alloc_p_reg_2, ppreg_1, ppreg_2, fl_data, fl_data_2;
+    logic [P_ADDR_WIDTH-1 : 0] alloc_p_reg_1, alloc_p_reg_2, alloc_p_reg_1_f, alloc_p_reg_2_f, ppreg_1, ppreg_2, fl_data, fl_data_2;
     logic [P_ADDR_WIDTH-1 : 0] instr1_source1_rat, instr1_source2_rat, instr1_source3_rat;
     logic [P_ADDR_WIDTH-1 : 0] instr2_source1_rat, instr2_source2_rat, instr2_source3_rat;
     logic [ROB_INDEX_BITS-1:0] stalled_ticket    ;
     logic [ $clog2(C_NUM)-1:0] current_id        ;
     logic                      do_alloc_1, do_alloc_2;
     logic                      fl_ready, fl_push, fl_push_2, fl_valid_1, fl_valid_2;
+    logic                      do_alloc_1_f, do_alloc_2_f;
+    logic                      fl_ready_f, fl_push_f, fl_push_2_f, fl_valid_1_f, fl_valid_2_f;
     logic                      instr_a_rd_rename, instr_a_s1_rename, instr_a_s2_rename, instr_a_s3_rename;
     logic                      instr_b_rd_rename, instr_b_s1_rename, instr_b_s2_rename, instr_b_s3_rename;
     logic                      dual_branch       ;
@@ -81,8 +83,10 @@ module rr #(
     assign instruction_o_1.source1           = !instr_a_s1_rename ? instruction_1.source1 : instr1_source1_rat;
     assign instruction_o_1.source2           = !instr_a_s2_rename ? instruction_1.source2 : instr1_source2_rat;
     assign instruction_o_1.source3           = !instr_a_s3_rename ? instruction_1.source3 : instr1_source3_rat;
-    assign instruction_o_1.destination       = !instr_a_rd_rename ? instruction_1.destination : alloc_p_reg_1;
+    assign instruction_o_1.destination       = !instr_a_rd_rename ? instruction_1.destination : instruction_1.destination[L_ADDR_WIDTH - 1] ? alloc_p_reg_1_f : alloc_p_reg_1;
     assign instruction_o_1.ticket            = rob_status.ticket;
+
+    assign instruction_o_1.source3_valid = instruction_1.source3_valid;
 
     //Second Instruction
         //renaming enablers
@@ -104,9 +108,11 @@ module rr #(
     assign instruction_o_2.is_valid          = instruction_2.is_valid;
     assign instruction_o_2.rat_id            = instruction_1.is_branch ? current_id+1 : current_id;
 
+    assign instruction_o_2.source3_valid = instruction_2.source3_valid;
+
     //Create the Instr #2 source1
     always_comb begin : I2R1
-        if(instruction_2.source1 == instruction_1.destination) begin
+        if(instruction_2.source1 == instruction_1.destination) begin //TODO MAKE DOUBLE POP LOGIC
             instruction_o_2.source1 = instruction_o_1.destination;
         end else if(instr_b_s1_rename) begin
             instruction_o_2.source1 = instr2_source1_rat;
@@ -136,10 +142,8 @@ module rr #(
     end
     //Create the Instr #2 destination
     always_comb begin : I2RD
-        if (instr_a_rd_rename && instr_b_rd_rename) begin
-            instruction_o_2.destination = alloc_p_reg_2;
-        end else if (!instr_a_rd_rename && instr_b_rd_rename) begin
-            instruction_o_2.destination = alloc_p_reg_1;
+        if (instr_b_rd_rename) begin
+            instruction_o_2.destination = instruction_2.destination[L_ADDR_WIDTH - 1] ? alloc_p_reg_2_f : alloc_p_reg_2;
         end else begin
             instruction_o_2.destination = instruction_2.destination;
         end
@@ -167,13 +171,13 @@ module rr #(
     always_comb begin : ValidOutput
         if(valid_i_1 && valid_i_2) begin
             if(instr_a_rd_rename && instr_b_rd_rename) begin
-                valid_o_1     = ready_i & fl_valid_1 & fl_valid_2 & ~flush_valid & ~rob_status.is_full & rob_status.two_empty;
-                reclaim_stall = ready_i & ~fl_valid_1 & ~fl_valid_2 & ~flush_valid & ~rob_status.is_full & rob_status.two_empty;
-                rob_stall     = ready_i & fl_valid_1 & fl_valid_2 & ~flush_valid & ~valid_o_1;
+                valid_o_1     = ready_i & fl_valid_1 & fl_valid_2 & fl_valid_1_f & fl_valid_2_f & ~flush_valid & ~rob_status.is_full & rob_status.two_empty;
+                reclaim_stall = ready_i & ~fl_valid_1 & ~fl_valid_2 & ~fl_valid_1_f & ~fl_valid_2_f & ~flush_valid & ~rob_status.is_full & rob_status.two_empty;
+                rob_stall     = ready_i & fl_valid_1 & fl_valid_2 & fl_valid_1_f & fl_valid_2_f & ~flush_valid & ~valid_o_1;
             end else if(instr_a_rd_rename || instr_b_rd_rename) begin
-                valid_o_1     = ready_i & fl_valid_1 & ~flush_valid & ~rob_status.is_full & rob_status.two_empty;
-                reclaim_stall = ready_i & ~fl_valid_1 & ~flush_valid & ~rob_status.is_full & rob_status.two_empty;
-                rob_stall     = ready_i & fl_valid_1 & ~flush_valid & ~valid_o_1;
+                valid_o_1     = ready_i & fl_valid_1 & fl_valid_1_f & ~flush_valid &  ~rob_status.is_full & rob_status.two_empty;
+                reclaim_stall = ready_i & ~fl_valid_1 & ~fl_valid_1_f & ~flush_valid & ~rob_status.is_full & rob_status.two_empty;
+                rob_stall     = ready_i & fl_valid_1 & fl_valid_1_f & ~flush_valid & ~valid_o_1;
             end else begin
                 valid_o_1     = ready_i & ~flush_valid & ~rob_status.is_full & rob_status.two_empty;
                 reclaim_stall = 1'b0;
@@ -181,10 +185,10 @@ module rr #(
             end
             valid_o_2 = valid_o_1;
         end else if(valid_i_1 && !valid_i_2) begin
-            valid_o_1     = instr_a_rd_rename ? ready_i & fl_valid_1 & ~flush_valid & ~rob_status.is_full : ready_i & ~flush_valid & ~rob_status.is_full;
-            reclaim_stall = instr_a_rd_rename ? ready_i & ~fl_valid_1 & ~flush_valid & ~rob_status.is_full : ready_i & ~flush_valid & ~rob_status.is_full;
+            valid_o_1     = instr_a_rd_rename ? ready_i & fl_valid_1 & fl_valid_1_f & ~flush_valid & ~rob_status.is_full : ready_i & ~flush_valid & ~rob_status.is_full;
+            reclaim_stall = instr_a_rd_rename ? ready_i & ~fl_valid_1 & ~fl_valid_1_f & ~flush_valid & ~rob_status.is_full : ready_i & ~flush_valid & ~rob_status.is_full;
             valid_o_2     = 1'b0;
-            rob_stall     = instr_a_rd_rename ? ready_i & fl_valid_1 & ~flush_valid & rob_status.is_full : ready_i & ~flush_valid & rob_status.is_full;
+            rob_stall     = instr_a_rd_rename ? ready_i & fl_valid_1 & fl_valid_1_f & ~flush_valid & rob_status.is_full : ready_i & ~flush_valid & rob_status.is_full;
         end else begin
             valid_o_1     = 1'b0;
             valid_o_2     = 1'b0;
@@ -193,18 +197,24 @@ module rr #(
         end
     end
     //Do new preg allocations
-    assign do_alloc_1 = valid_o_1 & instr_a_rd_rename;
-    assign do_alloc_2 = valid_o_2 & instr_b_rd_rename;
+    assign do_alloc_1 = valid_o_1 & instr_a_rd_rename & ~instruction_1.destination[L_ADDR_WIDTH - 1];
+    assign do_alloc_2 = valid_o_2 & instr_b_rd_rename & ~instruction_2.destination[L_ADDR_WIDTH - 1];
+    assign do_alloc_1_f = valid_o_1 & instr_a_rd_rename & instruction_1.destination[L_ADDR_WIDTH - 1];
+    assign do_alloc_2_f = valid_o_2 & instr_b_rd_rename & instruction_2.destination[L_ADDR_WIDTH - 1];
 
     //Free List
-    assign fl_push = commit_1.valid_commit & |commit_1.ldst;
+    assign fl_push = (commit_1.valid_commit & |commit_1.ldst & ~commit_1.ldst[L_ADDR_WIDTH - 1]);
+    assign fl_push_2 = commit_2.valid_commit & |commit_2.ldst & ~commit_2.ldst[L_ADDR_WIDTH - 1];
+    assign fl_push_f = commit_1.valid_commit & |commit_1.ldst & commit_1.ldst[L_ADDR_WIDTH - 1];
+    assign fl_push_2_f = commit_2.valid_commit & |commit_2.ldst & commit_2.ldst[L_ADDR_WIDTH - 1];
+
     assign fl_data = commit_1.flushed ? commit_1.pdst : commit_1.ppdst;
-    assign fl_push_2 = commit_2.valid_commit & |commit_2.ldst;
     assign fl_data_2 = commit_2.flushed ? commit_2.pdst : commit_2.ppdst;
     free_list #(
         .DATA_WIDTH (P_ADDR_WIDTH),
         .RAM_DEPTH  (64          ),
-        .L_REGISTERS(32          )
+        .L_REGISTERS(32          ),
+        .OFFSET     (32          )
     ) free_list (
         .clk        (clk          ),
         .rst        (~rst_n       ),
@@ -223,12 +233,35 @@ module rr #(
         .valid_2    (fl_valid_2   ),
         .pop_2      (do_alloc_2   )
     );
+    free_list #(
+        .DATA_WIDTH (P_ADDR_WIDTH),
+        .RAM_DEPTH  (64          ),
+        .L_REGISTERS(32          ),
+        .OFFSET     (96          )
+    ) free_list_f (
+        .clk        (clk          ),
+        .rst        (~rst_n       ),
+        //Reclaim Interface
+        .push_data  (fl_data      ),
+        .push       (fl_push_f      ),
+        .push_data_2(fl_data_2    ),
+        .push_2     (fl_push_2_f    ),
+        .ready      (fl_ready_f     ),
+        //Alloc First Dest
+        .pop_data_1 (alloc_p_reg_1_f),
+        .valid_1    (fl_valid_1_f   ),
+        .pop_1      (do_alloc_1_f   ),
+        //Alloc Second Dest
+        .pop_data_2 (alloc_p_reg_2_f),
+        .valid_2    (fl_valid_2_f   ),
+        .pop_2      (do_alloc_2_f   )
+    );
     //RAT (DecodeRAT & CheckpointedRAT)
     logic                  rat_alloc_1, rat_alloc_2, take_checkpoint, instr_num;
-    logic [$clog2(32)-1:0] rat_allo_addr_1;
+    logic [$clog2(64)-1:0] rat_allo_addr_1;
 
     assign rat_alloc_1     = (valid_o_1 & instr_a_rd_rename) | (valid_o_1 & valid_o_2 & ~instr_a_rd_rename & instr_b_rd_rename);
-    assign rat_allo_addr_1 = instr_a_rd_rename ? instruction_1.destination[4:0] : instruction_2.destination[4:0];
+    assign rat_allo_addr_1 = instr_a_rd_rename ? instruction_1.destination : instruction_2.destination;
     assign rat_alloc_2     = (valid_o_1 & valid_o_2 & instr_a_rd_rename & instr_b_rd_rename);
 
     assign take_checkpoint = (instruction_1.is_branch & valid_i_1 & valid_o_1) | (instruction_2.is_branch & valid_i_2 & valid_o_2);
@@ -237,7 +270,7 @@ module rr #(
 
     rat #(
         .P_ADDR_WIDTH(P_ADDR_WIDTH),
-        .L_ADDR_WIDTH($clog2(32)  ),
+        .L_ADDR_WIDTH(L_ADDR_WIDTH  ),
         .C_NUM       (C_NUM       )
     ) rat (
         .clk            (clk                           ),
@@ -245,36 +278,36 @@ module rr #(
 
         .write_en_1     (rat_alloc_1                   ),
         .write_addr_1   (rat_allo_addr_1               ),
-        .write_data_1   (alloc_p_reg_1                 ),
+        .write_data_1   (instr_a_rd_rename ? instruction_o_1.destination : instruction_o_2.destination),
         .instr_1_rn     (instr_a_rd_rename             ),
 
         .write_en_2     (rat_alloc_2                   ),
-        .write_addr_2   (instruction_2.destination[4:0]),
-        .write_data_2   (alloc_p_reg_2                 ),
+        .write_addr_2   (instruction_2.destination     ),
+        .write_data_2   (instruction_o_2.destination   ),
         .instr_2_rn     (instr_b_rd_rename             ),
 
-        .read_addr_1    (instruction_1.source1[4:0]    ),
+        .read_addr_1    (instruction_1.source1         ),
         .read_data_1    (instr1_source1_rat            ),
 
-        .read_addr_2    (instruction_1.source2[4:0]    ),
+        .read_addr_2    (instruction_1.source2         ),
         .read_data_2    (instr1_source2_rat            ),
 
-        .read_addr_3    (instruction_1.source3[4:0]    ),
+        .read_addr_3    (instruction_1.source3         ),
         .read_data_3    (instr1_source3_rat            ),
 
-        .read_addr_4    (instruction_2.source1[4:0]    ),
+        .read_addr_4    (instruction_2.source1         ),
         .read_data_4    (instr2_source1_rat            ),
 
-        .read_addr_5    (instruction_2.source2[4:0]    ),
+        .read_addr_5    (instruction_2.source2         ),
         .read_data_5    (instr2_source2_rat            ),
 
-        .read_addr_6    (instruction_2.source3[4:0]    ),
+        .read_addr_6    (instruction_2.source3         ),
         .read_data_6    (instr2_source3_rat            ),
 
-        .read_addr_7    (instruction_1.destination[4:0]),
+        .read_addr_7    (instruction_1.destination     ),
         .read_data_7    (ppreg_1                       ),
 
-        .read_addr_8    (instruction_2.destination[4:0]),
+        .read_addr_8    (instruction_2.destination     ),
         .read_data_8    (ppreg_2                       ),
 
         .take_checkpoint(take_checkpoint               ),

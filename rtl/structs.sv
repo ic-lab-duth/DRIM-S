@@ -11,8 +11,8 @@ typedef struct packed {
     logic          flushed        ;
     logic          valid_dest     ;
     logic [ 5 : 0] lreg           ;
-    logic [ 5 : 0] preg           ;
-    logic [ 5 : 0] ppreg          ;
+    logic [ 6 : 0] preg           ;
+    logic [ 6 : 0] ppreg          ;
     logic [ 4 : 0] microoperation ;
     logic          valid_exception; //Clear reorder buffer on exception
     logic [ 3 : 0] cause          ; //redirect depending on cause
@@ -26,16 +26,16 @@ typedef struct packed {
     logic         valid_request_1 ;
     logic         valid_dest_1    ;
     logic [5 : 0] lreg_1          ;
-    logic [5 : 0] preg_1          ;
-    logic [5 : 0] ppreg_1         ;
+    logic [6 : 0] preg_1          ;
+    logic [6 : 0] ppreg_1         ;
     logic [4 : 0] microoperation_1;
     logic [31: 0] pc_1            ;
 
     logic         valid_request_2 ;
     logic         valid_dest_2    ;
     logic [5 : 0] lreg_2          ;
-    logic [5 : 0] preg_2          ;
-    logic [5 : 0] ppreg_2         ;
+    logic [6 : 0] preg_2          ;
+    logic [6 : 0] ppreg_2         ;
     logic [4 : 0] microoperation_2;
     logic [31: 0] pc_2            ;
 } new_entries;
@@ -46,8 +46,8 @@ typedef struct packed {
     logic          valid_write ;
     logic          flushed     ;
     logic [ 5 : 0] ldst        ;
-    logic [ 5 : 0] pdst        ;
-    logic [ 5 : 0] ppdst       ;
+    logic [ 6 : 0] pdst        ;
+    logic [ 6 : 0] ppdst       ;
     logic [31 : 0] data        ;
     logic [ 2 : 0] ticket      ;
     logic [31 : 0] pc          ;
@@ -56,7 +56,7 @@ typedef struct packed {
 //Struct from EX stage to update internal ROB status
 typedef struct packed {
     logic          valid          ;
-    logic [ 5 : 0] destination    ;
+    logic [ 6 : 0] destination    ;
     logic [ 2 : 0] ticket         ;
     logic [31 : 0] data           ;
     logic          valid_exception;
@@ -79,6 +79,7 @@ typedef struct packed {
     logic          source2_immediate;
     logic [31 : 0] immediate        ;
     logic [ 5 : 0] source3          ;
+    logic          source3_valid    ;
     logic [ 5 : 0] destination      ;
     logic [ 1 : 0] functional_unit  ;
     logic [ 4 : 0] microoperation   ;
@@ -91,13 +92,14 @@ typedef struct packed {
 //Struct Carrying a decoded and Renamed Instruction
 typedef struct packed {
     logic [31 : 0] pc               ;
-    logic [ 5 : 0] source1          ;
+    logic [ 6 : 0] source1          ;
     logic          source1_pc       ;
-    logic [ 5 : 0] source2          ;
+    logic [ 6 : 0] source2          ;
     logic          source2_immediate;
     logic [31 : 0] immediate        ;
-    logic [ 5 : 0] source3          ;
-    logic [ 5 : 0] destination      ;
+    logic [ 6 : 0] source3          ;
+    logic          source3_valid    ;
+    logic [ 6 : 0] destination      ;
     logic [ 1 : 0] functional_unit  ;
     logic [ 4 : 0] microoperation   ;
     logic [ 3 : 0] ticket           ;
@@ -125,11 +127,13 @@ typedef struct packed {
 typedef struct packed {
     logic          valid          ;
     logic [31 : 0] pc             ;
-    logic [ 5 : 0] destination    ;
+    logic [ 6 : 0] destination    ;
 
     logic [31 : 0] data1          ;
 
     logic [31 : 0] data2          ;
+
+    logic [31 : 0] data3          ;
 
     logic [31 : 0] immediate      ;
     logic [ 1 : 0] functional_unit;
@@ -163,12 +167,15 @@ typedef struct packed {
 typedef struct packed {
     logic [31:0]    opA;
     logic [31:0]    opB;
+    logic [31:0]    opC;
 
     logic [2:0]     tagA;
     logic [2:0]     tagB;
+    logic [2:0]     tagC;
 
     logic           pendingA;
     logic           pendingB;
+    logic           pendingC;
 
     logic [3:0]     branch_if;
 } reservation_entry_t;

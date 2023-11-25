@@ -266,8 +266,8 @@ module processor_top #(
 	logic           ir_valid_o_1         ;
 
     rr #(
-        .P_REGISTERS   (64            ),
-        .L_REGISTERS   (2**(PR_WIDTH) ),
+        .P_REGISTERS   (128           ),
+        .L_REGISTERS   (64            ),
         .ROB_INDEX_BITS(ROB_INDEX_BITS),
         .C_NUM         (C_NUM         ),
         .VECTOR_ENABLED(VECTOR_ENABLED)
@@ -337,9 +337,9 @@ module processor_top #(
     //////////////////////////////////////////////////
     //                  IS-Stage                    //
     //////////////////////////////////////////////////
-    logic [3:0][ROB_INDEX_BITS-1:0]   read_addr_rob;
-    logic [3:0][DATA_WIDTH-1:0]       data_out_rob;
-    to_execution [          1 : 0] t_execution       ;
+    logic [5:0][ROB_INDEX_BITS-1:0]   read_addr_rob;
+    logic [5:0][DATA_WIDTH-1:0]       data_out_rob;
+    to_execution [          2 : 0] t_execution       ;
     to_vector                      t_vector          ;
     ex_update    [          3 : 0] fu_update_o       ;
     ex_update    [          3 : 0] fu_update         ;
@@ -357,7 +357,7 @@ module processor_top #(
     assign iq_pop_1 = issue_1 | issue_vector;
     assign iq_pop_2 = issue_2;
     issue #(
-        .SCOREBOARD_SIZE(64            ),
+        .SCOREBOARD_SIZE(128           ),
         .FU_NUMBER      (4             ),
         .ROB_INDEX_BITS (ROB_INDEX_BITS),
         .DATA_WIDTH     (DATA_WIDTH    ),
@@ -401,13 +401,13 @@ module processor_top #(
 	//           IS/EX PIPELINE REGISTER            //
 	//////////////////////////////////////////////////
 	localparam TO_EX_DW  = $bits(t_execution[0])               ;
-	localparam ISSUED_DW = 2*TO_EX_DW + $bits(new_rob_requests);
+	localparam ISSUED_DW = 3*TO_EX_DW + $bits(new_rob_requests);
 
 	logic [ISSUED_DW-1:0] issued_data_merged  ;
 	logic [ISSUED_DW-1:0] issued_data_merged_o;
-	to_execution[1 : 0]   t_execution_o;
+	to_execution[2 : 0]   t_execution_o;
 	//Merge the Data to a single vector
-	assign issued_data_merged = {new_rob_requests, t_execution[1] , t_execution[0]};
+	assign issued_data_merged = {new_rob_requests, t_execution[2], t_execution[1] , t_execution[0]};
 
     eb_buff_generic #(
         .DW         (ISSUED_DW),
@@ -432,7 +432,8 @@ module processor_top #(
     //Split the Data from the merged Vector
     assign t_execution_o[0]   = issued_data_merged_o[0+:TO_EX_DW];
     assign t_execution_o[1]   = issued_data_merged_o[TO_EX_DW+:TO_EX_DW];
-    assign new_rob_requests_o = issued_data_merged_o[2*TO_EX_DW+:$bits(new_rob_requests)];
+    assign t_execution_o[2]   = issued_data_merged_o[2*TO_EX_DW+:TO_EX_DW];
+    assign new_rob_requests_o = issued_data_merged_o[3*TO_EX_DW+:$bits(new_rob_requests)];
 
 	logic            [     ADDR_BITS-1:0] cache_frw_address;
 	logic            [     ADDR_BITS-1:0] cache_store_address;

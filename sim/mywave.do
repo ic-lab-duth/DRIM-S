@@ -108,6 +108,7 @@ add wave -noupdate -group "decoded instruction A" -label "functional unit" -radi
 add wave -noupdate -group "decoded instruction A" -label "micro operation" -radix unsigned -color orange /tb/module_top/top_processor/id_decoded_1_o.microoperation
 add wave -noupdate -group "decoded instruction A" -label "rs1 or pc" -color yellow /tb/module_top/top_processor/id_decoded_1_o.source1_pc
 add wave -noupdate -group "decoded instruction A" -label "rs2 or immediate" -color yellow /tb/module_top/top_processor/id_decoded_1_o.source2_immediate
+add wave -noupdate -group "decoded instruction A" -label "rs3 valid" -color yellow /tb/module_top/top_processor/id_decoded_1_o.source3_valid
 add wave -noupdate -group "decoded instruction A" -label "is branch" -color yellow /tb/module_top/top_processor/id_decoded_1_o.is_branch
 add wave -noupdate -group "decoded instruction A" -label "is vector" -color yellow /tb/module_top/top_processor/id_decoded_1_o.is_vector
 add wave -noupdate -group "decoded instruction A" -label "is valid" -color yellow /tb/module_top/top_processor/id_decoded_1_o.is_valid
@@ -123,6 +124,7 @@ add wave -noupdate -group "decoded instruction B" -label "functional unit" -radi
 add wave -noupdate -group "decoded instruction B" -label "micro operation" -radix unsigned -color orange /tb/module_top/top_processor/id_decoded_2_o.microoperation
 add wave -noupdate -group "decoded instruction B" -label "rs1 or pc" -color yellow /tb/module_top/top_processor/id_decoded_2_o.source1_pc
 add wave -noupdate -group "decoded instruction B" -label "rs2 or immediate" -color yellow /tb/module_top/top_processor/id_decoded_2_o.source2_immediate
+add wave -noupdate -group "decoded instruction B" -label "rs3 valid" -color yellow /tb/module_top/top_processor/id_decoded_2_o.source3_valid
 add wave -noupdate -group "decoded instruction B" -label "is branch" -color yellow /tb/module_top/top_processor/id_decoded_2_o.is_branch
 add wave -noupdate -group "decoded instruction B" -label "is vector" -color yellow /tb/module_top/top_processor/id_decoded_2_o.is_vector
 add wave -noupdate -group "decoded instruction B" -label "is valid" -color yellow /tb/module_top/top_processor/id_decoded_2_o.is_valid
@@ -151,6 +153,7 @@ add wave -noupdate -group "renamed instruction A" -label "ticket" -radix unsigne
 add wave -noupdate -group "renamed instruction A" -label "RAT ID" -radix unsigned -color orange /tb/module_top/top_processor/renamed_o_1.rat_id
 add wave -noupdate -group "renamed instruction A" -label "rs1 or pc" -color yellow /tb/module_top/top_processor/renamed_o_1.source1_pc
 add wave -noupdate -group "renamed instruction A" -label "rs2 or immediate" -color yellow /tb/module_top/top_processor/renamed_o_1.source2_immediate
+add wave -noupdate -group "renamed instruction A" -label "rs3 valid" -color yellow /tb/module_top/top_processor/renamed_o_1.source3_valid
 add wave -noupdate -group "renamed instruction A" -label "is branch" -color yellow /tb/module_top/top_processor/renamed_o_1.is_branch
 add wave -noupdate -group "renamed instruction A" -label "is vector" -color yellow /tb/module_top/top_processor/renamed_o_1.is_vector
 add wave -noupdate -group "renamed instruction A" -label "is valid" -color yellow /tb/module_top/top_processor/renamed_o_1.is_valid
@@ -169,6 +172,7 @@ add wave -noupdate -group "renamed instruction B" -label "ticket" -radix unsigne
 add wave -noupdate -group "renamed instruction B" -label "RAT ID" -radix unsigned -color orange /tb/module_top/top_processor/renamed_o_2.rat_id
 add wave -noupdate -group "renamed instruction B" -label "rs1 or pc" -color yellow /tb/module_top/top_processor/renamed_o_2.source1_pc
 add wave -noupdate -group "renamed instruction B" -label "rs2 or immediate" -color yellow /tb/module_top/top_processor/renamed_o_2.source2_immediate
+add wave -noupdate -group "renamed instruction B" -label "rs3 valid" -color yellow /tb/module_top/top_processor/renamed_o_2.source3_valid
 add wave -noupdate -group "renamed instruction B" -label "is branch" -color yellow /tb/module_top/top_processor/renamed_o_2.is_branch
 add wave -noupdate -group "renamed instruction B" -label "is vector" -color yellow /tb/module_top/top_processor/renamed_o_2.is_vector
 add wave -noupdate -group "renamed instruction B" -label "is valid" -color yellow /tb/module_top/top_processor/renamed_o_2.is_valid

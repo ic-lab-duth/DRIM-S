@@ -38,8 +38,8 @@ module rob #(
     input  logic     [ROB_INDEX_BITS-1:0]                     flush_ticket           ,
     output logic     [   ROB_ENTRIES-1:0]                     flush_vector_inv       ,
     //Forwarding Port
-    input  logic     [               3:0][ROB_INDEX_BITS-1:0] read_address           ,
-    output logic     [               3:0][              31:0] data_out               ,
+    input  logic     [               5:0][ROB_INDEX_BITS-1:0] read_address           ,
+    output logic     [               5:0][              31:0] data_out               ,
     //Data Cache Interface (Search Interface)
     input  logic                                              cache_blocked          ,
     input  logic     [     ADDR_BITS-1:0]                     cache_addr             ,
@@ -105,8 +105,8 @@ module rob #(
 
     logic [ROB_ENTRIES-1:0]                      tail_plus_oh, tail_oh, tail_oh_inverted, main_match_inv, match_picked_inv, flush_wr_en;
 
-    logic [6:0][ROB_INDEX_BITS-1 : 0]            read_addr_rob;
-    logic [6:0][31 : 0]                          data_out_rob;
+    logic [8:0][ROB_INDEX_BITS-1 : 0]            read_addr_rob;
+    logic [8:0][31 : 0]                          data_out_rob;
 
     logic [ROB_INDEX_BITS-1 : 0]                 cache_forward_addr;
     logic [31 : 0]                               data_for_c, data_for_c_2;
@@ -220,7 +220,7 @@ module rob #(
         end
     end
     //SRAM data banks where the ROB data are being stored
-    sram #(ROB_ENTRIES,DATA_WIDTH,7,FU_NUMBER+1,0)
+    sram #(ROB_ENTRIES,DATA_WIDTH,9,FU_NUMBER+1,0)
     sram(.clk          (clk),
         .rst_n         (rst_n),
 
@@ -245,6 +245,12 @@ module rob #(
             read_addr_rob[i] = read_address[i];
             data_out[i]      = data_out_rob[i];
         end
+
+        read_addr_rob[7] = read_address[4];
+        read_addr_rob[8] = read_address[5];
+        data_out[4]      = data_out_rob[7];
+        data_out[5]      = data_out_rob[8];
+
         //register new stores
         upd_en[FU_NUMBER]        = store_valid;
         upd_positions[FU_NUMBER] = store_ticket;
