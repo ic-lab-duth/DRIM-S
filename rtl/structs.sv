@@ -30,6 +30,7 @@ typedef struct packed {
     logic [6 : 0] ppreg_1         ;
     logic [4 : 0] microoperation_1;
     logic [31: 0] pc_1            ;
+    logic [6 : 0] store_src_1     ;
 
     logic         valid_request_2 ;
     logic         valid_dest_2    ;
@@ -38,6 +39,7 @@ typedef struct packed {
     logic [6 : 0] ppreg_2         ;
     logic [4 : 0] microoperation_2;
     logic [31: 0] pc_2            ;
+    logic [6 : 0] store_src_2     ;
 } new_entries;
 //---------------------------------------------------------------------------------------
 //Struct to Update the Architectural Register File
@@ -102,7 +104,7 @@ typedef struct packed {
     logic [ 6 : 0] destination      ;
     logic [ 1 : 0] functional_unit  ;
     logic [ 4 : 0] microoperation   ;
-    logic [ 3 : 0] ticket           ;
+    logic [ 2 : 0] ticket           ;
     logic [ 2 : 0] rm               ;
     logic [ 1 : 0] rat_id           ;
     logic          is_branch        ;
@@ -165,17 +167,29 @@ typedef struct packed {
 } to_vector;
 
 typedef struct packed {
-    logic [31:0]    opA;
-    logic [31:0]    opB;
-    logic [31:0]    opC;
+    logic [6:0]     rs1;
+    logic [6:0]     rs2;
+    logic [6:0]     rs3;
 
-    logic [2:0]     tagA;
-    logic [2:0]     tagB;
-    logic [2:0]     tagC;
-
-    logic           pendingA;
-    logic           pendingB;
-    logic           pendingC;
+    logic           pending1;
+    logic           pending2;
+    logic           pending3;
 
     logic [3:0]     branch_if;
-} reservation_entry_t;
+} reservation_entry2_t;
+
+// typedef struct packed {
+//     logic [31:0]    opA;
+//     logic [31:0]    opB;
+//     logic [31:0]    opC;
+
+//     logic [2:0]     tagA;
+//     logic [2:0]     tagB;
+//     logic [2:0]     tagC;
+
+//     logic           pendingA;
+//     logic           pendingB;
+//     logic           pendingC;
+
+//     logic [3:0]     branch_if;
+// } reservation_entry_t;

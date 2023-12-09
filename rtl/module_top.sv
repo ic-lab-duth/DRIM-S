@@ -58,7 +58,7 @@ module module_top (
     localparam VECTOR_BUS_WIDTH                     = 32;
     localparam VECTOR_MEMORY_BITS                   = 32;
     localparam VECTOR_ADDR_RANGE                    = 32768;
-    localparam VECTOR_MULTICYCLE_OPERATION_CYCLES   = 2;
+    localparam VECTOR_MULTICYCLE_OPERATION_CYCLES   = 5;
     localparam VECTOR_VREG_BITS                     = VECTOR_LANES_DATA_WIDTH*VECTOR_NUMBER_VECTOR_LANES;
     //===================================================================================
     logic                    icache_valid_i      ;

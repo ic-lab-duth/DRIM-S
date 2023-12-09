@@ -19,7 +19,7 @@ logic masked_write_back_temp;
 logic [4:0] destination_mid;
 logic masked_write_back_mid;
 logic [2:0] sew_mid;
-logic write_back_enable_mid;
+logic [3:0]write_back_enable_mid;
 logic multiplication_flag_mid;
 logic [DATA_WIDTH-1:0] operand_3_mid;
 
@@ -126,9 +126,13 @@ always_ff @(posedge clk or posedge rst) begin
     write_back_enable_mid<=0;
   else begin
     if(data_in.multiplication_flag_out)
-      write_back_enable_mid<=data_in.write_back_enable_out;
+      write_back_enable_mid[0]<=data_in.write_back_enable_out;
     else
-      write_back_enable_mid<=0;
+      write_back_enable_mid[0]<=0;
+
+    write_back_enable_mid[1] <= write_back_enable_mid[0];
+    write_back_enable_mid[2] <= write_back_enable_mid[1];
+    write_back_enable_mid[3] <= write_back_enable_mid[2];
   end
 end
 
@@ -174,7 +178,7 @@ always_ff @(posedge clk or posedge rst) begin
           data_out.result_out<=result_temp;
           data_out.masked_write_back_out<=masked_write_back_mid;
           data_out.sew_out<=sew_mid;
-          data_out.write_back_enable_out<=write_back_enable_mid;
+          data_out.write_back_enable_out<=write_back_enable_mid[3];
           data_out.operand_3<=operand_3_mid;
         end
         3'b0?1: begin
@@ -182,7 +186,7 @@ always_ff @(posedge clk or posedge rst) begin
           data_out.result_out<=result_temp;
           data_out.masked_write_back_out<=masked_write_back_mid;
           data_out.sew_out<=sew_mid;
-          data_out.write_back_enable_out<=write_back_enable_mid;
+          data_out.write_back_enable_out<=write_back_enable_mid[3];
           data_out.operand_3<=operand_3_mid;
         end
         default: begin

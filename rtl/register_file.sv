@@ -12,32 +12,28 @@
 * @param SIZE       : # of Entries in the Register File
 * @param READ_PORTS : # of Read Ports
 */
-module register_file #(DATA_WIDTH=32, ADDR_WIDTH=6, SIZE=64, READ_PORTS=2) (
+module register_file #(DATA_WIDTH=32, ADDR_WIDTH=6, SIZE=64, READ_PORTS=2, WRITE_PORTS = 2) (
 	input  logic                                  clk         ,
 	input  logic                                  rst_n       ,
 	// Write Port
-	input  logic                                  write_En    ,
-	input  logic [ADDR_WIDTH-1:0]                 write_Addr  ,
-	input  logic [DATA_WIDTH-1:0]                 write_Data  ,
-	// Write Port
-	input  logic                                  write_En_2  ,
-	input  logic [ADDR_WIDTH-1:0]                 write_Addr_2,
-	input  logic [DATA_WIDTH-1:0]                 write_Data_2,
+	input  logic [WRITE_PORTS-1:0]                 write_En  ,
+	input  logic [WRITE_PORTS-1:0][ADDR_WIDTH-1:0] write_Addr,
+	input  logic [WRITE_PORTS-1:0][DATA_WIDTH-1:0] write_Data,
 	// Read Port
 	input  logic [READ_PORTS-1:0][ADDR_WIDTH-1:0] read_Addr   ,
 	output logic [READ_PORTS-1:0][DATA_WIDTH-1:0] data_Out
 );
 	// #Internal Signals#
 	logic [SIZE-1:0][DATA_WIDTH-1 : 0] RegFile;
-	logic not_zero, not_zero_2;
+	logic [WRITE_PORTS - 1 : 0] not_zero;
 
-	//Create OH signals
-	logic [SIZE-1:0] address_1, address_2;
-	assign address_1 = 1 << write_Addr;
-	assign address_2 = 1 << write_Addr_2;
-	//do not write on slot 0
-	assign not_zero   = |write_Addr;
-	assign not_zero_2 = |write_Addr_2;
+
+	logic [WRITE_PORTS - 1 : 0][SIZE-1:0] address;
+	always_comb for (int i = 0; i < WRITE_PORTS; ++i) begin
+		address[i] = 1 << write_Addr[i];
+		not_zero[i] = |write_Addr[i];
+	end
+
 	//Write Data
 	always_ff @(posedge clk or negedge rst_n) begin : WriteData
 		if(!rst_n) begin
@@ -47,10 +43,8 @@ module register_file #(DATA_WIDTH=32, ADDR_WIDTH=6, SIZE=64, READ_PORTS=2) (
 			// 	RegFile[write_Addr] <= write_Data;
 			// end
 			for (int i = 0; i < SIZE; i++) begin
-				if(write_En_2 && not_zero_2 && address_2[i]) begin
-					RegFile[i] <= write_Data_2;
-				end else if(write_En && not_zero && address_1[i]) begin
-					RegFile[i] <= write_Data;
+				for (int j = 0; j < WRITE_PORTS; ++j) begin
+					if (write_En[j] && not_zero[j] && address[j][i]) RegFile[i] <= write_Data[j];
 				end
 			end
 		end

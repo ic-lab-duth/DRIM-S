@@ -25,7 +25,7 @@ module dec_mul #(parameter int INSTRUCTION_BITS=32,
                  output logic [1:0] mode_memory,
                  output logic memory_enable,
                  output logic [4:0] destination_id,
-                 //inputs and outputs to vector_lane 
+                 //inputs and outputs to vector_lane
                  input logic [LANES_DATA_WIDTH-1:0] mask_register [0:NUMBER_VECTOR_LANES-1],
                  output logic [MICROOP_BIT-1:0] alu_op_out [0:NUMBER_VECTOR_LANES-1],
                  output logic [4:0] operand_1,
@@ -117,7 +117,7 @@ always_comb begin
       end
       default: begin
          operand_1_immediate=0;
-      end      
+      end
    endcase
 end
 //
@@ -148,7 +148,7 @@ always_comb begin
       end
       default: begin
          operand_1_scalar=0;
-      end 
+      end
    endcase
 end
 //
@@ -160,11 +160,12 @@ assign choice={instruction_temp[14:12],instruction_temp[31:26]};
 assign vadc_op=(choice==9'b000010000 || choice==9'b100010000 || choice==9'b011010000);
 
 
-//multiplication flag to indicate execution needs more than one cycle 
+//multiplication flag to indicate execution needs more than one cycle
 assign multiplication_flag_temp=(choice==9'b010100101||choice==9'b110100101||choice==9'b010100111||choice==9'b110100111||
                                     choice==9'b010100100||choice==9'b110100100||choice==9'b010100110||choice==9'b110100110||
                                     choice==9'b010101101||choice==9'b110101101||choice==9'b010101001||choice==9'b110101001);
-
+logic float_flag_temp;
+assign float_flag_temp = instruction_temp[14:12] == 3'b001 || instruction_temp[14:12] == 3'b101;
 //distribute mask bits for operation
 generate
    if(LANES_DATA_WIDTH==8) begin
@@ -233,7 +234,7 @@ generate
                for(int i=0;i<NUMBER_VECTOR_LANES;i++) begin
                   mask_bits_temp[i]=vector_mask[(LANES_DATA_WIDTH/64)*i+:LANES_DATA_WIDTH/64];
                end
-            end  
+            end
          endcase
       end
    end
@@ -254,7 +255,7 @@ endgenerate
 
 //////////////////////////////////////////////////////////////
 /////              Setting outputs to memory             /////
-/////                                                    /////        
+/////                                                    /////
 //////////////////////////////////////////////////////////////
 
 //the sew encoding our memory instruction operation uses
@@ -307,7 +308,7 @@ end
 
 //mode of memory_unit
 always_ff @(posedge clk or posedge rst) begin
-   if(rst) 
+   if(rst)
       mode_memory<=0;
    else begin
       if(valid_instruction && ready_vector) begin
@@ -359,7 +360,7 @@ end
 
 //////////////////////////////////////////////////////////////
 /////              Setting outputs to vector             /////
-/////                                                    /////        
+/////                                                    /////
 //////////////////////////////////////////////////////////////
 
 //set operands
@@ -388,7 +389,7 @@ end
 //masked_operation flag
 
 always_ff @(posedge clk or posedge rst) begin
-   if(rst) 
+   if(rst)
       masked_operation<=0;
    else begin
       if(valid_instruction && ready_vector)
@@ -416,11 +417,11 @@ end
 
 //multiplication flag
 always_ff @(posedge clk or posedge rst) begin
-   if(rst) 
+   if(rst)
       multiplication_flag<=0;
    else begin
       if(valid_instruction && ready_vector) begin
-         multiplication_flag<=multiplication_flag_temp;
+         multiplication_flag<=multiplication_flag_temp | float_flag_temp;
       end
    end
 end
@@ -442,7 +443,7 @@ end
 
 //flag for indexed memory operation for vector lane
 always_ff @(posedge clk or posedge rst) begin
-   if(rst) 
+   if(rst)
       indexed_memory_operation<=0;
    else begin
       indexed_memory_operation<=(valid_instruction && ready_vector && (instruction_temp[27:26]==2'b01 || instruction_temp[27:26]==2'b11));
@@ -452,7 +453,7 @@ end
 
 //////////////////////////////////////////////////////////////
 /////                  ready_signal                      /////
-/////                                                    /////        
+/////                                                    /////
 //////////////////////////////////////////////////////////////
 assign ready_vector=1;
 

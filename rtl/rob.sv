@@ -29,14 +29,15 @@ module rob #(
     parameter ROB_ENTRIES    = 8 ,
     parameter FU_NUMBER      = 4 ,
     parameter ROB_INDEX_BITS = 3 ,
-    parameter DATA_WIDTH     = 32
+    parameter DATA_WIDTH     = 32,
+    parameter REGISTERS      = 128
 ) (
     input  logic                                              clk                    ,
     input  logic                                              rst_n                  ,
     //Flush Port
     input  logic                                              flush_valid            ,
     input  logic     [ROB_INDEX_BITS-1:0]                     flush_ticket           ,
-    output logic     [   ROB_ENTRIES-1:0]                     flush_vector_inv       ,
+    output logic     [     REGISTERS-1:0]                     flush_vector_inv       ,
     //Forwarding Port
     input  logic     [               5:0][ROB_INDEX_BITS-1:0] read_address           ,
     output logic     [               5:0][              31:0] data_out               ,
@@ -63,7 +64,13 @@ module rob #(
     input  new_entries                                        new_requests           ,
     output to_issue                                           t_issue                ,
     output writeback_toARF                                    writeback_1            ,
-    output writeback_toARF                                    writeback_2
+    output writeback_toARF                                    writeback_2            ,
+
+    output logic [6 : 0] regfile_address,
+    input logic [DATA_WIDTH - 1 : 0] regfile_data,
+
+    output logic [6 : 0] regfile_address_to_store,
+    input logic [DATA_WIDTH - 1 : 0] regfile_data_to_store
 );
 
 
@@ -99,10 +106,6 @@ module rob #(
         if(will_commit_2) counter_actual = counter_actual - 2;
     end
 
-    logic [FU_NUMBER : 0][ROB_INDEX_BITS-1 : 0]  upd_positions;
-    logic [FU_NUMBER : 0][31 : 0]                new_data;
-    logic [FU_NUMBER : 0]                        upd_en;
-
     logic [ROB_ENTRIES-1:0]                      tail_plus_oh, tail_oh, tail_oh_inverted, main_match_inv, match_picked_inv, flush_wr_en;
 
     logic [8:0][ROB_INDEX_BITS-1 : 0]            read_addr_rob;
@@ -115,7 +118,6 @@ module rob #(
     assign flush_ticket_plus = flush_ticket+1;
     //Get the Entries for Invalidation/Flushing
     assign flush_wr_en      = diff_wr_en(flush_ticket_plus, head);
-    assign flush_vector_inv = ~flush_wr_en;
 
     //Pick the Entries for Invalidation (creates an invalidate_en vector)
     function logic[ROB_ENTRIES-1:0] diff_wr_en(int ticket, int pointer);
@@ -166,11 +168,11 @@ module rob #(
         .anygnt_o       (one_found)
         );
     //Grab the secondary match
-    and_or_mux #( .INPUTS   (ROB_ENTRIES),
-                  .DW       (1))
-    mux_sec ( .data_in  (secondary_match),
-              .sel      (match_picked),
-              .data_out (exact_match));
+    and_or_mux #(   .INPUTS   (ROB_ENTRIES),
+                    .DW       (1))
+    mux_sec (   .data_in  (secondary_match),
+                .sel      (match_picked),
+                .data_out (exact_match));
     //Encode the Pointer
     always_comb begin : encoder
         cache_forward_addr = 0;
@@ -179,6 +181,7 @@ module rob #(
         end
     end
     //Check the Microops for forwarding hazards
+
     always_comb begin : MicroopOk
         if(cache_microop==5'b00001) begin
             //load==LW
@@ -208,6 +211,7 @@ module rob #(
         end
     end
     //Create the Forward Output
+    assign regfile_address = rob[cache_forward_addr].preg;
     always_comb begin : CreateCacheForwardSignals
         if(input_forward_match) begin
             cache_valid = input_forward_sec & input_forward_microop_ok;
@@ -216,50 +220,11 @@ module rob #(
         end else begin
             cache_valid = one_found & exact_match & microop_ok;
             cache_stall = one_found & ( ~exact_match | ~microop_ok);
-            cache_data  = data_out_rob[5];
+            cache_data  = regfile_data;
         end
     end
-    //SRAM data banks where the ROB data are being stored
-    sram #(ROB_ENTRIES,DATA_WIDTH,9,FU_NUMBER+1,0)
-    sram(.clk          (clk),
-        .rst_n         (rst_n),
 
-        .wr_en         (upd_en),
-        .write_address (upd_positions),
-        .new_data      (new_data),
 
-        .read_address  (read_addr_rob),
-        .data_out      (data_out_rob));
-
-    always_comb begin : MapSignals
-        //Forwarding Address for the Data Cache
-        read_addr_rob[5] = cache_forward_addr;
-        //Address for Commit Data
-        read_addr_rob[6] = head_plus;
-        read_addr_rob[4] = head;
-        for (int i = 0; i < FU_NUMBER; i++) begin
-            upd_en[i]        = update[i].valid;
-            upd_positions[i] = update[i].ticket;
-            new_data[i]      = update[i].data;
-
-            read_addr_rob[i] = read_address[i];
-            data_out[i]      = data_out_rob[i];
-        end
-
-        read_addr_rob[7] = read_address[4];
-        read_addr_rob[8] = read_address[5];
-        data_out[4]      = data_out_rob[7];
-        data_out[5]      = data_out_rob[8];
-
-        //register new stores
-        upd_en[FU_NUMBER]        = store_valid;
-        upd_positions[FU_NUMBER] = store_ticket;
-        new_data[FU_NUMBER]      = store_data;
-    end
-
-    //Data for Commit
-    assign data_for_c   = data_out_rob[4];
-    assign data_for_c_2 = data_out_rob[6];
     assign can_commit   = rob[head].is_store ? rob[head].valid & ~rob[head].pending & ~cache_blocked : rob[head].valid & ~rob[head].pending;
     assign will_commit  = (can_commit & ~rob[head].valid_exception) | (rob[head].flushed & rob[head].valid);
 
@@ -269,28 +234,29 @@ module rob #(
 
     // RETIREMENT
     //Create writeback_1 Request for the Data Cache
+    assign regfile_address_to_store = rob[head].preg;
     assign cache_writeback_valid   = can_commit & will_commit & rob[head].is_store & ~rob[head].flushed;
     assign cache_writeback_addr    = rob[head].address;
-    assign cache_writeback_data    = data_for_c;
+    assign cache_writeback_data    = regfile_data_to_store;
     assign cache_writeback_microop = rob[head].microoperation;
     //Create Commit Request for the RF #1
     assign writeback_1.valid_commit = will_commit;
     assign writeback_1.valid_write  = (will_commit & rob[head].valid_dest & ~rob[head].flushed);
     assign writeback_1.flushed      = rob[head].flushed;
-    assign writeback_1.ldst         = rob[head].lreg;
-    assign writeback_1.pdst         = rob[head].preg;
-    assign writeback_1.ppdst        = rob[head].ppreg;
-    assign writeback_1.data         = data_for_c;
+    assign writeback_1.ldst         = rob[head].valid_dest ? rob[head].lreg : 0;
+    assign writeback_1.pdst         = rob[head].valid_dest ? rob[head].preg : 0;
+    assign writeback_1.ppdst        = rob[head].valid_dest ? rob[head].ppreg : 0;
+    //* assign writeback_1.data         = data_for_c;
     assign writeback_1.ticket       = head;
     assign writeback_1.pc           = rob[head].pc;
     //Create Commit Request for the RF #2
     assign writeback_2.valid_commit = will_commit_2;
     assign writeback_2.valid_write  = (will_commit_2 & rob[head_plus].valid_dest & ~rob[head_plus].flushed);
     assign writeback_2.flushed      = rob[head_plus].flushed;
-    assign writeback_2.ldst         = rob[head_plus].lreg;
-    assign writeback_2.pdst         = rob[head_plus].preg;
-    assign writeback_2.ppdst        = rob[head_plus].ppreg;
-    assign writeback_2.data         = data_for_c_2;
+    assign writeback_2.ldst         = rob[head_plus].valid_dest ? rob[head_plus].lreg : 0;
+    assign writeback_2.pdst         = rob[head_plus].valid_dest ? rob[head_plus].preg : 0;
+    assign writeback_2.ppdst        = rob[head_plus].valid_dest ? rob[head_plus].ppreg : 0;
+    //* assign writeback_2.data         = data_for_c_2;
     assign writeback_2.ticket       = head_plus;
     assign writeback_2.pc           = rob[head_plus].pc;
     //ROB StatsCounter Management
@@ -332,6 +298,7 @@ module rob #(
                 rob[i].valid_exception <= 0;
                 rob[i].is_store        <= 0;
                 rob[i].pc              <= new_requests.pc_2;
+                rob[i].address[6:0]    <= new_requests.store_src_2;
             end else if(new_requests.valid_request_2 && new_requests.valid_request_1 && tail_oh[i]) begin
                 //Register Issue 2
                 rob[i].pending         <= 1;
@@ -343,6 +310,7 @@ module rob #(
                 rob[i].valid_exception <= 0;
                 rob[i].is_store        <= 0;
                 rob[i].pc              <= new_requests.pc_1;
+                rob[i].address[6:0]    <= new_requests.store_src_1;
                 end else if(new_requests.valid_request_1 && !new_requests.valid_request_2 &&  tail_oh[i]) begin
                 //Register Issue 1
                 rob[i].pending         <= 1;
@@ -354,6 +322,7 @@ module rob #(
                 rob[i].valid_exception <= 0;
                 rob[i].is_store        <= 0;
                 rob[i].pc              <= new_requests.pc_1;
+                rob[i].address[6:0]    <= new_requests.store_src_1;
                 end else if(!new_requests.valid_request_1 && new_requests.valid_request_2 &&  tail_oh[i]) begin
                 //Register Issue 1
                 rob[i].pending         <= 1;
@@ -365,12 +334,15 @@ module rob #(
                 rob[i].valid_exception <= 0;
                 rob[i].is_store        <= 0;
                 rob[i].pc              <= new_requests.pc_2;
+                rob[i].address[6:0]    <= new_requests.store_src_2;
             end else begin
                 if(store_valid && i==store_ticket) begin
                     //Register STORE update from Data Cache
-                    rob[i].pending  <= 0;
-                    rob[i].is_store <= 1;
-                    rob[i].address  <= store_address;
+                    rob[i].pending      <= 0;
+                    rob[i].is_store     <= 1;
+                    rob[i].preg         <= rob[i].address[6:0];
+                    rob[i].address      <= store_address;
+                    rob[i].valid_dest   <= 0;
                 end else begin
                     //Register FU Updates from EX
                     for (int j = 0; j < FU_NUMBER; j++) begin
@@ -420,6 +392,20 @@ module rob #(
             end
         end
     end
+
+    always_comb begin
+        flush_vector_inv = 0;
+        if(new_requests.valid_request_1 && flush_valid)
+            flush_vector_inv |= (1 << new_requests.preg_1);
+        if(new_requests.valid_request_2 && flush_valid)
+            flush_vector_inv |= (1 << new_requests.preg_2);
+        for (int  i = 0; i < ROB_ENTRIES; ++i) begin
+            if (flush_valid && flush_wr_en[i] && ~rob[i].is_store)
+                flush_vector_inv |= (1 << rob[i].preg);
+        end
+
+    end
+
     //ROB Head Management
     always_ff @(posedge clk or negedge rst_n) begin : Head
         if(!rst_n) begin
@@ -445,8 +431,4 @@ module rob #(
         end
     end
 
-
-`ifdef INCLUDE_SVAS
-    `include "rob_sva.sv"
-`endif
 endmodule

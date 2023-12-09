@@ -30,7 +30,7 @@ module branch_resolver #(
 	input  logic [    DATA_WIDTH-1:0] csr_data   ,
 	output logic                      csr_wr_en  ,
 	output logic [    DATA_WIDTH-1:0] csr_wr_data
-);	
+);
 
 	logic unsigned [DATA_WIDTH-1 : 0] data_1_u, data_2_u, immediate_u;
 	logic signed   [DATA_WIDTH-1 : 0] data_1_s, data_2_s, immediate_s;
@@ -99,7 +99,7 @@ module branch_resolver #(
 				csr_wr_data  = csri_imm;
 			end
 			5'b00010: begin
-				//SLTI 
+				//SLTI
 				if(data_1_s<immediate_s) result = 1;
 				else 				     result = 0;
 				jump_taken   = 0;
@@ -146,7 +146,7 @@ module branch_resolver #(
 			end
 			5'b00110: begin
 				//SRA
-				result       = data_1_u >>> data_2_u[4:0];
+				result       = data_1_s >>> data_2_u[4:0];
 				jump_taken   = 0;
 				valid_jump   = 0;
 				jump_address = 0;
@@ -191,7 +191,7 @@ module branch_resolver #(
 			5'b01010: begin										// can generate exception
 				// JAL
 				jump_address = immediate_u + input_data.pc;
-				result       = input_data.pc + 4; 
+				result       = input_data.pc + 4;
 				valid_jump   = 1;
 				jump_taken   = 1;
 				exc_valid    = jump_address[0];
@@ -348,7 +348,7 @@ module branch_resolver #(
 				exc_valid       = 0;
 				exc_cause       = 0;
 				jump_taken      = 0;
-				csr_wr_en       = |input_data.data1;				
+				csr_wr_en       = |input_data.data1;
 				csr_wr_data     = input_data.data1 | csr_data; //rs1 is mask -> set bits
 			end
 			5'b11010: begin
@@ -381,7 +381,7 @@ module branch_resolver #(
 				exc_valid       = 0;
 				exc_cause       = 0;
 				jump_taken      = 0;
-				csr_wr_en       = |csri_imm;				
+				csr_wr_en       = |csri_imm;
 				csr_wr_data     = csri_imm | csr_data; //rs1 is mask -> set bits
 			end
 			5'b11101: begin
@@ -405,7 +405,7 @@ module branch_resolver #(
 				csr_wr_en    = 0;
 				csr_wr_data  = csri_imm;
 			end
-		endcase	
+		endcase
 	end
 
 endmodule

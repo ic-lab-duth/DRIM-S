@@ -149,21 +149,23 @@ module rr #(
         end
     end
     //New ROB Requests to reserve entries
-    assign rob_requests.valid_request_1  = VECTOR_ENABLED? valid_o_1 & ~instruction_1.is_vector : valid_o_1;
-    assign rob_requests.valid_dest_1     = |instruction_o_1.destination;
-    assign rob_requests.lreg_1           = instruction_1.destination;
-    assign rob_requests.preg_1           = instruction_o_1.destination;
-    assign rob_requests.ppreg_1          = ppreg_1;
-    assign rob_requests.microoperation_1 = instruction_1.microoperation;
-    assign rob_requests.pc_1             = instruction_1.pc;
+    assign rob_requests.valid_request_1     = VECTOR_ENABLED ? valid_o_1 & ~instruction_1.is_vector : valid_o_1;
+    assign rob_requests.valid_dest_1        = |instruction_o_1.destination;
+    assign rob_requests.lreg_1              = instruction_1.destination;
+    assign rob_requests.preg_1              = instruction_o_1.destination;
+    assign rob_requests.ppreg_1             = ppreg_1;
+    assign rob_requests.microoperation_1    = instruction_1.microoperation;
+    assign rob_requests.pc_1                = instruction_1.pc;
+    assign rob_requests.store_src_1         = instruction_o_1.source2;
 
-    assign rob_requests.valid_request_2  = VECTOR_ENABLED? valid_o_2 & ~instruction_2.is_vector : valid_o_2;
-    assign rob_requests.valid_dest_2     = |instruction_o_2.destination;
-    assign rob_requests.lreg_2           = instruction_2.destination;
-    assign rob_requests.preg_2           = instruction_o_2.destination;
-    assign rob_requests.ppreg_2          = (instruction_1.destination == instruction_2.destination) ? instruction_o_1.destination : ppreg_2;
-    assign rob_requests.microoperation_2 = instruction_2.microoperation;
-    assign rob_requests.pc_2             = instruction_2.pc;
+    assign rob_requests.valid_request_2     = VECTOR_ENABLED ? valid_o_2 & ~instruction_2.is_vector : valid_o_2;
+    assign rob_requests.valid_dest_2        = |instruction_o_2.destination;
+    assign rob_requests.lreg_2              = instruction_2.destination;
+    assign rob_requests.preg_2              = instruction_o_2.destination;
+    assign rob_requests.ppreg_2             = (instruction_1.destination == instruction_2.destination) ? instruction_o_1.destination : ppreg_2;
+    assign rob_requests.microoperation_2    = instruction_2.microoperation;
+    assign rob_requests.pc_2                = instruction_2.pc;
+    assign rob_requests.store_src_2         = instruction_o_2.source2;
 
     //Control Flow
     logic rob_stall, reclaim_stall; //for performance counters

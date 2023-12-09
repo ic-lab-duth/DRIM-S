@@ -51,6 +51,7 @@ logic [DATA_WIDTH-1:0] temp_vsll;
 logic [DATA_WIDTH-1:0] temp_vsrl;
 //sra signal
 logic [DATA_WIDTH-1:0] temp_vsra;
+logic [DATA_WIDTH-1:0] temp_vfma;
 logic [DATA_WIDTH-1:0] temp;
 
 
@@ -63,10 +64,19 @@ logic vmadd;
 logic [4:0] operand_1_choice;
 
 assign immediate=(alu_op[MICROOP_BIT-1:MICROOP_BIT-3]==3'b011);
-assign scalar_op=(alu_op[MICROOP_BIT-1:MICROOP_BIT-3]==3'b100);
+assign scalar_op=(alu_op[MICROOP_BIT-1:MICROOP_BIT-3]==3'b100 || alu_op[MICROOP_BIT-1:MICROOP_BIT-3]==3'b101);
 assign invert_operand_1=(alu_op[5:0]==6'b000010);
 assign vmacc=(alu_op[5:0]==6'b101101);
 assign vmadd=(alu_op[7:0]==8'b10101001);
+
+logic [3:0] f_op;
+assign f_op = 	alu_op[5:0] == 6'b000000 ? 4'b0010 :
+				alu_op[5:0] == 6'b000010 ? 4'b1010 :
+				alu_op[5:0] == 6'b100100 ? 4'b0001 :
+				alu_op[5:0] == 6'b101000 ? 4'b0011 :
+				alu_op[5:0] == 6'b101001 ? 4'b0111 :
+				alu_op[5:0] == 6'b101010 ? 4'b1011 :
+				alu_op[5:0] == 6'b101011 ? 4'b1111 : 4'b0000;
 
 assign operand_1_choice={immediate,scalar_op,invert_operand_1,vmacc,vmadd};
 
@@ -177,6 +187,20 @@ assign not_equal=(alu_op[5:0]==6'b011001);
 assign signed_comp=(alu_op[5:0]==6'b011011 | alu_op[5:0]==6'b011101 | alu_op[5:0]==6'b011111);
 
 //
+genvar gv;
+generate
+	for (gv = 0; gv < DATA_WIDTH/32; ++gv) begin
+		fma #(.FW(23), .EW(8)) fma (
+									.clk	(clk),
+									.rm		(0),
+									.op		(f_op),
+									.opA	(operand_1[gv*32 +: 32]),
+									.opB	(operand_2[gv*32 +: 32]),
+									.opC	(operand_3_vector[gv*32 +: 32]),
+									.result	(temp_vfma[gv*32 +: 32])
+	);
+	end
+endgenerate
 
 adder #(.OPERANDS_WIDTH(DATA_WIDTH))
 	  add(.sew(sew),
@@ -246,7 +270,13 @@ always_comb begin
 	masked_write_back=0;
 	casez(alu_op)
 		//vadd(OPIVV,OPIVX,OPIVI)
-		9'b???000000: temp=temp_add;
+		9'b000000000: temp=temp_add;
+		9'b010000000: temp=temp_add;
+		9'b011000000: temp=temp_add;
+		9'b100000000: temp=temp_add;
+		9'b110000000: temp=temp_add;
+		9'b001000000: temp=temp_vfma;
+		9'b101000000: temp=temp_vfma;
 		//vand(OPIVV,OPIVX,OPIVI)
 		9'b???001001:temp=temp_and;
 		//vor(OPIVV,OPIVX,OPIVI)
@@ -258,7 +288,19 @@ always_comb begin
 		//vmulh(OPMVV,OPMVX)
 		9'b???100111:temp=temp_mul;
 		//vmulhu(OPMVV,OPMVX)
-		9'b???100100:temp=temp_mul;
+		9'b000100100:temp=temp_mul;
+		9'b010100100:temp=temp_mul;
+		9'b011100100:temp=temp_mul;
+		9'b100100100:temp=temp_mul;
+		9'b110100100:temp=temp_mul;
+		9'b001100100:temp=temp_vfma;
+		9'b101100100:temp=temp_vfma;
+
+		9'b001101010:temp=temp_vfma;
+		9'b101101010:temp=temp_vfma;
+
+		9'b001101011:temp=temp_vfma;
+		9'b101101011:temp=temp_vfma;
 		//vmulhsu(OPMVV)
 		9'b???100110:temp=temp_mul;
 		//vmacc(OPMVV,OPMVX)
@@ -268,11 +310,19 @@ always_comb begin
 		//vsll(OPIVI)
 		9'b011100101:temp=temp_vsll;
 		//vsrl(OPIVV,OPIVX,OPIVI)
-		9'b???101000:temp=temp_vsrl;
+		9'b000101000:temp=temp_vsrl;
+		9'b010101000:temp=temp_vsrl;
+		9'b011101000:temp=temp_vsrl;
+		9'b100101000:temp=temp_vsrl;
+		9'b110101000:temp=temp_vsrl;
+		9'b001101000:temp=temp_vfma;
+		9'b101101000:temp=temp_vfma;
 		//vsra(OPIVV,OPIVX)
 		9'b?00101001:temp=temp_vsra;
 		//vsra(OPIVI)
 		9'b011101001:temp=temp_vsra;
+		9'b001101001:temp=temp_vfma;
+		9'b101101001:temp=temp_vfma;
 		//vmseq(OPIVV,OPIVX,OPIVI)
 		9'b???011000: begin
 			temp=temp_comp;
@@ -306,7 +356,13 @@ always_comb begin
 		//vadc(OPIVV,OPIVI)
 		9'b???010000:temp=temp_add;
 		//vsub(OPIVV,OPIVX,OPIVI)
-		9'b???000010:temp=temp_add;
+		9'b000000010:temp=temp_add;
+		9'b010000010:temp=temp_add;
+		9'b011000010:temp=temp_add;
+		9'b100000010:temp=temp_add;
+		9'b110000010:temp=temp_add;
+		9'b001000010:temp=temp_vfma;
+		9'b101000010:temp=temp_vfma;
 		//vmsgt (OPIVX,OPIVI)
 		9'b???011111: begin
 			temp=temp_comp;

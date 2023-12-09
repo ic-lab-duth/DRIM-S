@@ -6,8 +6,7 @@ module reservation_station   #(
                                 parameter int INPUT_PORTS           = 2,
                                 parameter int OUTPUT_PORTS          = 2,
                                 parameter int SEARCH_PORTS          = 4,
-                                parameter int ROB_DEPTH             = 16,
-                                parameter int OPERAND_WIDTH         = 32,
+                                parameter int REGISTERS             = 128,
                                 parameter int DEPTH                 = 4,
                                 parameter int EXTRA_DATA_WIDTH      = 4
                             )(
@@ -17,19 +16,18 @@ module reservation_station   #(
                                 // push port
                                 output  logic [INPUT_PORTS - 1 : 0]                             ready_out,
                                 input   logic [INPUT_PORTS - 1 : 0]                             valid_in,
-                                input   reservation_entry_t [INPUT_PORTS - 1 : 0]               data_in,
+                                input   reservation_entry2_t [INPUT_PORTS - 1 : 0]               data_in,
                                 input   logic [INPUT_PORTS - 1 : 0][EXTRA_DATA_WIDTH - 1 : 0]   extra_in,
 
                                 // pop port
                                 output  logic [OUTPUT_PORTS - 1 : 0]                            valid_out,
                                 input   logic [OUTPUT_PORTS - 1 : 0]                            ready_in,
-                                output  reservation_entry_t [OUTPUT_PORTS - 1 : 0]              data_out,
+                                output  reservation_entry2_t [OUTPUT_PORTS - 1 : 0]              data_out,
                                 output  logic [OUTPUT_PORTS - 1 : 0][EXTRA_DATA_WIDTH - 1 : 0]  extra_out,
 
                                 // search port
                                 input logic [SEARCH_PORTS - 1 : 0]                              search_valid,
-                                input logic [SEARCH_PORTS - 1 : 0][$clog2(ROB_DEPTH) - 1 : 0]   search_tags,
-                                input logic [SEARCH_PORTS - 1 : 0][OPERAND_WIDTH - 1 : 0]       search_data,
+                                input logic [SEARCH_PORTS - 1 : 0][$clog2(REGISTERS) - 1 : 0]   search_tags,
 
                                 // flush port
                                 input logic branch_resolved,
@@ -37,7 +35,7 @@ module reservation_station   #(
                             );
 
     logic [DEPTH - 1 : 0][EXTRA_DATA_WIDTH - 1  :0] extra;
-    reservation_entry_t [DEPTH - 1 : 0]             data;
+    reservation_entry2_t [DEPTH - 1 : 0]             data;
 
     logic [DEPTH - 1 : 0] valid;
     logic [DEPTH - 1 : 0] tail;
@@ -116,17 +114,14 @@ module reservation_station   #(
         for (int i = 0; i < DEPTH; i += 1) begin
             data[i].branch_if <= data[i].branch_if >> branch_resolved;
             for (int k = 0; k < SEARCH_PORTS; k += 1) begin
-                if (data[i].tagA == search_tags[k] && search_valid[k] && data[i].pendingA) begin
-                    data[i].opA         <= search_data[k];
-                    data[i].pendingA    <= 0;
+                if (data[i].rs1 == search_tags[k] && search_valid[k] && data[i].pending1) begin
+                    data[i].pending1    <= 0;
                 end
-                if (data[i].tagB == search_tags[k] && search_valid[k] && data[i].pendingB) begin
-                    data[i].opB         <= search_data[k];
-                    data[i].pendingB    <= 0;
+                if (data[i].rs2 == search_tags[k] && search_valid[k] && data[i].pending2) begin
+                    data[i].pending2    <= 0;
                 end
-                if (data[i].tagC == search_tags[k] && search_valid[k] && data[i].pendingC) begin
-                    data[i].opC         <= search_data[k];
-                    data[i].pendingC    <= 0;
+                if (data[i].rs3 == search_tags[k] && search_valid[k] && data[i].pending3) begin
+                    data[i].pending3    <= 0;
                 end
             end
             if (tail[(i + INPUT_PORTS - 1)%DEPTH] & tail[i]) begin
@@ -135,17 +130,14 @@ module reservation_station   #(
                         data[(i + j)%DEPTH]     <= data_in[j];
                         extra[(i + j)%DEPTH]    <= extra_in[j];
                         for (int k = 0; k < SEARCH_PORTS; k += 1) begin
-                            if (data_in[j].tagA == search_tags[k] && search_valid[k] && data[i].pendingA) begin
-                                data[(i + j)%DEPTH].opA         <= search_data[k];
-                                data[(i + j)%DEPTH].pendingA    <= 0;
+                            if (data_in[j].rs1 == search_tags[k] && search_valid[k] && data[i].pending1) begin
+                                data[(i + j)%DEPTH].pending1    <= 0;
                             end
-                            if (data_in[j].tagB == search_tags[k] && search_valid[k] && data[i].pendingB) begin
-                                data[(i + j)%DEPTH].opB         <= search_data[k];
-                                data[(i + j)%DEPTH].pendingB    <= 0;
+                            if (data_in[j].rs2 == search_tags[k] && search_valid[k] && data[i].pending2) begin
+                                data[(i + j)%DEPTH].pending2    <= 0;
                             end
-                            if (data_in[j].tagC == search_tags[k] && search_valid[k] && data[i].pendingC) begin
-                                data[(i + j)%DEPTH].opC         <= search_data[k];
-                                data[(i + j)%DEPTH].pendingC    <= 0;
+                            if (data_in[j].rs3 == search_tags[k] && search_valid[k] && data[i].pending3) begin
+                                data[(i + j)%DEPTH].pending3    <= 0;
                             end
                         end
                     end

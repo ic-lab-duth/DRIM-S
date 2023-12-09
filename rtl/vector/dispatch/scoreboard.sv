@@ -111,11 +111,15 @@ assign mul_operation=(instruction_opcodes==9'b010100101||instruction_opcodes==9'
                       instruction_opcodes==9'b010100100||instruction_opcodes==9'b110100100||instruction_opcodes==9'b010100110||instruction_opcodes==9'b110100110||
                       instruction_opcodes==9'b010101101||instruction_opcodes==9'b110101101||instruction_opcodes==9'b010101001||instruction_opcodes==9'b110101001);
 
+logic float_operation;
+assign float_operation = instruction_temp[14:12] == 3'b001 || instruction_temp[14:12] == 3'b101;
+
+
 logic [1:0] alu_state_choice;
 logic unavailable_alu;
 logic alu_multiply_state;
 
-assign unavailable_alu=(valid_vector && mul_operation && ready_vector);
+assign unavailable_alu=(valid_vector && (mul_operation || float_operation) && ready_vector);
 assign alu_multiply_state=(alu_state==`ALU_UNAVAILABLE);
 assign alu_state_choice={unavailable_alu,alu_multiply_state};
 
@@ -164,7 +168,7 @@ always_ff @(posedge clk or posedge rst) begin
         3'b110:mem_state<=`MEM_LOAD;
         3'b101:mem_state<=`MEM_STORE;
         default: begin
-          if(!memory_finished)  
+          if(!memory_finished)
             mem_state<=mem_state;
         end
     endcase
@@ -194,7 +198,7 @@ always_ff @(posedge clk or posedge rst) begin
         register_status[mem_dest]<=`IDLE;
       end
       casez(register_status_choice)
-          4'b1000:register_status[op_dest]<=`LANE_OPERATION;           
+          4'b1000:register_status[op_dest]<=`LANE_OPERATION;
           4'b101?:register_status[op_dest]<=`STORE;
           4'b110?:register_status[op_dest]<=`LOAD;
           default: begin
@@ -208,7 +212,7 @@ end
 
 //////////////////////////////////////////////////////////////
 /////                  Setting outputs                   /////
-/////                                                    /////        
+/////                                                    /////
 //////////////////////////////////////////////////////////////
 
 assign valid_vector=(valid_vector_temp && valid_fifo);

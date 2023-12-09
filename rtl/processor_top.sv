@@ -350,12 +350,17 @@ module processor_top #(
     logic                          issue_1           ;
     logic                          issue_2           ;
     logic                          issue_vector      ;
-    logic        [ROB_ENTRIES-1:0] flush_vector      ;
-    logic        [ROB_ENTRIES-1:0] flush_vector_o    ;
+    logic        [127:0] flush_vector      ;
+    logic        [127:0] flush_vector_o    ;
 
     //Create the IQ Pop Signals
-    assign iq_pop_1 = issue_1 | issue_vector;
+    assign iq_pop_1 = issue_1;
     assign iq_pop_2 = issue_2;
+
+    logic [6 : 0] rob_regfile_address;
+    logic [DATA_WIDTH - 1 : 0] rob_regfile_data;
+    logic [6 : 0] rob_regfile_address_to_store;
+    logic [DATA_WIDTH - 1 : 0] rob_regfile_data_to_store;
     issue #(
         .SCOREBOARD_SIZE(128           ),
         .FU_NUMBER      (4             ),
@@ -394,7 +399,12 @@ module processor_top #(
         .t_vector        (t_vector                 ),
         //Forward Port from ROB
         .read_addr_rob   (read_addr_rob            ),
-        .data_out_rob    (data_out_rob             )
+        .data_out_rob    (data_out_rob             ),
+
+        .rob_regfile_address(rob_regfile_address),
+        .rob_regfile_data(rob_regfile_data),
+        .rob_regfile_address_to_store(rob_regfile_address_to_store),
+        .rob_regfile_data_to_store(rob_regfile_data_to_store)
     );
 
 	//////////////////////////////////////////////////
@@ -571,7 +581,12 @@ module processor_top #(
         .new_requests           (new_rob_requests_o   ),
         .t_issue                (rob_status           ),
         .writeback_1            (retired_instruction  ),
-        .writeback_2            (retired_instruction_2)
+        .writeback_2            (retired_instruction_2),
+
+        .regfile_address        (rob_regfile_address),
+        .regfile_data           (rob_regfile_data),
+        .regfile_address_to_store(rob_regfile_address_to_store),
+        .regfile_data_to_store(rob_regfile_data_to_store)
     );
     //////////////////////////////////////////////////
     //           WB/RT PIPELINE REGISTER            //
@@ -622,7 +637,7 @@ module processor_top #(
         );
     // pipeline flush flop
     eb_buff_generic #(
-        .DW         (ROB_ENTRIES),
+        .DW         (128),
         .BUFF_TYPE  (1),
         .DEPTH      ())             //NC
     FLUSH(
