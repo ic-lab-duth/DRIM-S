@@ -58,7 +58,7 @@ module module_top (
     localparam VECTOR_BUS_WIDTH                     = 32;
     localparam VECTOR_MEMORY_BITS                   = 32;
     localparam VECTOR_ADDR_RANGE                    = 32768;
-    localparam VECTOR_MULTICYCLE_OPERATION_CYCLES   = 5;
+    localparam VECTOR_MULTICYCLE_OPERATION_CYCLES   = 4;
     localparam VECTOR_VREG_BITS                     = VECTOR_LANES_DATA_WIDTH*VECTOR_NUMBER_VECTOR_LANES;
     //===================================================================================
     logic                    icache_valid_i      ;
@@ -106,6 +106,15 @@ module module_top (
     logic [ 7:0] red_o, green_o, blue_o;
     logic [ 4:0] color               ;
 
+
+    logic mem_vector_valid_rd;
+    logic mem_vector_valid_wr;
+    logic [31 : 0] mem_vector_address;
+    logic [31 : 0] mem_vector_data_wr;
+    logic mem_vector_valid_o;
+    logic [31 : 0] mem_vector_data_o;
+
+    logic mem_ready;
 
     //////////////////////////////////////////////////
     //                   Processor                  //
@@ -167,7 +176,18 @@ module module_top (
         .cache_store_blocked(cache_store_blocked),
         .cache_load_blocked (cache_load_blocked ),
         .cache_will_block   (cache_will_block   ),
-        .ld_st_output_used  (ld_st_output_used  )
+        .ld_st_output_used  (ld_st_output_used  ),
+
+        // Vector Memory interface
+        .mem_vector_valid_rd(mem_vector_valid_rd),
+        .mem_vector_valid_wr(mem_vector_valid_wr),
+        .mem_vector_address (mem_vector_address),
+        .mem_vector_data_wr (mem_vector_data_wr),
+        .mem_vector_valid_o (mem_vector_valid_o),
+        .mem_vector_data_o  (mem_vector_data_o),
+
+        .mem_ready          (mem_ready),
+        .scalar_store_done  (write_l2_valid)
     );
     //Check for new store if cached/uncached and drive it into the cache
     assign cache_store_uncached = cache_store_valid & (cache_store_addr>=UNCACHEABLE_ST);
@@ -224,8 +244,17 @@ module module_top (
         //Write Request Input from DCache
         .dcache_valid_wr  (write_l2_valid  ),
         .dcache_address_wr(write_l2_addr   ),
-        .dcache_data_wr   (write_l2_data   )
+        .dcache_data_wr   (write_l2_data   ),
         // .dcache_microop_wr(write_l2_microop),
+        // Vector
+        .vector_valid_rd    (mem_vector_valid_rd),
+        .vector_valid_wr    (mem_vector_valid_wr),
+        .vector_address     (mem_vector_address),
+        .vector_data_wr     (mem_vector_data_wr),
+        .vector_valid_o     (mem_vector_valid_o),
+        .vector_data_o      (mem_vector_data_o),
+
+        .ready(mem_ready)
     );
     //////////////////////////////////////////////////
     //                Caches' Subsection            //
@@ -294,7 +323,9 @@ module module_top (
         .cache_will_block   (cache_will_block   ),
         .cache_store_blocked(cache_store_blocked),
         .cache_load_blocked (cache_load_blocked ),
-        .served_output      (cache_fu_update    )
+        .served_output      (cache_fu_update    ),
+
+        .mem_ready          (mem_ready)
     );
 
     //=====================================================================

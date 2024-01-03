@@ -86,31 +86,56 @@ module fpre #(
     assign {sign3_temp, exponent3_temp, fraction3} = op3;
 
 
-    always_ff @( posedge clk ) begin
-        sign1 <= sign1_temp;
-        sign2 <= sign2_temp;
-        sign3 <= sign3_temp;
+    always_comb begin
+        sign1 = sign1_temp;
+        sign2 = sign2_temp;
+        sign3 = sign3_temp;
 
-        exponent1 <= exponent1_temp;
-        exponent2 <= exponent2_temp;
-        exponent3 <= exponent3_temp;
+        exponent1 = exponent1_temp;
+        exponent2 = exponent2_temp;
+        exponent3 = exponent3_temp;
 
-        significant1 <= {|exponent1_temp, fraction1};
-        significant2 <= {|exponent2_temp, fraction2};
-        significant3 <= {|exponent3_temp, fraction3};
+        significant1 = {|exponent1_temp, fraction1};
+        significant2 = {|exponent2_temp, fraction2};
+        significant3 = {|exponent3_temp, fraction3};
 
-        inf1 <= &exponent1_temp & ~|fraction1;
-        inf2 <= &exponent2_temp & ~|fraction2;
-        inf3 <= &exponent3_temp & ~|fraction3;
+        inf1 = &exponent1_temp & ~|fraction1;
+        inf2 = &exponent2_temp & ~|fraction2;
+        inf3 = &exponent3_temp & ~|fraction3;
 
-        nan1 <= &exponent1_temp & |fraction1;
-        nan2 <= &exponent2_temp & |fraction2;
-        nan3 <= &exponent3_temp & |fraction3;
+        nan1 = &exponent1_temp & |fraction1;
+        nan2 = &exponent2_temp & |fraction2;
+        nan3 = &exponent3_temp & |fraction3;
 
-        zero1 <= ~|exponent1_temp & ~|fraction1;
-        zero2 <= ~|exponent2_temp & ~|fraction2;
-        zero3 <= ~|exponent3_temp & ~|fraction3;
+        zero1 = ~|exponent1_temp & ~|fraction1;
+        zero2 = ~|exponent2_temp & ~|fraction2;
+        zero3 = ~|exponent3_temp & ~|fraction3;
     end
+    // always_ff @( posedge clk ) begin
+    //     sign1 <= sign1_temp;
+    //     sign2 <= sign2_temp;
+    //     sign3 <= sign3_temp;
+
+    //     exponent1 <= exponent1_temp;
+    //     exponent2 <= exponent2_temp;
+    //     exponent3 <= exponent3_temp;
+
+    //     significant1 <= {|exponent1_temp, fraction1};
+    //     significant2 <= {|exponent2_temp, fraction2};
+    //     significant3 <= {|exponent3_temp, fraction3};
+
+    //     inf1 <= &exponent1_temp & ~|fraction1;
+    //     inf2 <= &exponent2_temp & ~|fraction2;
+    //     inf3 <= &exponent3_temp & ~|fraction3;
+
+    //     nan1 <= &exponent1_temp & |fraction1;
+    //     nan2 <= &exponent2_temp & |fraction2;
+    //     nan3 <= &exponent3_temp & |fraction3;
+
+    //     zero1 <= ~|exponent1_temp & ~|fraction1;
+    //     zero2 <= ~|exponent2_temp & ~|fraction2;
+    //     zero3 <= ~|exponent3_temp & ~|fraction3;
+    // end
 
 
 

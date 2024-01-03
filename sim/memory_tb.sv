@@ -181,10 +181,13 @@ module memory_tb() ;
             rst_n=1;
             @(posedge clk);@(posedge clk);
             cache_store_valid = 1;
-            cache_store_addr = 20;
-            cache_store_data = 30;
             cache_store_microop = 5'b00110;
-            @(posedge clk);
+            for (int i = 0; i < 100; ++i) begin
+                wait(cache_store_blocked == 1'b0);
+                cache_store_addr = 4*i;
+                cache_store_data = i;
+                @(posedge clk);
+            end
             cache_store_valid = 0;
             @(posedge clk);@(posedge clk);
             @(posedge clk);@(posedge clk);

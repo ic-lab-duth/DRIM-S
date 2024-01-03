@@ -32,6 +32,9 @@ module fma #(
     logic zero1_pre;
     logic zero2_pre;
     logic zero3_pre;
+    logic [2 : 0] rm_o;
+
+    delay #(.DATA_WIDTH(3), .DELAY(2)) delay (.clk(clk), .data_i(rm), .data_o(rm_o));
 
     fpre #(.FW(FW),.EW(EW)) fpre    (
                                         .clk            (clk),
@@ -149,7 +152,7 @@ module fma #(
 
     fnorm #(.FW1(2*FW + 1),.FW2(FW),.EW1(EW + 2),.EW2(EW)) fnorm    (
                                                                                 .clk            (clk),
-                                                                                .rm             (rm),
+                                                                                .rm             (rm_o),
                                                                                 .exponentA      (exponent_add),
                                                                                 .significantA   (significant_add),
                                                                                 .signA          (sign_add),

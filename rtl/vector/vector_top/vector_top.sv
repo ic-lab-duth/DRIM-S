@@ -15,8 +15,20 @@ module vector_top #(parameter int LANES_DATA_WIDTH=64,
                     input logic rst,
                     //inputs from scoreboard
                     input logic valid_fifo,
-                    input logic [DATA_FROM_SCALAR-1:0] instruction, 
-                    output logic ready);
+                    input logic [DATA_FROM_SCALAR-1:0] instruction,
+                    output logic ready,
+
+                    // Vector memory interface
+                    output  logic mem_valid_rd,
+                    output  logic mem_valid_wr,
+                    output  logic [31 : 0] mem_address,
+                    output  logic [31 : 0] mem_data_wr,
+                    input   logic mem_valid_o,
+                    input   logic [31 : 0] mem_data_o,
+
+                    input logic mem_ready,
+
+                    output logic mem_op_done);
 
 //setting wires for multiply module
 logic [LANES_DATA_WIDTH-1:0] mask_register [0:NUMBER_VECTOR_LANES-1];
@@ -47,6 +59,9 @@ logic [4:0] register_to_write;
 logic read_done_in_dispatch;
 logic [4:0] destination_id;
 logic [4:0] destination_id_in;
+logic store_done;
+
+assign mem_op_done = read_done_in_dispatch | store_done;
 
 //////////////////////////////////////////////////////////////
 /////                     DISPATCH                       /////
@@ -218,7 +233,16 @@ mem_mod (.clk(clk),
          .rddata_out(data_from_load),
          .valid_read(valid_read),
          .store_done(store_done),
-         .destination_id_out(destination_id_in));
+         .destination_id_out(destination_id_in),
+         // Vector Memory interface
+        .mem_valid_rd(mem_valid_rd),
+        .mem_valid_wr(mem_valid_wr),
+        .mem_address (mem_address),
+        .mem_data_wr (mem_data_wr),
+        .mem_valid_o (mem_valid_o),
+        .mem_data_o  (mem_data_o),
+
+        .mem_ready   (mem_ready));
 
 
 endmodule

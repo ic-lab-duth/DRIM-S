@@ -34,6 +34,6 @@ module floating_alu
 									.result	(fu_update.data)
 	);
 
-	delay #(.DATA_WIDTH(11), .DELAY(4)) delay (.clk(clk), .data_i({input_data.valid, input_data.destination, input_data.ticket}), .data_o({fu_update.valid, fu_update.destination, fu_update.ticket}));
+	delay #(.DATA_WIDTH(11), .DELAY(3)) delay (.clk(clk), .data_i({input_data.valid, input_data.destination, input_data.ticket}), .data_o({fu_update.valid, fu_update.destination, fu_update.ticket}));
 
 endmodule

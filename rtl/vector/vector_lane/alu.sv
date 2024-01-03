@@ -54,6 +54,8 @@ logic [DATA_WIDTH-1:0] temp_vsra;
 logic [DATA_WIDTH-1:0] temp_vfma;
 logic [DATA_WIDTH-1:0] temp;
 
+logic [3:0] sew_rev_oh;
+assign sew_rev_oh = 4'b1000 >> sew[1:0];
 
 //setting operand_1 for all operations except multiplication
 logic immediate;
@@ -84,11 +86,11 @@ always_comb begin
 	casez(operand_1_choice)
 		5'b10000:operand_1=operand_1_immediate;
 		5'b01000:operand_1=operand_1_scalar;
-		5'b10100:operand_1=~operand_1_immediate;
-		5'b01100:operand_1=~operand_1_scalar;
+		5'b10100:operand_1=operand_1_immediate;
+		5'b01100:operand_1=operand_1_scalar;
 		5'b???10:operand_1=operand_3_vector;
 		5'b???01:operand_1=operand_2_vector;
-		5'b00100:operand_1=~operand_1_vector;
+		5'b00100:operand_1=operand_1_vector;
 		default:operand_1=operand_1_vector;
 	endcase
 end
@@ -119,7 +121,7 @@ assign operand_2_choice={invert_operand_2,vmacc_vmadd_operand_2};
 
 always_comb begin
 	case(operand_2_choice)
-		2'b10:operand_2=~operand_2_vector;
+		2'b10:operand_2=operand_2_vector;
 		2'b01:operand_2=temp_mul;
 		default:operand_2=operand_2_vector;
 	endcase
@@ -192,7 +194,7 @@ generate
 	for (gv = 0; gv < DATA_WIDTH/32; ++gv) begin
 		fma #(.FW(23), .EW(8)) fma (
 									.clk	(clk),
-									.rm		(0),
+									.rm		(3'b0),
 									.op		(f_op),
 									.opA	(operand_1[gv*32 +: 32]),
 									.opB	(operand_2[gv*32 +: 32]),
@@ -202,24 +204,41 @@ generate
 	end
 endgenerate
 
-adder #(.OPERANDS_WIDTH(DATA_WIDTH))
-	  add(.sew(sew),
-		  .carry_enable(carry_enable),
-		  .carry_in_operand(carry_in_operand),
-		  .operand_1(operand_1),
-		  .operand_2(operand_2),
-		  .result(temp_add));
+simd_adder #(
+	.MIN_WIDTH(8),
+	.MAX_WIDTH(DATA_WIDTH))
+adder (
+	.sub	(~addition),
+	.rev	(alu_op[5:0]==6'b000011),
+	.carry	(adc),
+	.sew	(sew_rev_oh),
+	.mask	(mask_bits),
+	.opA	(operand_2),
+	.opB	(operand_1),
+	.result	(temp_add)
+);
 
-multiplier #(.OPERANDS_WIDTH(DATA_WIDTH))
-		   mul(.clk(clk),
-			   .rst(rst),
-			   .sew(sew),
-			   .high(high),
-			   .diff(diff),
-			   .sign(sign),
-			   .operand_1(operand_1_mul),
-			   .operand_2(operand_2_mul),
-			   .result(temp_mul));
+// adder #(.OPERANDS_WIDTH(DATA_WIDTH))
+// 	  add(.sew(sew),
+// 		  .carry_enable(carry_enable),
+// 		  .carry_in_operand(carry_in_operand),
+// 		  .operand_1(operand_1),
+// 		  .operand_2(operand_2),
+// 		  .result(temp_add));
+
+simd_multiplier #(
+	.MIN_WIDTH(8),
+	.MAX_WIDTH(DATA_WIDTH))
+mul(
+	.clk	(clk),
+	.high	(high),
+	.signA	(sign),
+	.signB	(diff | sign),
+	.sew	(sew_rev_oh),
+	.opA	(operand_1_mul),
+	.opB	(operand_2_mul),
+	.result	(temp_mul)
+);
 
 comperator #(.DATA_WIDTH(DATA_WIDTH))
 			 comp(.operand_1(operand_1),

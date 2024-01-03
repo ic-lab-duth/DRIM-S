@@ -21,7 +21,17 @@ module top_mem #(parameter int ADDR_RANGE=32768,
                  output logic [LANES_DATA_WIDTH-1:0] rddata_out [0:NUMBER_VECTOR_LANES-1],
                  output logic [NUMBER_VECTOR_LANES-1:0] valid_read,
                  output logic store_done,
-                 output logic [4:0] destination_id_out);
+                 output logic [4:0] destination_id_out,
+
+                 // Vector memory interface
+                output  logic mem_valid_rd,
+                output  logic mem_valid_wr,
+                output  logic [31 : 0] mem_address,
+                output  logic [31 : 0] mem_data_wr,
+                input   logic mem_valid_o,
+                input   logic [31 : 0] mem_data_o,
+
+                input logic mem_ready);
 
 logic [$clog2(ADDR_RANGE)-1:0] stride_in;
 logic [$clog2(ADDR_RANGE)-1:0] addr_in;
@@ -95,7 +105,7 @@ end
 
 //////////////////////////////////////////////////////////////
 /////                    requestor                       /////
-/////                                                    /////        
+/////                                                    /////
 //////////////////////////////////////////////////////////////
 
 requestor #(.ADDR_RANGE(ADDR_RANGE),
@@ -127,11 +137,13 @@ requestor #(.ADDR_RANGE(ADDR_RANGE),
               .rddataready(rddataready),
               .rddata_out(rddata_out),
               .valid_read(valid_read),
-              .store_done(store_done));
+              .store_done(store_done),
+
+              .mem_ready  (mem_ready));
 
 //////////////////////////////////////////////////////////////
 /////                    completer                       /////
-/////                                                    /////        
+/////                                                    /////
 //////////////////////////////////////////////////////////////
 
 completer #(.ADDR_RANGE(ADDR_RANGE),
@@ -152,6 +164,15 @@ completer #(.ADDR_RANGE(ADDR_RANGE),
                .rddataready(rddataready),
                .ready(ready),
                .rddatavalid(rddatavalid),
-               .rddata(rddata));
+               .rddata(rddata),
+               // Vector Memory interface
+              .mem_valid_rd(mem_valid_rd),
+              .mem_valid_wr(mem_valid_wr),
+              .mem_address (mem_address),
+              .mem_data_wr (mem_data_wr),
+              .mem_valid_o (mem_valid_o),
+              .mem_data_o  (mem_data_o),
+
+              .mem_ready    (mem_ready));
 
 endmodule

@@ -61,7 +61,9 @@ module data_cache #(
     output logic                 cache_load_blocked,
     output logic                 cache_store_blocked,
     output logic                 cache_will_block,
-    output ex_update             served_output
+    output ex_update             served_output,
+
+    input logic mem_ready
 );
     //Local Parameter
     localparam OUTPUT_BITS = $clog2(ASSOCIATIVITY);
@@ -114,13 +116,15 @@ module data_cache #(
     assign request_l2_valid = (serve==LD_IN & ~served & ~ld_s_phit & ~st_s_phit) | (serve==ST_IN & ~served & ~st_s_phit & ~ld_s_phit & ~hit);
     assign request_l2_addr  = served_address;
     //Create the Write Requests towards the L2
-    assign write_l2_valid = update_l2_valid & all_valid & dirty[lru_way][write_line_select];
-    assign write_l2_addr  = {overwritten_tag[lru_way],write_line_select, {OFFSET_BITS{1'b0}}}; //* bug was here
-    assign write_l2_data  = overwritten_data[lru_way];
+    // assign write_l2_valid = update_l2_valid & all_valid & dirty[lru_way][write_line_select];
+    // assign write_l2_addr  = {overwritten_tag[lru_way],write_line_select, {OFFSET_BITS{1'b0}}}; //* bug was here
+    assign write_l2_addr  = served_address;
+    // assign write_l2_data  = overwritten_data[lru_way];
+    assign write_l2_data  = new_modded_block;
 
     assign cache_will_block    = wt_invalidate;
-    assign cache_load_blocked  = wt_in_walk | ~ld_ready | ~wt_ready;
-    assign cache_store_blocked = wt_in_walk | (load_valid & ~cache_load_blocked) | ~st_ready | ~wt_ready;
+    assign cache_load_blocked  = wt_in_walk | ~ld_ready | ~wt_ready | ~mem_ready;
+    assign cache_store_blocked = wt_in_walk | (load_valid & ~cache_load_blocked) | ~st_ready | ~wt_ready | ~mem_ready;
     //Create the Output
     always_comb begin : CreateOutput
         if(serve==LD_IN) begin
@@ -235,6 +239,7 @@ module data_cache #(
 
     //Pick the correct Data and Serve
     always_comb begin : DataServe
+        write_l2_valid = 1'b0;
         if(serve==LD_IN) begin
             if (load_dest == 0) begin //* bug was here
                 served     = 1'b1;
@@ -305,6 +310,7 @@ module data_cache #(
                     lru_update = 1'b0;
                 end else if(hit) begin
                     //If hit Serve Normally
+                    write_l2_valid = 1'b1;
                     served     = 1'b1;
                     must_wait  = 1'b0;
                     lru_update = 1'b1;
@@ -321,11 +327,13 @@ module data_cache #(
             lru_update = 1'b1;
             served_output.data = served_data;
         end else if(serve==ST) begin
+            write_l2_valid = 1'b1;
             served     = 1'b1;
             must_wait  = 1'b0;
             lru_update = 1'b1;
             served_output.data = served_data;
         end else if (serve==WT) begin
+            write_l2_valid = wt_s_isstore;
             served     = 1'b1;
             must_wait  = 1'b0;
             lru_update = 1'b1;
@@ -478,11 +486,11 @@ module data_cache #(
             serve          = WT;
             served_address = search_address_o;
             served_microop = wt_s_microop;
-        end else if(load_valid && !output_used && ld_ready && wt_ready) begin
+        end else if(load_valid && !output_used && ld_ready && wt_ready && mem_ready) begin
             serve          = LD_IN;
             served_address = load_address;
             served_microop = load_microop;
-        end else if(store_valid && !output_used && st_ready && wt_ready) begin
+        end else if(store_valid && !output_used && st_ready && wt_ready && mem_ready) begin
             serve          = ST_IN;
             served_address = store_address;
             served_microop = store_microop;
@@ -490,7 +498,7 @@ module data_cache #(
             serve          = LD;
             served_address = ld_head_addr;
             served_microop = ld_head_microop;
-        end else if(st_valid && st_head_isfetched && !output_used && !update_l2_valid) begin
+        end else if(st_valid && st_head_isfetched && !output_used && !update_l2_valid && mem_ready) begin
             serve          = ST;
             served_address = st_head_addr;
             served_microop = st_head_microop;
@@ -692,7 +700,9 @@ module data_cache #(
         .ready              (wt_ready),
         .search_found_one   (wt_found_one),
         .search_found_multi (),             //NC
-        .in_walk_mode       (wt_in_walk)
+        .in_walk_mode       (wt_in_walk),
+
+        .mem_ready          (1'b1)
         );
 
 `ifdef INCLUDE_SVAS

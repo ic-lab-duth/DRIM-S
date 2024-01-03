@@ -31,7 +31,9 @@ module requestor #(parameter int ADDR_RANGE=32768,
                    //outputs to processor
                    output logic [LANES_DATA_WIDTH-1:0] rddata_out [0:NUMBER_VECTOR_LANES-1],
 				   output logic [NUMBER_VECTOR_LANES-1:0] valid_read,
-				   output logic store_done);
+				   output logic store_done,
+
+				   input logic mem_ready);
 
 logic [VREG_BITS-1:0] wrdata_inserted;
 logic [VREG_BITS-1:0] wrdata_temp;

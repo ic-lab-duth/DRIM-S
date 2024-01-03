@@ -46,9 +46,15 @@ module fnorm #(
     assign sticky = |sticky_temp;
 
     //TODO ROUNDING
+    logic plus_one;
+    assign plus_one =   (rm == 3'b000 && guard && (round || sticky || significant_temp[0])) ||
+                        (rm == 3'b010 && signA && (guard || round || sticky)) ||
+                        (rm == 3'b011 && !signA && (guard || round || sticky)) ||
+                        (rm == 3'b100 && guard);
+
 
     always_ff @( posedge clk ) begin
-        significantR    <= significant_temp;
+        significantR    <= significant_temp + plus_one;
         exponentR       <= exponent_temp[EW2 - 1:0];
         signR           <= signA;
         infR            <= infA;

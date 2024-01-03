@@ -246,7 +246,7 @@ module decoder_full #(INSTR_BITS=32, PC_BITS=32) (
                 outputs.immediate         = instruction_in;
                 outputs.source2           = {1'b0,source2};
                 outputs.source2_immediate = 1'b0;
-                outputs.functional_unit   = 2'b00;
+                outputs.functional_unit   = 2'b01;
                 is_branch                 = 1'b0;
                 outputs.microoperation    = 5'b00000;
                 outputs.destination       = 'b0;

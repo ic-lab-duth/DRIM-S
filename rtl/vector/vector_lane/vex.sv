@@ -178,7 +178,7 @@ always_ff @(posedge clk or posedge rst) begin
           data_out.result_out<=result_temp;
           data_out.masked_write_back_out<=masked_write_back_mid;
           data_out.sew_out<=sew_mid;
-          data_out.write_back_enable_out<=write_back_enable_mid[3];
+          data_out.write_back_enable_out<=write_back_enable_mid[2];
           data_out.operand_3<=operand_3_mid;
         end
         3'b0?1: begin
@@ -186,7 +186,7 @@ always_ff @(posedge clk or posedge rst) begin
           data_out.result_out<=result_temp;
           data_out.masked_write_back_out<=masked_write_back_mid;
           data_out.sew_out<=sew_mid;
-          data_out.write_back_enable_out<=write_back_enable_mid[3];
+          data_out.write_back_enable_out<=write_back_enable_mid[2];
           data_out.operand_3<=operand_3_mid;
         end
         default: begin

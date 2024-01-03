@@ -53,7 +53,9 @@ module wait_buffer #(
     output logic                  ready,
     output logic                  search_found_one,
     output logic                  search_found_multi,
-    output logic                  in_walk_mode
+    output logic                  in_walk_mode,
+
+    input logic mem_ready
 );
     localparam INFO_WIDTH = MICROOP + R_WIDTH + ROB_TICKET;
     // #Memory Arrays#
@@ -128,9 +130,9 @@ module wait_buffer #(
                 peek <= match_picked;
             end else if(mode==IDLE && pop) begin
                 peek <= peek << 1;
-            end else if(mode==WALK && !multi_found) begin
+            end else if(mode==WALK && !multi_found && mem_ready) begin
                 peek <= head;
-            end else if(mode==WALK) begin
+            end else if(mode==WALK && mem_ready) begin
                 peek <= match_picked;
             end else begin
                 peek <= head;
@@ -220,7 +222,7 @@ module wait_buffer #(
             for (int i = 0; i < DEPTH; i++) begin
                 if(write_enable && tail[i]) begin
                     saved_valid[i] <= 1'b1;
-                end else if(mode==WALK && peek[i]) begin
+                end else if(mode==WALK && peek[i] && mem_ready) begin
                     saved_valid[i] <= 1'b0;
                 end
             end

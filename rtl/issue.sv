@@ -66,12 +66,15 @@ module issue #(
 	input logic [6 : 0] rob_regfile_address,
     output logic [DATA_WIDTH - 1 : 0] rob_regfile_data,
 	input logic [6 : 0] rob_regfile_address_to_store,
-    output logic [DATA_WIDTH - 1 : 0] rob_regfile_data_to_store
+    output logic [DATA_WIDTH - 1 : 0] rob_regfile_data_to_store,
+
+	input logic vector_mem_op_done,
+	input logic scalar_load_done,
+	input logic scalar_store_done
 );
     logic wr_en_1;
     logic wr_en_2;
     logic [SCOREBOARD_SIZE - 1 : 0] register_pending;
-
 
 	//*----------------------------------------------------------------*//
     //*----------------------- REGISTER STATUS ------------------------*//
@@ -184,6 +187,40 @@ module issue #(
     end
 
 
+	//*----------------------------------------------------------------*//
+    //*----------------------- MEMORY FENCING -------------------------*//
+    //*----------------------------------------------------------------*//
+	logic [4 : 0] mem_counter, next_mem_counter;
+	logic mem_owner; // 1 : scalar | 0 : vector
+	always_ff @(posedge clk) begin
+		if (~rst_n) begin
+			mem_counter <= 0;
+			mem_owner <= 1'b1;
+		end else begin
+			mem_counter <= next_mem_counter;
+
+			if (mem_owner && mem_counter == 0 && Instruction1.functional_unit == 0 && Instruction1.is_vector && valid_1 & Instruction1.is_valid) mem_owner <= 1'b0;
+			else if (!mem_owner && mem_counter == 0 && Instruction1.functional_unit == 0 && !Instruction1.is_vector && valid_1 & Instruction1.is_valid) mem_owner <= 1'b1;
+		end
+	end
+
+	always_comb begin
+		next_mem_counter = mem_counter;
+		if (mem_owner) begin // scalar is owner
+			if (Instruction1.functional_unit == 0 && !Instruction1.is_vector && wr_en_1) next_mem_counter += 1;
+			if (Instruction2.functional_unit == 0 && !Instruction2.is_vector && wr_en_2) next_mem_counter += 1;
+			if (scalar_load_done) next_mem_counter -= 1;
+			if (scalar_store_done) next_mem_counter -= 1;
+		end else begin // vector is owner
+			if (Instruction1.functional_unit == 0 && Instruction1.is_vector && wr_en_1) next_mem_counter += 1;
+			if (Instruction2.functional_unit == 0 && Instruction2.is_vector && wr_en_2) next_mem_counter += 1;
+			if (vector_mem_op_done) next_mem_counter -= 1;
+		end
+	end
+
+	logic block_mem_1, block_mem_2;
+	assign block_mem_1 = Instruction1.functional_unit == 0 && ((!Instruction1.is_vector && !mem_owner) || (Instruction1.is_vector && mem_owner));
+	assign block_mem_2 = Instruction2.functional_unit == 0 && ((!Instruction2.is_vector && !mem_owner) || (Instruction2.is_vector && mem_owner));
 
 
 	//*----------------------------------------------------------------*//
@@ -199,11 +236,11 @@ module issue #(
 
 
     logic [STATIONS - 1:0][1:0] valid_signals;
-	assign valid_signals[0] = {Instruction2.functional_unit == 0 && !Instruction2.is_vector, Instruction1.functional_unit == 0 && !Instruction1.is_vector}; // to memory station
+	assign valid_signals[0] = {Instruction2.functional_unit == 0 && !Instruction2.is_vector && !block_mem_2 && !block_mem_1, Instruction1.functional_unit == 0 && !Instruction1.is_vector && !block_mem_1}; // to memory station
 	assign valid_signals[1] = {	(Instruction2.functional_unit == 2 || Instruction2.functional_unit == 3)  && !Instruction2.is_vector,
 								(Instruction1.functional_unit == 2 || Instruction1.functional_unit == 3) && !Instruction1.is_vector}; // to integer station
 	assign valid_signals[2] = {Instruction2.functional_unit == 1 && !Instruction2.is_vector, Instruction1.functional_unit == 1 && !Instruction1.is_vector}; // to floating station
-	assign valid_signals[3] = {Instruction2.is_vector & branch_if[0] & !Instruction1.is_branch, Instruction1.is_vector & branch_if[0]}; // to vector station
+	assign valid_signals[3] = {Instruction2.is_vector && branch_if[0] && !Instruction1.is_branch && !block_mem_2 && !block_mem_1, Instruction1.is_vector && branch_if[0] && !block_mem_1}; // to vector station
 
 
 	logic rs1_1_found;
@@ -300,6 +337,11 @@ module issue #(
 			sfc_inst_out[i][j].rm, sfc_inst_out[i][j].rat_id, sfc_inst_out[i][j].ticket, sfc_inst_out[i][j].source1_pc, sfc_inst_out[i][j].source2_immediate, sfc_inst_out[i][j].source3_valid};
 	end
 
+	logic branch_resolved;
+	always_ff @(posedge clk) begin
+		branch_resolved <= pr_update.valid_jump;
+	end
+
 	genvar gv;
 	generate
 		for (gv = 0; gv < STATIONS - 1; ++gv) begin : create_stations
@@ -313,7 +355,7 @@ module issue #(
 			station			(
 								.clk			(clk),
 								.rst			(~rst_n),
-								.branch_resolved(pr_update.valid_jump),
+								.branch_resolved(branch_resolved),
 								.flush			(flush_valid),
 								.ready_out		(sfc_ready_in[gv]),
 								.valid_in		(sfc_push[gv]),
@@ -339,7 +381,7 @@ module issue #(
 	vector_station	(
 						.clk			(clk),
 						.rst			(~rst_n),
-						.branch_resolved(pr_update.valid_jump),
+						.branch_resolved(branch_resolved),
 						.flush			(flush_valid),
 						.ready_out		(sfc_ready_in[STATIONS - 1]),
 						.valid_in		(sfc_push[STATIONS - 1]),
@@ -374,7 +416,7 @@ module issue #(
 		rs1_pc[i], rs2_imm[i], rs3_valid[i]} = res_extra_out[i];
 
 		t_execution[i].valid &= ~(res_data_out[i].pending1 | res_data_out[i].pending2 | res_data_out[i].pending3);
-		t_execution[i].valid &= res_valid_out[i];
+		t_execution[i].valid &= res_valid_out[i] & ~flush_valid;
 		t_execution[i].valid &= ~busy_fu[t_execution[i].functional_unit];
 
 		t_execution[i].data1 = rs1_pc[i] 	? t_execution[i].pc 		: rs1_data[i];
@@ -398,7 +440,7 @@ module issue #(
 		rs1_pc_v, rs2_imm_v, rs3_valid_v} = res_extra_out[STATIONS - 1];
 
 		t_vector.valid &= ~(res_data_out[STATIONS - 1].pending1 | res_data_out[STATIONS - 1].pending2);
-		t_vector.valid &= res_valid_out[STATIONS - 1];
+		t_vector.valid &= res_valid_out[STATIONS - 1] & ~flush_valid;
 		t_vector.valid &= vector_q_ready;
 		// t_vector.valid &= branch_if[0];
 

@@ -18,7 +18,17 @@ module completer #(parameter int ADDR_RANGE=32768,
                    //outputs from completer
                    output logic ready,
                    output logic rddatavalid,
-                   output logic [BUS_WIDTH-1:0] rddata);
+                   output logic [BUS_WIDTH-1:0] rddata,
+
+                   // Vector memory interface
+                    output  logic mem_valid_rd,
+                    output  logic mem_valid_wr,
+                    output  logic [31 : 0] mem_address,
+                    output  logic [31 : 0] mem_data_wr,
+                    input   logic mem_valid_o,
+                    input   logic [31 : 0] mem_data_o,
+
+                    input logic mem_ready);
 
 typedef enum logic [2:0] {IDLE=3'b001,
                           READ=3'b010,
@@ -81,7 +91,7 @@ logic valid_write;
 logic one_length;
 logic valid_read;
 
-assign input_choice={rd,wr};
+assign input_choice={rddataready,wr};
 assign valid_read=(rddataready & rddatavalid);
 assign one_length=(length==1);
 assign valid_write=(wr & ready);
@@ -122,21 +132,29 @@ assign address=(mode_in==1)?addr+counter:addr;
 //////////////////////////////////////////////////////////////
 
 //memory_module
-vmemory #(.MEMORY_BITS(MEMORY_BITS),
-         .ADDR_RANGE(ADDR_RANGE))
-     mem(.clk(clk),
-         .we(valid_write),
-         .data_in(wrdata),
-         .address(address),
-         .rddata(rddata));
+// vmemory #(.MEMORY_BITS(MEMORY_BITS),
+//          .ADDR_RANGE(ADDR_RANGE))
+//      mem(.clk(clk),
+//          .we(valid_write),
+//          .data_in(wrdata),
+//          .address(address),
+//          .rddata(rddata));
+// logic read_force;
+// assign mem_valid_rd = valid_read || read_force;
+assign mem_valid_wr = valid_write;
+assign mem_address = address << 2;
+assign mem_data_wr = wrdata;
+assign rddatavalid = mem_valid_o;
+assign rddata = mem_data_o;
 
-assign ready=((state==IDLE || state==WRITE));
+
+assign ready=(state==IDLE || state==WRITE) && mem_ready;
 
 always_ff @(posedge clk or posedge rst) begin
     if(rst)
-        rddatavalid<=0;
+        mem_valid_rd <=0;
     else begin
-        rddatavalid<=(state==READ && !unavailable && !rddatavalid);
+        mem_valid_rd <= valid_read || (state == IDLE && rddataready);
     end
 end
 

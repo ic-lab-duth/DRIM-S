@@ -70,7 +70,19 @@ module processor_top #(
     input  logic                           cache_store_blocked,
     input  logic                           cache_load_blocked ,
     input  logic                           cache_will_block   ,
-    output logic                           ld_st_output_used
+    output logic                           ld_st_output_used,
+
+    // Vector memory interface
+    output  logic mem_vector_valid_rd,
+    output  logic mem_vector_valid_wr,
+    output  logic [31 : 0] mem_vector_address,
+    output  logic [31 : 0] mem_vector_data_wr,
+    input   logic mem_vector_valid_o,
+    input   logic [31 : 0] mem_vector_data_o,
+
+    input logic mem_ready,
+
+    input logic scalar_store_done
 );
 	localparam ROB_INDEX_BITS = $clog2(ROB_ENTRIES);
 	localparam C_NUM          = MAX_BRANCH_IF      ;
@@ -361,6 +373,12 @@ module processor_top #(
     logic [DATA_WIDTH - 1 : 0] rob_regfile_data;
     logic [6 : 0] rob_regfile_address_to_store;
     logic [DATA_WIDTH - 1 : 0] rob_regfile_data_to_store;
+
+    logic vector_mem_op_done;
+    logic scalar_load_done;
+
+    assign scalar_load_done = cache_fu_update.valid;
+
     issue #(
         .SCOREBOARD_SIZE(128           ),
         .FU_NUMBER      (4             ),
@@ -404,7 +422,11 @@ module processor_top #(
         .rob_regfile_address(rob_regfile_address),
         .rob_regfile_data(rob_regfile_data),
         .rob_regfile_address_to_store(rob_regfile_address_to_store),
-        .rob_regfile_data_to_store(rob_regfile_data_to_store)
+        .rob_regfile_data_to_store(rob_regfile_data_to_store),
+
+        .vector_mem_op_done(vector_mem_op_done),
+        .scalar_load_done(scalar_load_done),
+        .scalar_store_done(scalar_store_done)
     );
 
 	//////////////////////////////////////////////////
@@ -695,7 +717,7 @@ module processor_top #(
             // );
             logic vector_ready_o;
             logic vector_push;
-            assign vector_push = t_vector.valid;
+            assign vector_push = t_vector.valid & ~flush_valid;
             assign vector_pop = vector_ready_o & valid_vector;
 
             fifo_duth #(
@@ -739,8 +761,17 @@ module processor_top #(
                 //Instruction In
                 .valid_fifo(valid_vector),
                 .instruction(data_from_proc),
-                .ready     (vector_ready_o  )
+                .ready     (vector_ready_o  ),
                 //Memory Interface
+                .mem_valid_rd(mem_vector_valid_rd),
+                .mem_valid_wr(mem_vector_valid_wr),
+                .mem_address (mem_vector_address),
+                .mem_data_wr (mem_vector_data_wr),
+                .mem_valid_o (mem_vector_valid_o),
+                .mem_data_o  (mem_vector_data_o),
+
+                .mem_ready          (mem_ready),
+                .mem_op_done        (vector_mem_op_done)
             );
         end
     endgenerate

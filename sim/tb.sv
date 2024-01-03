@@ -54,7 +54,7 @@ int   cycles_pc_unchanged;
 
 // Detect simulation end when PC hangs, since that is what the bootstrap is using
 assign pc_still_unchanged = (old_pc == tb.module_top.current_pc);
-assign sim_finished       = (cycles_pc_unchanged == 100) & rst_n;
+assign sim_finished       = (cycles_pc_unchanged == 500) & rst_n;
 
 always_ff @(posedge clk or negedge rst_n) begin
     if(~rst_n) begin
@@ -70,7 +70,7 @@ always_ff @(posedge clk or negedge rst_n) begin
 end
 
 initial begin
-    $readmemh("vmemory.txt",module_top.top_processor.genblk1.vector_top.mem_mod.comp.mem.memory);
+    // $readmemh("vmemory.txt",module_top.top_processor.genblk1.vector_top.mem_mod.comp.mem.memory);
     sim_initialize();
     rst_n=1;
     @(posedge clk);
