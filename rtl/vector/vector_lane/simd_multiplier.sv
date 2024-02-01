@@ -14,22 +14,22 @@ module simd_multiplier #(
 );
     localparam int RATIO = MAX_WIDTH/MIN_WIDTH;
 
-    // Generate masks for multiplication
+    logic [SEW_WIDTH-1:0][RATIO - 1 : 0][RATIO - 1 : 0] masks_temp;
+    logic [RATIO - 1 : 0][RATIO - 1 : 0] masks;
     logic [RATIO - 1 : 0][MAX_WIDTH - 1 : 0] mul_masks;
-    genvar gv;
+    genvar i, j, k;
     generate
-        for (gv = 0; gv < RATIO; ++gv) begin
-            simd_mask #(
-                .MIN_WIDTH  (MIN_WIDTH),
-                .MAX_WIDTH  (MAX_WIDTH),
-                .ID         (0),
-                .TARGET     (gv))
-            simd_mask (
-                .sew        (sew),
-                .result     (mul_masks[gv])
-            );
+        for (i = 0; i < SEW_WIDTH; ++i) begin
+            localparam int CURRENT_RATIO = 2**(SEW_WIDTH - i - 1);
+            for (j = 0; j < RATIO; ++j) begin
+                for (k = 0; k < RATIO; ++k) begin
+                    assign masks_temp[i][j][k] = (k/CURRENT_RATIO == j/CURRENT_RATIO);
+                end
+            end
         end
     endgenerate
+    mux #(.INPUTS(SEW_WIDTH), .WIDTH(RATIO*RATIO)) mux (.data_i(masks_temp), .sel(sew), .data_o(masks));
+    always_comb for (int i = 0; i < RATIO; ++i) for (int j = 0; j < RATIO; ++j) mul_masks[i][j*MIN_WIDTH +: MIN_WIDTH] = {MIN_WIDTH{masks[i][j]}};
 
     // Get signs of all bytes
     logic [RATIO - 1 : 0] opA_signs;
@@ -44,25 +44,23 @@ module simd_multiplier #(
     // Make all the elements unsigned
     logic [MAX_WIDTH - 1 : 0] opA_unsigned;
     logic [MAX_WIDTH - 1 : 0] opB_unsigned;
-    simd_unsigned #(
+    simd_neg #(
         .MIN_WIDTH(MIN_WIDTH),
         .MAX_WIDTH(MAX_WIDTH)
     ) simd_unsigned_opA (
-        .carry_i(1'b0),
         .sew(sew),
+        .enable(opA_signs),
         .opA(opA),
-        .result(opA_unsigned),
-        .carry_o()
+        .result(opA_unsigned)
     );
-    simd_unsigned #(
+    simd_neg #(
         .MIN_WIDTH(MIN_WIDTH),
         .MAX_WIDTH(MAX_WIDTH)
     ) simd_unsigned_opB (
-        .carry_i(1'b0),
         .sew(sew),
+        .enable(opB_signs),
         .opA(opB),
-        .result(opB_unsigned),
-        .carry_o()
+        .result(opB_unsigned)
     );
 
     // Choose signed or unsigned vector based on opcode
@@ -107,16 +105,14 @@ module simd_multiplier #(
 
     // Make result signed again
     logic [2*MAX_WIDTH - 1 : 0] result_full;
-    simd_signed #(
+    simd_neg #(
         .MIN_WIDTH(2*MIN_WIDTH),
         .MAX_WIDTH(2*MAX_WIDTH)
     ) simd_signed_result (
-        .carry_i(1'b0),
         .sew(sew_ff),
+        .enable(result_signs),
         .opA(result_unsigned),
-        .change(result_signs),
-        .result(result_full),
-        .carry_o()
+        .result(result_full)
     );
 
     // Choose between mul and mulh
@@ -129,6 +125,32 @@ module simd_multiplier #(
         .opA(result_full),
         .result(result)
     );
+endmodule
 
+module simd_half #(
+    parameter int MIN_WIDTH = 8,
+    parameter int MAX_WIDTH = 64,
+    parameter int SEW_WIDTH = $clog2(MAX_WIDTH/MIN_WIDTH) + 1
+)(
+    input   logic high,
+    input   logic [SEW_WIDTH - 1 : 0] sew,
+    input   logic [2*MAX_WIDTH - 1 : 0] opA,
+    output  logic [MAX_WIDTH - 1 : 0] result
+);
+    localparam int RATIO = MAX_WIDTH/MIN_WIDTH;
+
+    logic [SEW_WIDTH-1:0][MAX_WIDTH-1:0] temp_high, temp_low, temp_result;
+    genvar i, j;
+    generate
+        for (i = 0; i < SEW_WIDTH; ++i) begin
+            localparam int CURRENT_RATIO = 2**(SEW_WIDTH - i - 1);
+            localparam int CURRENT_WIDTH = MIN_WIDTH*CURRENT_RATIO;
+            for (j = 0; j < MAX_WIDTH; j += CURRENT_WIDTH) begin
+                assign {temp_high[i][j +: CURRENT_WIDTH], temp_low[i][j +: CURRENT_WIDTH]} = opA[2*j +: 2*CURRENT_WIDTH];
+            end
+        end
+    endgenerate
+    assign temp_result = high ? temp_high : temp_low;
+    mux #(.INPUTS(SEW_WIDTH), .WIDTH(MAX_WIDTH)) mux (.data_i(temp_result), .sel(sew), .data_o(result));
 
 endmodule

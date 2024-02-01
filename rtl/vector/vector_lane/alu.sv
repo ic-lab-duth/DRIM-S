@@ -46,11 +46,11 @@ logic [DATA_WIDTH-1:0] temp_or;
 //xor signal
 logic [DATA_WIDTH-1:0] temp_xor;
 //sll signal
-logic [DATA_WIDTH-1:0] temp_vsll;
+logic [DATA_WIDTH-1:0] temp_shift;
 //srl signal
-logic [DATA_WIDTH-1:0] temp_vsrl;
+// logic [DATA_WIDTH-1:0] temp_vsrl;
 //sra signal
-logic [DATA_WIDTH-1:0] temp_vsra;
+// logic [DATA_WIDTH-1:0] temp_vsra;
 logic [DATA_WIDTH-1:0] temp_vfma;
 logic [DATA_WIDTH-1:0] temp;
 
@@ -266,23 +266,35 @@ vxor #(.DATA_WIDTH(DATA_WIDTH))
 		    .operand_2(operand_2),
 		    .result(temp_xor));
 
-vsll #(.DATA_WIDTH(DATA_WIDTH))
-	vsll_mod(.operand_1(operand_1),
-		     .operand_2(operand_2),
-			 .sew(sew),
-		     .result(temp_vsll));
+// vsll #(.DATA_WIDTH(DATA_WIDTH))
+// 	vsll_mod(.operand_1(operand_1),
+// 		     .operand_2(operand_2),
+// 			 .sew(sew),
+// 		     .result(temp_vsll));
 
-vsrl #(.DATA_WIDTH(DATA_WIDTH))
-	vsrl_mod(.operand_1(operand_1),
-		     .operand_2(operand_2),
-			 .sew(sew),
-		     .result(temp_vsrl));
+// vsrl #(.DATA_WIDTH(DATA_WIDTH))
+// 	vsrl_mod(.operand_1(operand_1),
+// 		     .operand_2(operand_2),
+// 			 .sew(sew),
+// 		     .result(temp_vsrl));
 
-vsra #(.DATA_WIDTH(DATA_WIDTH))
-	vsra_mod(.operand_1(operand_1),
-		     .operand_2(operand_2),
-			 .sew(sew),
-		     .result(temp_vsra));
+// vsra #(.DATA_WIDTH(DATA_WIDTH))
+// 	vsra_mod(.operand_1(operand_1),
+// 		     .operand_2(operand_2),
+// 			 .sew(sew),
+// 		     .result(temp_vsra));
+
+simd_shifter #(
+	.MIN_WIDTH(8),
+	.MAX_WIDTH(DATA_WIDTH))
+shift(
+	.right	(alu_op[5:0]==6'b101000 || alu_op[5:0]==6'b101001),
+	.sign	(alu_op[5:0]==6'b101001),
+	.sew	(sew_rev_oh),
+	.opA	(operand_2),
+	.opB	(operand_1),
+	.result	(temp_shift)
+);
 
 //outputs of alu
 always_comb begin
@@ -325,21 +337,21 @@ always_comb begin
 		//vmacc(OPMVV,OPMVX)
 		9'b???101101:temp=temp_add;
 		//vsll(OPIVV,OPIVX)
-		9'b?00100101:temp=temp_vsll;
+		9'b?00100101:temp=temp_shift;
 		//vsll(OPIVI)
-		9'b011100101:temp=temp_vsll;
+		9'b011100101:temp=temp_shift;
 		//vsrl(OPIVV,OPIVX,OPIVI)
-		9'b000101000:temp=temp_vsrl;
-		9'b010101000:temp=temp_vsrl;
-		9'b011101000:temp=temp_vsrl;
-		9'b100101000:temp=temp_vsrl;
-		9'b110101000:temp=temp_vsrl;
+		9'b000101000:temp=temp_shift;
+		9'b010101000:temp=temp_shift;
+		9'b011101000:temp=temp_shift;
+		9'b100101000:temp=temp_shift;
+		9'b110101000:temp=temp_shift;
 		9'b001101000:temp=temp_vfma;
 		9'b101101000:temp=temp_vfma;
 		//vsra(OPIVV,OPIVX)
-		9'b?00101001:temp=temp_vsra;
+		9'b?00101001:temp=temp_shift;
 		//vsra(OPIVI)
-		9'b011101001:temp=temp_vsra;
+		9'b011101001:temp=temp_shift;
 		9'b001101001:temp=temp_vfma;
 		9'b101101001:temp=temp_vfma;
 		//vmseq(OPIVV,OPIVX,OPIVI)

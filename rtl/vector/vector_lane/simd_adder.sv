@@ -7,7 +7,7 @@ module simd_adder #(
     input   logic rev,
     input   logic carry,
     input   logic [SEW_WIDTH - 1 : 0]   sew,
-    input   logic [MAX_WIDTH/8 - 1 : 0] mask,
+    input   logic [MAX_WIDTH/MIN_WIDTH - 1 : 0] mask,
     input   logic [MAX_WIDTH - 1 : 0]   opA,
     input   logic [MAX_WIDTH - 1 : 0]   opB,
     output  logic [MAX_WIDTH - 1 : 0]   result
@@ -20,21 +20,19 @@ module simd_adder #(
     logic [MAX_WIDTH - 1 : 0] opB_real;
     assign opB_real = sub ? ~correct_opB : correct_opB;
 
-    logic [MAX_WIDTH/8 - 1 : 0] carries;
+    logic [MAX_WIDTH/MIN_WIDTH - 1 : 0] carries;
     assign carries =    carry   ? mask :
-                        sub     ? {MAX_WIDTH/8{1'b1}} : {MAX_WIDTH/8{1'b0}};
+                        sub     ? {MAX_WIDTH/MIN_WIDTH{1'b1}} : {MAX_WIDTH/MIN_WIDTH{1'b0}};
 
     simd_internal_add #(
         .MIN_WIDTH(MIN_WIDTH),
         .MAX_WIDTH(MAX_WIDTH))
     internal_adder (
-        .carry_i    (1'b0),
         .sew        (sew),
-        .carries    (carries),
+        .carry      (carries),
         .opA        (correct_opA),
         .opB        (opB_real),
-        .result     (result),
-        .carry_o    ()
+        .result     (result)
     );
 
 endmodule
@@ -43,61 +41,59 @@ module simd_internal_add #(
     parameter int MAX_WIDTH = 64,
     parameter int SEW_WIDTH = $clog2(MAX_WIDTH/MIN_WIDTH) + 1
 )(
-    input   logic carry_i,
-    input   logic [SEW_WIDTH - 1 : 0]   sew,
-    input   logic [MAX_WIDTH/8 - 1 : 0] carries,
-    input   logic [MAX_WIDTH - 1 : 0]   opA,
-    input   logic [MAX_WIDTH - 1 : 0]   opB,
-    output  logic [MAX_WIDTH - 1 : 0]   result,
-    output  logic carry_o
+    input   logic [SEW_WIDTH-1:0] sew,
+    input   logic [MAX_WIDTH/MIN_WIDTH-1:0] carry,
+    input   logic [MAX_WIDTH-1:0] opA,
+    input   logic [MAX_WIDTH-1:0] opB,
+    output  logic [MAX_WIDTH-1:0] result
 );
 
     localparam int RATIO = MAX_WIDTH/MIN_WIDTH;
+    logic [RATIO-2:0] stop_carry;
 
-    logic [MAX_WIDTH/2 - 1 : 0] result_left, result_right;
-    assign result = {result_left, result_right};
+    always_comb begin
+        stop_carry = 0;
+        for (int i = 0; i < SEW_WIDTH; ++i) begin
+            for (int j = RATIO/(2**i); j < RATIO; j += RATIO/(2**i))
+                stop_carry[j - 1] |= sew[i];
+        end
+    end
 
-    logic [MAX_WIDTH/2 - 1 : 0] opA_left, opA_right;
-    assign {opA_left, opA_right} = opA;
-
-    logic [MAX_WIDTH/2 - 1 : 0] opB_left, opB_right;
-    assign {opB_left, opB_right} = opB;
-
-    logic [MAX_WIDTH/16 - 1 : 0] carries_left, carries_right;
-    assign {carries_left, carries_right} = carries;
-
-    logic true_carry;
-    assign true_carry = sew[0] ? carries[0] : carry_i;
-
-    logic internal_carry;
+    genvar i, j;
     generate
-        if (RATIO == 1) begin
-            assign {carry_o, result_left, result_right} = opA + opB + true_carry;
-        end else begin
-            simd_internal_add #(
-                .MIN_WIDTH(MIN_WIDTH),
-                .MAX_WIDTH(MAX_WIDTH/2))
-            internal_right (
-                .carry_i    (true_carry),
-                .sew        (sew[SEW_WIDTH - 1:1]),
-                .carries    (carries_right),
-                .opA        (opA_right),
-                .opB        (opB_right),
-                .result     (result_right),
-                .carry_o    (internal_carry)
-            );
-            simd_internal_add #(
-                .MIN_WIDTH(MIN_WIDTH),
-                .MAX_WIDTH(MAX_WIDTH/2))
-            internal_left (
-                .carry_i    (internal_carry),
-                .sew        (sew[SEW_WIDTH - 1:1]),
-                .carries    (carries_left),
-                .opA        (opA_left),
-                .opB        (opB_left),
-                .result     (result_left),
-                .carry_o    (carry_o)
-            );
+        for (i = 0; i < RATIO; ++i) begin : gen_adders
+            logic carry_o;
+            if (i == 0) begin
+                part_adder #(.WIDTH(MIN_WIDTH)) padder (
+                    .carry_i    (carry[i]),
+                    .opA        (opA[i*MIN_WIDTH +: MIN_WIDTH]),
+                    .opB        (opB[i*MIN_WIDTH +: MIN_WIDTH]),
+                    .result     (result[i*MIN_WIDTH +: MIN_WIDTH]),
+                    .carry_o    (carry_o)
+                );
+            end else begin
+                part_adder #(.WIDTH(MIN_WIDTH)) padder (
+                    .carry_i    (stop_carry[i - 1] ? carry[i] : gen_adders[i - 1].carry_o),
+                    .opA        (opA[i*MIN_WIDTH +: MIN_WIDTH]),
+                    .opB        (opB[i*MIN_WIDTH +: MIN_WIDTH]),
+                    .result     (result[i*MIN_WIDTH +: MIN_WIDTH]),
+                    .carry_o    (carry_o)
+                );
+            end
         end
     endgenerate
+endmodule
+
+module part_adder #(
+    parameter int WIDTH = 8
+)(
+    input   logic carry_i,
+    input   logic [WIDTH-1:0] opA,
+    input   logic [WIDTH-1:0] opB,
+    output  logic [WIDTH-1:0] result,
+    output  logic carry_o
+);
+
+    assign {carry_o, result} = opA + opB + carry_i;
+
 endmodule

@@ -1,9 +1,1 @@
 --Dual Issue Enabled--
-time:                1620 data1:00000200 data2:0000000f imm:00000000 fu:0 microop:00110 
-time:                1630 data1:00000200 data2:0000000d imm:00000004 fu:0 microop:00110 data3:00000000 data4:00000001 imm:00000001 fu:2 microop:00000 
-time:                1660 data1:00000200 data2:00000001 imm:00000008 fu:0 microop:00110 
-time:                1670 data1:00000200 data2:00000005 imm:0000000c fu:0 microop:00110 data3:00000000 data4:00000007 imm:00000007 fu:2 microop:00000 
-time:                1680 data1:00000200 data2:00000009 imm:00000010 fu:0 microop:00110 data3:00000000 data4:00000002 imm:00000002 fu:2 microop:00000 
-time:                1700 data1:00000200 data2:00000007 imm:00000014 fu:0 microop:00110 
-time:                1710 data1:00000200 data2:00000002 imm:00000018 fu:0 microop:00110 data3:00000000 data4:00000006 imm:00000006 fu:2 microop:00000 
-time:                1870 data1:00000200 data2:00000006 imm:0000001c fu:0 microop:00110 
