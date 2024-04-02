@@ -79,8 +79,8 @@ module ifetch #(
     assign packet_b.pc           = half_access ? current_pc : current_pc+4;
     assign packet_b.data         = instruction_out[2*INSTR_BITS-1:INSTR_BITS];
     assign packet_b.taken_branch = half_access ? taken_branch_1 : taken_branch_2;
-    assign valid_o = half_access ? hit       & (over_priority==NONE) & ~(is_return_in | is_return_fsm) & ~invalid_prediction & ~must_flush & ~invalid_instruction :
-                                   hit_cache & (over_priority==NONE) & ~(is_return_in | is_return_fsm) & ~invalid_prediction & ~must_flush & ~invalid_instruction & ~taken_branch_1;
+    assign valid_o = half_access ? hit_cache & (over_priority==NONE) & ~(is_return_in | is_return_fsm) & ~invalid_prediction & ~must_flush & ~invalid_instruction :
+                                   hit       & (over_priority==NONE) & ~(is_return_in | is_return_fsm) & ~invalid_prediction & ~must_flush & ~invalid_instruction & ~taken_branch_1;
 
     //Intermidiate Signals
     assign new_entry = pr_update.valid_jump;

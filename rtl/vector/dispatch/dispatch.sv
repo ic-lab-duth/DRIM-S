@@ -22,8 +22,8 @@ module dispatch #(parameter int INSTRUCTION_BITS=32,
                   output logic [2:0] indexed_sew,
                   output logic load_operation_memory,
                   output logic store_operation_memory,
-                  output logic [$clog2(ADDR_RANGE)+1:0] stride,
-                  output logic [$clog2(ADDR_RANGE)+1:0] addr,
+                  output logic [31:0] stride,
+                  output logic [31:0] addr,
                   output logic [1:0] mode_memory,
                   output logic memory_enable,
                   output logic [4:0] destination_id,
@@ -48,7 +48,7 @@ module dispatch #(parameter int INSTRUCTION_BITS=32,
 
 //////////////////////////////////////////////////////////////
 /////                     dec_mul                        /////
-/////                                                    /////        
+/////                                                    /////
 //////////////////////////////////////////////////////////////
 
 logic [2:0] sew;
@@ -96,7 +96,7 @@ dec_mul #(.INSTRUCTION_BITS(INSTRUCTION_BITS),
 
 //////////////////////////////////////////////////////////////
 /////                    scoreboard                      /////
-/////                                                    /////        
+/////                                                    /////
 //////////////////////////////////////////////////////////////
 
 logic pop_data;
@@ -122,7 +122,7 @@ assign ready=pop_data & ready_vector;
 
 //////////////////////////////////////////////////////////////
 /////                    sew_register                    /////
-/////                                                    /////        
+/////                                                    /////
 //////////////////////////////////////////////////////////////
 
 sew_register #(.DATA_FROM_SCALAR(DATA_FROM_SCALAR),

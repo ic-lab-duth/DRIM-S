@@ -109,10 +109,12 @@ module module_top (
 
     logic mem_vector_valid_rd;
     logic mem_vector_valid_wr;
+    logic mem_vector_unit;
+    logic [1:0] mem_vector_sew;
     logic [31 : 0] mem_vector_address;
-    logic [31 : 0] mem_vector_data_wr;
+    logic [255 : 0] mem_vector_data_wr;
     logic mem_vector_valid_o;
-    logic [31 : 0] mem_vector_data_o;
+    logic [255 : 0] mem_vector_data_o;
 
     logic mem_ready;
 
@@ -181,6 +183,8 @@ module module_top (
         // Vector Memory interface
         .mem_vector_valid_rd(mem_vector_valid_rd),
         .mem_vector_valid_wr(mem_vector_valid_wr),
+        .mem_vector_unit    (mem_vector_unit),
+        .mem_vector_sew     (mem_vector_sew),
         .mem_vector_address (mem_vector_address),
         .mem_vector_data_wr (mem_vector_data_wr),
         .mem_vector_valid_o (mem_vector_valid_o),
@@ -249,6 +253,8 @@ module module_top (
         // Vector
         .vector_valid_rd    (mem_vector_valid_rd),
         .vector_valid_wr    (mem_vector_valid_wr),
+        .vector_unit        (mem_vector_unit),
+        .vector_sew         (mem_vector_sew),
         .vector_address     (mem_vector_address),
         .vector_data_wr     (mem_vector_data_wr),
         .vector_valid_o     (mem_vector_valid_o),
@@ -325,7 +331,10 @@ module module_top (
         .cache_load_blocked (cache_load_blocked ),
         .served_output      (cache_fu_update    ),
 
-        .mem_ready          (mem_ready)
+        .mem_ready          (mem_ready),
+
+        .invalidate         (mem_vector_valid_wr),
+        .invalidate_address (mem_vector_address)
     );
 
     //=====================================================================

@@ -24,6 +24,7 @@ module reservation_station   #(
                                 input   logic [OUTPUT_PORTS - 1 : 0]                            ready_in,
                                 output  reservation_entry2_t [OUTPUT_PORTS - 1 : 0]              data_out,
                                 output  logic [OUTPUT_PORTS - 1 : 0][EXTRA_DATA_WIDTH - 1 : 0]  extra_out,
+                                output  logic [OUTPUT_PORTS - 1 : 0]flushed_out,
 
                                 // search port
                                 input logic [SEARCH_PORTS - 1 : 0]                              search_valid,
@@ -36,6 +37,7 @@ module reservation_station   #(
 
     logic [DEPTH - 1 : 0][EXTRA_DATA_WIDTH - 1  :0] extra;
     reservation_entry2_t [DEPTH - 1 : 0]             data;
+    logic [DEPTH - 1 : 0] flushed;
 
     logic [DEPTH - 1 : 0] valid;
     logic [DEPTH - 1 : 0] tail;
@@ -54,10 +56,6 @@ module reservation_station   #(
             head    <= {{DEPTH - OUTPUT_PORTS{1'b0}}, {OUTPUT_PORTS{1'b1}}};
             tail    <= {{DEPTH - INPUT_PORTS{1'b0}}, {INPUT_PORTS{1'b1}}};
             count   <= 0;
-        end else if (flush) begin
-            head    <= flush_head;
-            tail    <= flush_tail;
-            count   <= flush_count;
         end else begin
             head    <= next_head;
             tail    <= next_tail;
@@ -105,6 +103,7 @@ module reservation_station   #(
                 for (int j = 0 ; j < OUTPUT_PORTS; j += 1) begin
                     data_out[j]     = data[(i + j)%DEPTH];
                     extra_out[j]    = extra[(i + j)%DEPTH];
+                    flushed_out[j]  = flushed[(i + j)%DEPTH];
                 end
             end
         end
@@ -113,6 +112,7 @@ module reservation_station   #(
     always_ff @ (posedge clk) begin : final_data
         for (int i = 0; i < DEPTH; i += 1) begin
             data[i].branch_if <= data[i].branch_if >> branch_resolved;
+            if (flush) flushed[i] <= |data[i].branch_if;
             for (int k = 0; k < SEARCH_PORTS; k += 1) begin
                 if (data[i].rs1 == search_tags[k] && search_valid[k] && data[i].pending1) begin
                     data[i].pending1    <= 0;
@@ -129,6 +129,7 @@ module reservation_station   #(
                     if (valid_in[j]) begin
                         data[(i + j)%DEPTH]     <= data_in[j];
                         extra[(i + j)%DEPTH]    <= extra_in[j];
+                        flushed[(i + j)%DEPTH]  <= 1'b0;
                         for (int k = 0; k < SEARCH_PORTS; k += 1) begin
                             if (data_in[j].rs1 == search_tags[k] && search_valid[k] && data[i].pending1) begin
                                 data[(i + j)%DEPTH].pending1    <= 0;

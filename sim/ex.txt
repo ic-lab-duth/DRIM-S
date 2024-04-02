@@ -1,1 +1,403 @@
 --Dual Issue Enabled--
+time:                 410 data1:0001f810 data2:0000000c imm:000007ec fu:0 microop:00110 data3:0001f810 data4:ffffffc0 imm:ffffffc0 fu:2 microop:00000 
+time:                 850 data1:0001fee4 data2:00000000 imm:fffffffc fu:0 microop:00110 data3:0001fbe0 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                 860 data1:0001fde4 data2:00000000 imm:fffffffc fu:0 microop:00110 data3:0001fae0 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                 870 data1:0001fce4 data2:00000000 imm:fffffffc fu:0 microop:00110 
+time:                1050 data1:0001fbe4 data2:00000000 imm:fffffffc fu:0 microop:00110 
+time:                1060 data1:0001fae4 data2:00000000 imm:fffffffc fu:0 microop:00110 data3:00000001 data4:00000040 imm:ffffffd0 fu:3 microop:01101 
+time:                1750 data1:0001fee8 data2:00000001 imm:fffffffc fu:0 microop:00110 data3:0001fbe4 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                1760 data1:0001fde8 data2:00000001 imm:fffffffc fu:0 microop:00110 data3:0001fae4 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                1770 data1:0001fce8 data2:00000001 imm:fffffffc fu:0 microop:00110 
+time:                1780 data1:0001fbe8 data2:00000001 imm:fffffffc fu:0 microop:00110 
+time:                1790 data1:0001fae8 data2:00000001 imm:fffffffc fu:0 microop:00110 
+time:                2080 data1:0001feec data2:00000002 imm:fffffffc fu:0 microop:00110 data3:0001fbe8 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                2090 data1:0001fdec data2:00000002 imm:fffffffc fu:0 microop:00110 data3:0001fae8 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                2100 data1:0001fcec data2:00000002 imm:fffffffc fu:0 microop:00110 
+time:                2110 data1:0001fbec data2:00000002 imm:fffffffc fu:0 microop:00110 
+time:                2120 data1:0001faec data2:00000002 imm:fffffffc fu:0 microop:00110 
+time:                2350 data1:0001fef0 data2:00000003 imm:fffffffc fu:0 microop:00110 data3:0001fbec data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                2360 data1:0001fdf0 data2:00000003 imm:fffffffc fu:0 microop:00110 data3:0001faec data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                2370 data1:0001fcf0 data2:00000003 imm:fffffffc fu:0 microop:00110 
+time:                2380 data1:0001fbf0 data2:00000003 imm:fffffffc fu:0 microop:00110 
+time:                2390 data1:0001faf0 data2:00000003 imm:fffffffc fu:0 microop:00110 
+time:                2620 data1:0001fef4 data2:00000004 imm:fffffffc fu:0 microop:00110 data3:0001fbf0 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                2630 data1:0001fdf4 data2:00000004 imm:fffffffc fu:0 microop:00110 data3:0001faf0 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                2640 data1:0001fcf4 data2:00000004 imm:fffffffc fu:0 microop:00110 
+time:                2650 data1:0001fbf4 data2:00000004 imm:fffffffc fu:0 microop:00110 
+time:                2660 data1:0001faf4 data2:00000004 imm:fffffffc fu:0 microop:00110 
+time:                2890 data1:0001fef8 data2:00000005 imm:fffffffc fu:0 microop:00110 data3:0001fbf4 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                2900 data1:0001fdf8 data2:00000005 imm:fffffffc fu:0 microop:00110 data3:0001faf4 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                2910 data1:0001fcf8 data2:00000005 imm:fffffffc fu:0 microop:00110 
+time:                2920 data1:0001fbf8 data2:00000005 imm:fffffffc fu:0 microop:00110 
+time:                2930 data1:0001faf8 data2:00000005 imm:fffffffc fu:0 microop:00110 
+time:                3160 data1:0001fefc data2:00000006 imm:fffffffc fu:0 microop:00110 data3:0001fbf8 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                3170 data1:0001fdfc data2:00000006 imm:fffffffc fu:0 microop:00110 data3:0001faf8 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                3180 data1:0001fcfc data2:00000006 imm:fffffffc fu:0 microop:00110 
+time:                3190 data1:0001fbfc data2:00000006 imm:fffffffc fu:0 microop:00110 
+time:                3200 data1:0001fafc data2:00000006 imm:fffffffc fu:0 microop:00110 
+time:                3430 data1:0001ff00 data2:00000007 imm:fffffffc fu:0 microop:00110 data3:0001fbfc data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                3440 data1:0001fe00 data2:00000007 imm:fffffffc fu:0 microop:00110 data3:0001fafc data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                3450 data1:0001fd00 data2:00000007 imm:fffffffc fu:0 microop:00110 
+time:                3460 data1:0001fc00 data2:00000007 imm:fffffffc fu:0 microop:00110 
+time:                3470 data1:0001fb00 data2:00000007 imm:fffffffc fu:0 microop:00110 
+time:                3700 data1:0001ff04 data2:00000008 imm:fffffffc fu:0 microop:00110 data3:0001fc00 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                3710 data1:0001fe04 data2:00000008 imm:fffffffc fu:0 microop:00110 data3:0001fb00 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                3720 data1:0001fd04 data2:00000008 imm:fffffffc fu:0 microop:00110 
+time:                3730 data1:0001fc04 data2:00000008 imm:fffffffc fu:0 microop:00110 
+time:                3740 data1:0001fb04 data2:00000008 imm:fffffffc fu:0 microop:00110 
+time:                6690 data1:0001ff08 data2:00000009 imm:fffffffc fu:0 microop:00110 data3:0001fb04 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                6700 data1:0001fe08 data2:00000009 imm:fffffffc fu:0 microop:00110 
+time:                6710 data1:0001fd08 data2:00000009 imm:fffffffc fu:0 microop:00110 
+time:                6720 data1:0001fc08 data2:00000009 imm:fffffffc fu:0 microop:00110 data3:0000000a data4:00000040 imm:ffffffd0 fu:3 microop:01101 
+time:                6730 data1:0001fb08 data2:00000009 imm:fffffffc fu:0 microop:00110 
+time:                6950 data1:0001ff0c data2:0000000a imm:fffffffc fu:0 microop:00110 data3:0001fc08 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                6960 data1:0001fe0c data2:0000000a imm:fffffffc fu:0 microop:00110 data3:0001fb08 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                6970 data1:0001fd0c data2:0000000a imm:fffffffc fu:0 microop:00110 
+time:                6980 data1:0001fc0c data2:0000000a imm:fffffffc fu:0 microop:00110 
+time:                6990 data1:0001fb0c data2:0000000a imm:fffffffc fu:0 microop:00110 
+time:                7220 data1:0001ff10 data2:0000000b imm:fffffffc fu:0 microop:00110 data3:0001fc0c data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                7230 data1:0001fe10 data2:0000000b imm:fffffffc fu:0 microop:00110 data3:0001fb0c data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                7240 data1:0001fd10 data2:0000000b imm:fffffffc fu:0 microop:00110 
+time:                7250 data1:0001fc10 data2:0000000b imm:fffffffc fu:0 microop:00110 
+time:                7260 data1:0001fb10 data2:0000000b imm:fffffffc fu:0 microop:00110 
+time:                7490 data1:0001ff14 data2:0000000c imm:fffffffc fu:0 microop:00110 data3:0001fc10 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                7500 data1:0001fe14 data2:0000000c imm:fffffffc fu:0 microop:00110 data3:0001fb10 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                7510 data1:0001fd14 data2:0000000c imm:fffffffc fu:0 microop:00110 
+time:                7520 data1:0001fc14 data2:0000000c imm:fffffffc fu:0 microop:00110 
+time:                7530 data1:0001fb14 data2:0000000c imm:fffffffc fu:0 microop:00110 
+time:                7760 data1:0001ff18 data2:0000000d imm:fffffffc fu:0 microop:00110 data3:0001fc14 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                7770 data1:0001fe18 data2:0000000d imm:fffffffc fu:0 microop:00110 data3:0001fb14 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                7780 data1:0001fd18 data2:0000000d imm:fffffffc fu:0 microop:00110 
+time:                7790 data1:0001fc18 data2:0000000d imm:fffffffc fu:0 microop:00110 
+time:                7800 data1:0001fb18 data2:0000000d imm:fffffffc fu:0 microop:00110 
+time:                8030 data1:0001ff1c data2:0000000e imm:fffffffc fu:0 microop:00110 data3:0001fc18 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                8040 data1:0001fe1c data2:0000000e imm:fffffffc fu:0 microop:00110 data3:0001fb18 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                8050 data1:0001fd1c data2:0000000e imm:fffffffc fu:0 microop:00110 
+time:                8060 data1:0001fc1c data2:0000000e imm:fffffffc fu:0 microop:00110 
+time:                8070 data1:0001fb1c data2:0000000e imm:fffffffc fu:0 microop:00110 
+time:                8300 data1:0001ff20 data2:0000000f imm:fffffffc fu:0 microop:00110 data3:0001fc1c data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                8310 data1:0001fe20 data2:0000000f imm:fffffffc fu:0 microop:00110 data3:0001fb1c data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                8320 data1:0001fd20 data2:0000000f imm:fffffffc fu:0 microop:00110 
+time:                8330 data1:0001fc20 data2:0000000f imm:fffffffc fu:0 microop:00110 
+time:                8340 data1:0001fb20 data2:0000000f imm:fffffffc fu:0 microop:00110 
+time:                8570 data1:0001ff24 data2:00000010 imm:fffffffc fu:0 microop:00110 data3:0001fc20 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                8580 data1:0001fe24 data2:00000010 imm:fffffffc fu:0 microop:00110 data3:0001fb20 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:                8590 data1:0001fd24 data2:00000010 imm:fffffffc fu:0 microop:00110 
+time:                8600 data1:0001fc24 data2:00000010 imm:fffffffc fu:0 microop:00110 
+time:                8610 data1:0001fb24 data2:00000010 imm:fffffffc fu:0 microop:00110 
+time:               12090 data1:0001ff28 data2:00000011 imm:fffffffc fu:0 microop:00110 data3:0001fb24 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               12100 data1:0001fe28 data2:00000011 imm:fffffffc fu:0 microop:00110 
+time:               12110 data1:0001fd28 data2:00000011 imm:fffffffc fu:0 microop:00110 
+time:               12120 data1:0001fc28 data2:00000011 imm:fffffffc fu:0 microop:00110 data3:00000012 data4:00000040 imm:ffffffd0 fu:3 microop:01101 
+time:               12130 data1:0001fb28 data2:00000011 imm:fffffffc fu:0 microop:00110 
+time:               12350 data1:0001ff2c data2:00000012 imm:fffffffc fu:0 microop:00110 data3:0001fc28 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               12360 data1:0001fe2c data2:00000012 imm:fffffffc fu:0 microop:00110 data3:0001fb28 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               12370 data1:0001fd2c data2:00000012 imm:fffffffc fu:0 microop:00110 
+time:               12380 data1:0001fc2c data2:00000012 imm:fffffffc fu:0 microop:00110 
+time:               12390 data1:0001fb2c data2:00000012 imm:fffffffc fu:0 microop:00110 
+time:               12620 data1:0001ff30 data2:00000013 imm:fffffffc fu:0 microop:00110 data3:0001fc2c data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               12630 data1:0001fe30 data2:00000013 imm:fffffffc fu:0 microop:00110 data3:0001fb2c data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               12640 data1:0001fd30 data2:00000013 imm:fffffffc fu:0 microop:00110 
+time:               12650 data1:0001fc30 data2:00000013 imm:fffffffc fu:0 microop:00110 
+time:               12660 data1:0001fb30 data2:00000013 imm:fffffffc fu:0 microop:00110 
+time:               12890 data1:0001ff34 data2:00000014 imm:fffffffc fu:0 microop:00110 data3:0001fc30 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               12900 data1:0001fe34 data2:00000014 imm:fffffffc fu:0 microop:00110 data3:0001fb30 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               12910 data1:0001fd34 data2:00000014 imm:fffffffc fu:0 microop:00110 
+time:               12920 data1:0001fc34 data2:00000014 imm:fffffffc fu:0 microop:00110 
+time:               12930 data1:0001fb34 data2:00000014 imm:fffffffc fu:0 microop:00110 
+time:               13160 data1:0001ff38 data2:00000000 imm:fffffffc fu:0 microop:00110 data3:0001fc34 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               13170 data1:0001fe38 data2:00000000 imm:fffffffc fu:0 microop:00110 data3:0001fb34 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               13180 data1:0001fd38 data2:00000000 imm:fffffffc fu:0 microop:00110 
+time:               13190 data1:0001fc38 data2:00000000 imm:fffffffc fu:0 microop:00110 
+time:               13200 data1:0001fb38 data2:00000000 imm:fffffffc fu:0 microop:00110 
+time:               13430 data1:0001ff3c data2:00000001 imm:fffffffc fu:0 microop:00110 data3:0001fc38 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               13440 data1:0001fe3c data2:00000001 imm:fffffffc fu:0 microop:00110 data3:0001fb38 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               13450 data1:0001fd3c data2:00000001 imm:fffffffc fu:0 microop:00110 
+time:               13460 data1:0001fc3c data2:00000001 imm:fffffffc fu:0 microop:00110 
+time:               13470 data1:0001fb3c data2:00000001 imm:fffffffc fu:0 microop:00110 
+time:               13700 data1:0001ff40 data2:00000002 imm:fffffffc fu:0 microop:00110 data3:0001fc3c data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               13710 data1:0001fe40 data2:00000002 imm:fffffffc fu:0 microop:00110 data3:0001fb3c data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               13720 data1:0001fd40 data2:00000002 imm:fffffffc fu:0 microop:00110 
+time:               13730 data1:0001fc40 data2:00000002 imm:fffffffc fu:0 microop:00110 
+time:               13740 data1:0001fb40 data2:00000002 imm:fffffffc fu:0 microop:00110 
+time:               13970 data1:0001ff44 data2:00000003 imm:fffffffc fu:0 microop:00110 data3:0001fc40 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               13980 data1:0001fe44 data2:00000003 imm:fffffffc fu:0 microop:00110 data3:0001fb40 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               13990 data1:0001fd44 data2:00000003 imm:fffffffc fu:0 microop:00110 
+time:               14000 data1:0001fc44 data2:00000003 imm:fffffffc fu:0 microop:00110 
+time:               14010 data1:0001fb44 data2:00000003 imm:fffffffc fu:0 microop:00110 
+time:               17490 data1:0001ff48 data2:00000004 imm:fffffffc fu:0 microop:00110 data3:0001fb44 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               17500 data1:0001fe48 data2:00000004 imm:fffffffc fu:0 microop:00110 
+time:               17510 data1:0001fd48 data2:00000004 imm:fffffffc fu:0 microop:00110 
+time:               17520 data1:0001fc48 data2:00000004 imm:fffffffc fu:0 microop:00110 data3:0000001a data4:00000040 imm:ffffffd0 fu:3 microop:01101 
+time:               17530 data1:0001fb48 data2:00000004 imm:fffffffc fu:0 microop:00110 
+time:               17750 data1:0001ff4c data2:00000005 imm:fffffffc fu:0 microop:00110 data3:0001fc48 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               17760 data1:0001fe4c data2:00000005 imm:fffffffc fu:0 microop:00110 data3:0001fb48 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               17770 data1:0001fd4c data2:00000005 imm:fffffffc fu:0 microop:00110 
+time:               17780 data1:0001fc4c data2:00000005 imm:fffffffc fu:0 microop:00110 
+time:               17790 data1:0001fb4c data2:00000005 imm:fffffffc fu:0 microop:00110 
+time:               18020 data1:0001ff50 data2:00000006 imm:fffffffc fu:0 microop:00110 data3:0001fc4c data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               18030 data1:0001fe50 data2:00000006 imm:fffffffc fu:0 microop:00110 data3:0001fb4c data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               18040 data1:0001fd50 data2:00000006 imm:fffffffc fu:0 microop:00110 
+time:               18050 data1:0001fc50 data2:00000006 imm:fffffffc fu:0 microop:00110 
+time:               18060 data1:0001fb50 data2:00000006 imm:fffffffc fu:0 microop:00110 
+time:               18290 data1:0001ff54 data2:00000007 imm:fffffffc fu:0 microop:00110 data3:0001fc50 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               18300 data1:0001fe54 data2:00000007 imm:fffffffc fu:0 microop:00110 data3:0001fb50 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               18310 data1:0001fd54 data2:00000007 imm:fffffffc fu:0 microop:00110 
+time:               18320 data1:0001fc54 data2:00000007 imm:fffffffc fu:0 microop:00110 
+time:               18330 data1:0001fb54 data2:00000007 imm:fffffffc fu:0 microop:00110 
+time:               18560 data1:0001ff58 data2:00000008 imm:fffffffc fu:0 microop:00110 data3:0001fc54 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               18570 data1:0001fe58 data2:00000008 imm:fffffffc fu:0 microop:00110 data3:0001fb54 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               18580 data1:0001fd58 data2:00000008 imm:fffffffc fu:0 microop:00110 
+time:               18590 data1:0001fc58 data2:00000008 imm:fffffffc fu:0 microop:00110 
+time:               18600 data1:0001fb58 data2:00000008 imm:fffffffc fu:0 microop:00110 
+time:               18830 data1:0001ff5c data2:00000009 imm:fffffffc fu:0 microop:00110 data3:0001fc58 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               18840 data1:0001fe5c data2:00000009 imm:fffffffc fu:0 microop:00110 data3:0001fb58 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               18850 data1:0001fd5c data2:00000009 imm:fffffffc fu:0 microop:00110 
+time:               18860 data1:0001fc5c data2:00000009 imm:fffffffc fu:0 microop:00110 
+time:               18870 data1:0001fb5c data2:00000009 imm:fffffffc fu:0 microop:00110 
+time:               19100 data1:0001ff60 data2:0000000a imm:fffffffc fu:0 microop:00110 data3:0001fc5c data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               19110 data1:0001fe60 data2:0000000a imm:fffffffc fu:0 microop:00110 data3:0001fb5c data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               19120 data1:0001fd60 data2:0000000a imm:fffffffc fu:0 microop:00110 
+time:               19130 data1:0001fc60 data2:0000000a imm:fffffffc fu:0 microop:00110 
+time:               19140 data1:0001fb60 data2:0000000a imm:fffffffc fu:0 microop:00110 
+time:               19370 data1:0001ff64 data2:0000000b imm:fffffffc fu:0 microop:00110 data3:0001fc60 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               19380 data1:0001fe64 data2:0000000b imm:fffffffc fu:0 microop:00110 data3:0001fb60 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               19390 data1:0001fd64 data2:0000000b imm:fffffffc fu:0 microop:00110 
+time:               19400 data1:0001fc64 data2:0000000b imm:fffffffc fu:0 microop:00110 
+time:               19410 data1:0001fb64 data2:0000000b imm:fffffffc fu:0 microop:00110 
+time:               22890 data1:0001ff68 data2:0000000c imm:fffffffc fu:0 microop:00110 data3:0001fb64 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               22900 data1:0001fe68 data2:0000000c imm:fffffffc fu:0 microop:00110 
+time:               22910 data1:0001fd68 data2:0000000c imm:fffffffc fu:0 microop:00110 
+time:               22920 data1:0001fc68 data2:0000000c imm:fffffffc fu:0 microop:00110 data3:00000022 data4:00000040 imm:ffffffd0 fu:3 microop:01101 
+time:               22930 data1:0001fb68 data2:0000000c imm:fffffffc fu:0 microop:00110 
+time:               23150 data1:0001ff6c data2:0000000d imm:fffffffc fu:0 microop:00110 data3:0001fc68 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               23160 data1:0001fe6c data2:0000000d imm:fffffffc fu:0 microop:00110 data3:0001fb68 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               23170 data1:0001fd6c data2:0000000d imm:fffffffc fu:0 microop:00110 
+time:               23180 data1:0001fc6c data2:0000000d imm:fffffffc fu:0 microop:00110 
+time:               23190 data1:0001fb6c data2:0000000d imm:fffffffc fu:0 microop:00110 
+time:               23420 data1:0001ff70 data2:0000000e imm:fffffffc fu:0 microop:00110 data3:0001fc6c data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               23430 data1:0001fe70 data2:0000000e imm:fffffffc fu:0 microop:00110 data3:0001fb6c data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               23440 data1:0001fd70 data2:0000000e imm:fffffffc fu:0 microop:00110 
+time:               23450 data1:0001fc70 data2:0000000e imm:fffffffc fu:0 microop:00110 
+time:               23460 data1:0001fb70 data2:0000000e imm:fffffffc fu:0 microop:00110 
+time:               23690 data1:0001ff74 data2:0000000f imm:fffffffc fu:0 microop:00110 data3:0001fc70 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               23700 data1:0001fe74 data2:0000000f imm:fffffffc fu:0 microop:00110 data3:0001fb70 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               23710 data1:0001fd74 data2:0000000f imm:fffffffc fu:0 microop:00110 
+time:               23720 data1:0001fc74 data2:0000000f imm:fffffffc fu:0 microop:00110 
+time:               23730 data1:0001fb74 data2:0000000f imm:fffffffc fu:0 microop:00110 
+time:               23960 data1:0001ff78 data2:00000010 imm:fffffffc fu:0 microop:00110 data3:0001fc74 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               23970 data1:0001fe78 data2:00000010 imm:fffffffc fu:0 microop:00110 data3:0001fb74 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               23980 data1:0001fd78 data2:00000010 imm:fffffffc fu:0 microop:00110 
+time:               23990 data1:0001fc78 data2:00000010 imm:fffffffc fu:0 microop:00110 
+time:               24000 data1:0001fb78 data2:00000010 imm:fffffffc fu:0 microop:00110 
+time:               24230 data1:0001ff7c data2:00000011 imm:fffffffc fu:0 microop:00110 data3:0001fc78 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               24240 data1:0001fe7c data2:00000011 imm:fffffffc fu:0 microop:00110 data3:0001fb78 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               24250 data1:0001fd7c data2:00000011 imm:fffffffc fu:0 microop:00110 
+time:               24260 data1:0001fc7c data2:00000011 imm:fffffffc fu:0 microop:00110 
+time:               24270 data1:0001fb7c data2:00000011 imm:fffffffc fu:0 microop:00110 
+time:               24500 data1:0001ff80 data2:00000012 imm:fffffffc fu:0 microop:00110 data3:0001fc7c data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               24510 data1:0001fe80 data2:00000012 imm:fffffffc fu:0 microop:00110 data3:0001fb7c data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               24520 data1:0001fd80 data2:00000012 imm:fffffffc fu:0 microop:00110 
+time:               24530 data1:0001fc80 data2:00000012 imm:fffffffc fu:0 microop:00110 
+time:               24540 data1:0001fb80 data2:00000012 imm:fffffffc fu:0 microop:00110 
+time:               24770 data1:0001ff84 data2:00000013 imm:fffffffc fu:0 microop:00110 data3:0001fc80 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               24780 data1:0001fe84 data2:00000013 imm:fffffffc fu:0 microop:00110 data3:0001fb80 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               24790 data1:0001fd84 data2:00000013 imm:fffffffc fu:0 microop:00110 
+time:               24800 data1:0001fc84 data2:00000013 imm:fffffffc fu:0 microop:00110 
+time:               24810 data1:0001fb84 data2:00000013 imm:fffffffc fu:0 microop:00110 
+time:               28290 data1:0001ff88 data2:00000014 imm:fffffffc fu:0 microop:00110 data3:0001fb84 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               28300 data1:0001fe88 data2:00000014 imm:fffffffc fu:0 microop:00110 
+time:               28310 data1:0001fd88 data2:00000014 imm:fffffffc fu:0 microop:00110 
+time:               28320 data1:0001fc88 data2:00000014 imm:fffffffc fu:0 microop:00110 data3:0000002a data4:00000040 imm:ffffffd0 fu:3 microop:01101 
+time:               28330 data1:0001fb88 data2:00000014 imm:fffffffc fu:0 microop:00110 
+time:               28550 data1:0001ff8c data2:00000000 imm:fffffffc fu:0 microop:00110 data3:0001fc88 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               28560 data1:0001fe8c data2:00000000 imm:fffffffc fu:0 microop:00110 data3:0001fb88 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               28570 data1:0001fd8c data2:00000000 imm:fffffffc fu:0 microop:00110 
+time:               28580 data1:0001fc8c data2:00000000 imm:fffffffc fu:0 microop:00110 
+time:               28590 data1:0001fb8c data2:00000000 imm:fffffffc fu:0 microop:00110 
+time:               28820 data1:0001ff90 data2:00000001 imm:fffffffc fu:0 microop:00110 data3:0001fc8c data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               28830 data1:0001fe90 data2:00000001 imm:fffffffc fu:0 microop:00110 data3:0001fb8c data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               28840 data1:0001fd90 data2:00000001 imm:fffffffc fu:0 microop:00110 
+time:               28850 data1:0001fc90 data2:00000001 imm:fffffffc fu:0 microop:00110 
+time:               28860 data1:0001fb90 data2:00000001 imm:fffffffc fu:0 microop:00110 
+time:               29090 data1:0001ff94 data2:00000002 imm:fffffffc fu:0 microop:00110 data3:0001fc90 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               29100 data1:0001fe94 data2:00000002 imm:fffffffc fu:0 microop:00110 data3:0001fb90 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               29110 data1:0001fd94 data2:00000002 imm:fffffffc fu:0 microop:00110 
+time:               29120 data1:0001fc94 data2:00000002 imm:fffffffc fu:0 microop:00110 
+time:               29130 data1:0001fb94 data2:00000002 imm:fffffffc fu:0 microop:00110 
+time:               29360 data1:0001ff98 data2:00000003 imm:fffffffc fu:0 microop:00110 data3:0001fc94 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               29370 data1:0001fe98 data2:00000003 imm:fffffffc fu:0 microop:00110 data3:0001fb94 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               29380 data1:0001fd98 data2:00000003 imm:fffffffc fu:0 microop:00110 
+time:               29390 data1:0001fc98 data2:00000003 imm:fffffffc fu:0 microop:00110 
+time:               29400 data1:0001fb98 data2:00000003 imm:fffffffc fu:0 microop:00110 
+time:               29630 data1:0001ff9c data2:00000004 imm:fffffffc fu:0 microop:00110 data3:0001fc98 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               29640 data1:0001fe9c data2:00000004 imm:fffffffc fu:0 microop:00110 data3:0001fb98 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               29650 data1:0001fd9c data2:00000004 imm:fffffffc fu:0 microop:00110 
+time:               29660 data1:0001fc9c data2:00000004 imm:fffffffc fu:0 microop:00110 
+time:               29670 data1:0001fb9c data2:00000004 imm:fffffffc fu:0 microop:00110 
+time:               29900 data1:0001ffa0 data2:00000005 imm:fffffffc fu:0 microop:00110 data3:0001fc9c data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               29910 data1:0001fea0 data2:00000005 imm:fffffffc fu:0 microop:00110 data3:0001fb9c data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               29920 data1:0001fda0 data2:00000005 imm:fffffffc fu:0 microop:00110 
+time:               29930 data1:0001fca0 data2:00000005 imm:fffffffc fu:0 microop:00110 
+time:               29940 data1:0001fba0 data2:00000005 imm:fffffffc fu:0 microop:00110 
+time:               30170 data1:0001ffa4 data2:00000006 imm:fffffffc fu:0 microop:00110 data3:0001fca0 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               30180 data1:0001fea4 data2:00000006 imm:fffffffc fu:0 microop:00110 data3:0001fba0 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               30190 data1:0001fda4 data2:00000006 imm:fffffffc fu:0 microop:00110 
+time:               30200 data1:0001fca4 data2:00000006 imm:fffffffc fu:0 microop:00110 
+time:               30210 data1:0001fba4 data2:00000006 imm:fffffffc fu:0 microop:00110 
+time:               33690 data1:0001ffa8 data2:00000007 imm:fffffffc fu:0 microop:00110 data3:0001fba4 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               33700 data1:0001fea8 data2:00000007 imm:fffffffc fu:0 microop:00110 
+time:               33710 data1:0001fda8 data2:00000007 imm:fffffffc fu:0 microop:00110 
+time:               33720 data1:0001fca8 data2:00000007 imm:fffffffc fu:0 microop:00110 data3:00000032 data4:00000040 imm:ffffffd0 fu:3 microop:01101 
+time:               33730 data1:0001fba8 data2:00000007 imm:fffffffc fu:0 microop:00110 
+time:               33950 data1:0001ffac data2:00000008 imm:fffffffc fu:0 microop:00110 data3:0001fca8 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               33960 data1:0001feac data2:00000008 imm:fffffffc fu:0 microop:00110 data3:0001fba8 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               33970 data1:0001fdac data2:00000008 imm:fffffffc fu:0 microop:00110 
+time:               33980 data1:0001fcac data2:00000008 imm:fffffffc fu:0 microop:00110 
+time:               33990 data1:0001fbac data2:00000008 imm:fffffffc fu:0 microop:00110 
+time:               34220 data1:0001ffb0 data2:00000009 imm:fffffffc fu:0 microop:00110 data3:0001fcac data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               34230 data1:0001feb0 data2:00000009 imm:fffffffc fu:0 microop:00110 data3:0001fbac data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               34240 data1:0001fdb0 data2:00000009 imm:fffffffc fu:0 microop:00110 
+time:               34250 data1:0001fcb0 data2:00000009 imm:fffffffc fu:0 microop:00110 
+time:               34260 data1:0001fbb0 data2:00000009 imm:fffffffc fu:0 microop:00110 
+time:               34490 data1:0001ffb4 data2:0000000a imm:fffffffc fu:0 microop:00110 data3:0001fcb0 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               34500 data1:0001feb4 data2:0000000a imm:fffffffc fu:0 microop:00110 data3:0001fbb0 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               34510 data1:0001fdb4 data2:0000000a imm:fffffffc fu:0 microop:00110 
+time:               34520 data1:0001fcb4 data2:0000000a imm:fffffffc fu:0 microop:00110 
+time:               34530 data1:0001fbb4 data2:0000000a imm:fffffffc fu:0 microop:00110 
+time:               34760 data1:0001ffb8 data2:0000000b imm:fffffffc fu:0 microop:00110 data3:0001fcb4 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               34770 data1:0001feb8 data2:0000000b imm:fffffffc fu:0 microop:00110 data3:0001fbb4 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               34780 data1:0001fdb8 data2:0000000b imm:fffffffc fu:0 microop:00110 
+time:               34790 data1:0001fcb8 data2:0000000b imm:fffffffc fu:0 microop:00110 
+time:               34800 data1:0001fbb8 data2:0000000b imm:fffffffc fu:0 microop:00110 
+time:               35030 data1:0001ffbc data2:0000000c imm:fffffffc fu:0 microop:00110 data3:0001fcb8 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               35040 data1:0001febc data2:0000000c imm:fffffffc fu:0 microop:00110 data3:0001fbb8 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               35050 data1:0001fdbc data2:0000000c imm:fffffffc fu:0 microop:00110 
+time:               35060 data1:0001fcbc data2:0000000c imm:fffffffc fu:0 microop:00110 
+time:               35070 data1:0001fbbc data2:0000000c imm:fffffffc fu:0 microop:00110 
+time:               35300 data1:0001ffc0 data2:0000000d imm:fffffffc fu:0 microop:00110 data3:0001fcbc data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               35310 data1:0001fec0 data2:0000000d imm:fffffffc fu:0 microop:00110 data3:0001fbbc data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               35320 data1:0001fdc0 data2:0000000d imm:fffffffc fu:0 microop:00110 
+time:               35330 data1:0001fcc0 data2:0000000d imm:fffffffc fu:0 microop:00110 
+time:               35340 data1:0001fbc0 data2:0000000d imm:fffffffc fu:0 microop:00110 
+time:               35570 data1:0001ffc4 data2:0000000e imm:fffffffc fu:0 microop:00110 data3:0001fcc0 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               35580 data1:0001fec4 data2:0000000e imm:fffffffc fu:0 microop:00110 data3:0001fbc0 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               35590 data1:0001fdc4 data2:0000000e imm:fffffffc fu:0 microop:00110 
+time:               35600 data1:0001fcc4 data2:0000000e imm:fffffffc fu:0 microop:00110 
+time:               35610 data1:0001fbc4 data2:0000000e imm:fffffffc fu:0 microop:00110 
+time:               39090 data1:0001ffc8 data2:0000000f imm:fffffffc fu:0 microop:00110 data3:0001fbc4 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               39100 data1:0001fec8 data2:0000000f imm:fffffffc fu:0 microop:00110 
+time:               39110 data1:0001fdc8 data2:0000000f imm:fffffffc fu:0 microop:00110 
+time:               39120 data1:0001fcc8 data2:0000000f imm:fffffffc fu:0 microop:00110 data3:0000003a data4:00000040 imm:ffffffd0 fu:3 microop:01101 
+time:               39130 data1:0001fbc8 data2:0000000f imm:fffffffc fu:0 microop:00110 
+time:               39350 data1:0001ffcc data2:00000010 imm:fffffffc fu:0 microop:00110 data3:0001fcc8 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               39360 data1:0001fecc data2:00000010 imm:fffffffc fu:0 microop:00110 data3:0001fbc8 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               39370 data1:0001fdcc data2:00000010 imm:fffffffc fu:0 microop:00110 
+time:               39380 data1:0001fccc data2:00000010 imm:fffffffc fu:0 microop:00110 
+time:               39390 data1:0001fbcc data2:00000010 imm:fffffffc fu:0 microop:00110 
+time:               39620 data1:0001ffd0 data2:00000011 imm:fffffffc fu:0 microop:00110 data3:0001fccc data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               39630 data1:0001fed0 data2:00000011 imm:fffffffc fu:0 microop:00110 data3:0001fbcc data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               39640 data1:0001fdd0 data2:00000011 imm:fffffffc fu:0 microop:00110 
+time:               39650 data1:0001fcd0 data2:00000011 imm:fffffffc fu:0 microop:00110 
+time:               39660 data1:0001fbd0 data2:00000011 imm:fffffffc fu:0 microop:00110 
+time:               39890 data1:0001ffd4 data2:00000012 imm:fffffffc fu:0 microop:00110 data3:0001fcd0 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               39900 data1:0001fed4 data2:00000012 imm:fffffffc fu:0 microop:00110 data3:0001fbd0 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               39910 data1:0001fdd4 data2:00000012 imm:fffffffc fu:0 microop:00110 
+time:               39920 data1:0001fcd4 data2:00000012 imm:fffffffc fu:0 microop:00110 
+time:               39930 data1:0001fbd4 data2:00000012 imm:fffffffc fu:0 microop:00110 
+time:               40160 data1:0001ffd8 data2:00000013 imm:fffffffc fu:0 microop:00110 data3:0001fcd4 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               40170 data1:0001fed8 data2:00000013 imm:fffffffc fu:0 microop:00110 data3:0001fbd4 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               40180 data1:0001fdd8 data2:00000013 imm:fffffffc fu:0 microop:00110 
+time:               40190 data1:0001fcd8 data2:00000013 imm:fffffffc fu:0 microop:00110 
+time:               40200 data1:0001fbd8 data2:00000013 imm:fffffffc fu:0 microop:00110 
+time:               40430 data1:0001ffdc data2:00000014 imm:fffffffc fu:0 microop:00110 data3:0001fcd8 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               40440 data1:0001fedc data2:00000014 imm:fffffffc fu:0 microop:00110 data3:0001fbd8 data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               40450 data1:0001fddc data2:00000014 imm:fffffffc fu:0 microop:00110 
+time:               40460 data1:0001fcdc data2:00000014 imm:fffffffc fu:0 microop:00110 
+time:               40470 data1:0001fbdc data2:00000014 imm:fffffffc fu:0 microop:00110 
+time:               40700 data1:0001ffe0 data2:00000000 imm:fffffffc fu:0 microop:00110 data3:0001fcdc data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               40710 data1:0001fee0 data2:00000000 imm:fffffffc fu:0 microop:00110 data3:0001fbdc data4:00000004 imm:00000004 fu:2 microop:00000 
+time:               40720 data1:0001fde0 data2:00000000 imm:fffffffc fu:0 microop:00110 
+time:               40730 data1:0001fce0 data2:00000000 imm:fffffffc fu:0 microop:00110 
+time:               40740 data1:0001fbe0 data2:00000000 imm:fffffffc fu:0 microop:00110 
+time:               51040 data1:00000800 data2:00000000 imm:00000000 fu:0 microop:00001 
+time:               51430 data1:00000800 data2:00000017 imm:00000000 fu:0 microop:00110 
+time:               51830 data1:00000800 data2:00000000 imm:00000000 fu:0 microop:00001 
+time:               52130 data1:00000800 data2:00000013 imm:00000000 fu:0 microop:00110 
+time:               53190 data1:00000800 data2:00000000 imm:00000000 fu:0 microop:00001 
+time:               53460 data1:00000800 data2:00000017 imm:00000000 fu:0 microop:00110 
+time:               87870 data1:00000800 data2:00000000 imm:00000000 fu:0 microop:00001 
+time:               88140 data1:00000800 data2:00000014 imm:00000000 fu:0 microop:00110 
+time:               88540 data1:00000800 data2:00000000 imm:00000000 fu:0 microop:00001 
+time:               88810 data1:00000800 data2:0000000f imm:00000000 fu:0 microop:00110 
+time:               89870 data1:00000800 data2:00000000 imm:00000000 fu:0 microop:00001 
+time:               90140 data1:00000800 data2:00000026 imm:00000000 fu:0 microop:00110 
+time:              122690 data1:00000800 data2:00000000 imm:00000000 fu:0 microop:00001 
+time:              122960 data1:00000800 data2:00000014 imm:00000000 fu:0 microop:00110 
+time:              123360 data1:00000800 data2:00000000 imm:00000000 fu:0 microop:00001 
+time:              123630 data1:00000800 data2:0000000f imm:00000000 fu:0 microop:00110 
+time:              124690 data1:00000800 data2:00000000 imm:00000000 fu:0 microop:00001 
+time:              124960 data1:00000800 data2:00000035 imm:00000000 fu:0 microop:00110 
+time:              157510 data1:00000800 data2:00000000 imm:00000000 fu:0 microop:00001 
+time:              157780 data1:00000800 data2:00000014 imm:00000000 fu:0 microop:00110 
+time:              158180 data1:00000800 data2:00000000 imm:00000000 fu:0 microop:00001 
+time:              158450 data1:00000800 data2:0000000f imm:00000000 fu:0 microop:00110 
+time:              159510 data1:00000800 data2:00000000 imm:00000000 fu:0 microop:00001 
+time:              159780 data1:00000800 data2:00000044 imm:00000000 fu:0 microop:00110 
+time:              192330 data1:00000800 data2:00000000 imm:00000000 fu:0 microop:00001 
+time:              192600 data1:00000800 data2:00000014 imm:00000000 fu:0 microop:00110 
+time:              193000 data1:00000800 data2:00000000 imm:00000000 fu:0 microop:00001 
+time:              193270 data1:00000800 data2:0000000f imm:00000000 fu:0 microop:00110 
+time:              194330 data1:00000800 data2:00000000 imm:00000000 fu:0 microop:00001 
+time:              194600 data1:00000800 data2:00000053 imm:00000000 fu:0 microop:00110 
+time:              227150 data1:00000800 data2:00000000 imm:00000000 fu:0 microop:00001 
+time:              227420 data1:00000800 data2:00000014 imm:00000000 fu:0 microop:00110 
+time:              227820 data1:00000800 data2:00000000 imm:00000000 fu:0 microop:00001 
+time:              228090 data1:00000800 data2:0000000f imm:00000000 fu:0 microop:00110 
+time:              229150 data1:00000800 data2:00000000 imm:00000000 fu:0 microop:00001 
+time:              229420 data1:00000800 data2:00000062 imm:00000000 fu:0 microop:00110 
+time:              261970 data1:00000800 data2:00000000 imm:00000000 fu:0 microop:00001 
+time:              262240 data1:00000800 data2:00000014 imm:00000000 fu:0 microop:00110 
+time:              262640 data1:00000800 data2:00000000 imm:00000000 fu:0 microop:00001 
+time:              262910 data1:00000800 data2:0000000f imm:00000000 fu:0 microop:00110 
+time:              263970 data1:00000800 data2:00000000 imm:00000000 fu:0 microop:00001 
+time:              264240 data1:00000800 data2:00000071 imm:00000000 fu:0 microop:00110 
+time:              296790 data1:00000800 data2:00000000 imm:00000000 fu:0 microop:00001 
+time:              297060 data1:00000800 data2:00000014 imm:00000000 fu:0 microop:00110 
+time:              297460 data1:00000800 data2:00000000 imm:00000000 fu:0 microop:00001 
+time:              297730 data1:00000800 data2:0000000f imm:00000000 fu:0 microop:00110 
+time:              298790 data1:00000800 data2:00000000 imm:00000000 fu:0 microop:00001 
+time:              299060 data1:00000800 data2:00000080 imm:00000000 fu:0 microop:00110 
+time:              330850 data1:0001f7d0 data2:00000000 imm:00000000 fu:0 microop:00110 
+time:              330860 data1:0001f7d8 data2:000000ac imm:00000000 fu:0 microop:00110 data3:0001f7d8 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              330890 data1:0001f7e0 data2:0001f7d0 imm:00000000 fu:0 microop:00110 data3:0001f7e0 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              330920 data1:0001f7e8 data2:xxxxxxxx imm:00000000 fu:0 microop:00110 data3:0001f7e8 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              330950 data1:0001f7f0 data2:00000080 imm:00000000 fu:0 microop:00110 data3:0001f7f0 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              331380 data1:0001f7f8 data2:00000008 imm:00000000 fu:0 microop:00110 data3:0001f7f8 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              331410 data1:0001f800 data2:7ffff02c imm:00000000 fu:0 microop:00110 data3:0001f800 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              331440 data1:0001f808 data2:fffffffc imm:00000000 fu:0 microop:00110 data3:0001f808 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              331470 data1:0001f810 data2:00000800 imm:00000000 fu:0 microop:00110 data3:0001f810 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              331740 data1:0001f818 data2:00000004 imm:00000000 fu:0 microop:00110 data3:0001f818 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              331770 data1:0001f820 data2:0000000c imm:00000000 fu:0 microop:00110 data3:0001f820 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              331800 data1:0001f828 data2:7ffff038 imm:00000000 fu:0 microop:00110 data3:0001f828 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              331830 data1:0001f830 data2:fffffff0 imm:00000000 fu:0 microop:00110 data3:0001f830 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              332700 data1:0001f838 data2:0000000c imm:00000000 fu:0 microop:00110 data3:0001f838 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              332730 data1:0001f840 data2:00000040 imm:00000000 fu:0 microop:00110 data3:0001f840 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              332760 data1:0001f848 data2:0001fa60 imm:00000000 fu:0 microop:00110 data3:0001f848 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              332790 data1:0001f850 data2:0001f850 imm:00000000 fu:0 microop:00110 data3:0001f850 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              333420 data1:0001f858 data2:0001fae0 imm:00000000 fu:0 microop:00110 data3:0001f858 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              333450 data1:0001f860 data2:fffffff0 imm:00000000 fu:0 microop:00110 data3:0001f860 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              333480 data1:0001f868 data2:00000008 imm:00000000 fu:0 microop:00110 data3:0001f868 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              333510 data1:0001f870 data2:7ffff030 imm:00000000 fu:0 microop:00110 data3:0001f870 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              334140 data1:0001f878 data2:7ffff02c imm:00000000 fu:0 microop:00110 data3:0001f878 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              334170 data1:0001f880 data2:00000004 imm:00000000 fu:0 microop:00110 data3:0001f880 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              334200 data1:0001f888 data2:7ffff02c imm:00000000 fu:0 microop:00110 data3:0001f888 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              334230 data1:0001f890 data2:7ffff020 imm:00000000 fu:0 microop:00110 data3:0001f890 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              334860 data1:0001f898 data2:00000004 imm:00000000 fu:0 microop:00110 data3:0001f898 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              334890 data1:0001f8a0 data2:7ffff02c imm:00000000 fu:0 microop:00110 data3:0001f8a0 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              334920 data1:0001f8a8 data2:fffffff4 imm:00000000 fu:0 microop:00110 data3:0001f8a8 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              334950 data1:0001f8b0 data2:7ffff030 imm:00000000 fu:0 microop:00110 data3:0001f8b0 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              335580 data1:0001f8b8 data2:fffffff4 imm:00000000 fu:0 microop:00110 data3:0001f8b8 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              335610 data1:0001f8c0 data2:00000020 imm:00000000 fu:0 microop:00110 data3:0001f8c0 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              335640 data1:0001f8c8 data2:00000000 imm:00000000 fu:0 microop:00110 data3:0001f8c8 data4:00000008 imm:00000008 fu:2 microop:00000 
+time:              336370 data1:0001f810 data2:000007ec imm:000007ec fu:0 microop:00001 data3:0001f810 data4:000007f0 imm:000007f0 fu:2 microop:00000 

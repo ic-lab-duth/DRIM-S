@@ -11,13 +11,13 @@ module top_mem #(parameter int ADDR_RANGE=32768,
                  input logic enable_in,
                  input logic load_operation,
                  input logic store_operation,
-                 input logic [$clog2(ADDR_RANGE)+1:0] in_stride,
+                 input logic [31:0] in_stride,
                  input logic [LANES_DATA_WIDTH-1:0] wrdata_in [0:NUMBER_VECTOR_LANES-1],
                  input logic [1:0] mode_in,
 				         input logic [2:0] sew_in,
                  input logic [2:0] indexed_sew,
                  input logic [LANES_DATA_WIDTH-1:0] indexed [0:NUMBER_VECTOR_LANES-1],
-                 input logic [$clog2(ADDR_RANGE)+1:0] in_addr,
+                 input logic [31:0] in_addr,
                  output logic [LANES_DATA_WIDTH-1:0] rddata_out [0:NUMBER_VECTOR_LANES-1],
                  output logic [NUMBER_VECTOR_LANES-1:0] valid_read,
                  output logic store_done,
@@ -26,15 +26,17 @@ module top_mem #(parameter int ADDR_RANGE=32768,
                  // Vector memory interface
                 output  logic mem_valid_rd,
                 output  logic mem_valid_wr,
+                output  logic mem_unit,
+                output  logic [1:0] mem_sew,
                 output  logic [31 : 0] mem_address,
-                output  logic [31 : 0] mem_data_wr,
+                output  logic [255 : 0] mem_data_wr,
                 input   logic mem_valid_o,
-                input   logic [31 : 0] mem_data_o,
+                input   logic [255 : 0] mem_data_o,
 
                 input logic mem_ready);
 
-logic [$clog2(ADDR_RANGE)-1:0] stride_in;
-logic [$clog2(ADDR_RANGE)-1:0] addr_in;
+logic [31:0] stride_in;
+logic [31:0] addr_in;
 logic ready;
 logic [BUS_WIDTH-1:0] rddata;
 logic rddatavalid;
@@ -93,8 +95,8 @@ end
 
 // setting operation flag and divide address and stride by 4 (4 bytes memory)
 assign operation=(load_operation_temp)?0:1;
-assign stride_in=(in_stride_temp>>>2);
-assign addr_in=(in_addr_temp>>2);
+assign stride_in=(in_stride_temp/*>>>2*/);
+assign addr_in=(in_addr_temp/*>>2*/);
 
 //setting indexed_in
 always_comb begin
@@ -108,8 +110,7 @@ end
 /////                                                    /////
 //////////////////////////////////////////////////////////////
 
-requestor #(.ADDR_RANGE(ADDR_RANGE),
-            .LENGTH_RANGE(LENGTH_RANGE),
+requestor #(.LENGTH_RANGE(LENGTH_RANGE),
             .BUS_WIDTH(BUS_WIDTH),
             .LANES_DATA_WIDTH(LANES_DATA_WIDTH),
             .VREG_BITS(VREG_BITS),
@@ -125,54 +126,87 @@ requestor #(.ADDR_RANGE(ADDR_RANGE),
               .wrdata_in(wrdata_in),
               .stride_in(stride_in),
               .addr_in(addr_in),
-              .ready(ready),
-              .rddata(rddata),
-              .rddatavalid(rddatavalid),
-              .wrdata(wrdata),
-              .addr(addr),
-              .length(length),
-              .mode(mode),
-              .wr(wr),
-              .rd(rd),
-              .rddataready(rddataready),
+
               .rddata_out(rddata_out),
               .valid_read(valid_read),
               .store_done(store_done),
 
-              .mem_ready  (mem_ready));
+              .mem_ready    (mem_ready),
+              .mem_valid_rd (mem_valid_rd),
+              .mem_valid_wr (mem_valid_wr),
+              .mem_unit     (mem_unit),
+              .mem_sew      (mem_sew),
+              .mem_address  (mem_address),
+              .mem_data_wr  (mem_data_wr),
+              .mem_valid_o  (mem_valid_o),
+              .mem_data_o   (mem_data_o)
+              );
 
-//////////////////////////////////////////////////////////////
-/////                    completer                       /////
-/////                                                    /////
-//////////////////////////////////////////////////////////////
+// requestor #(.ADDR_RANGE(ADDR_RANGE),
+//             .LENGTH_RANGE(LENGTH_RANGE),
+//             .BUS_WIDTH(BUS_WIDTH),
+//             .LANES_DATA_WIDTH(LANES_DATA_WIDTH),
+//             .VREG_BITS(VREG_BITS),
+//             .NUMBER_VECTOR_LANES(NUMBER_VECTOR_LANES))
+//           req(.clk(clk),
+//               .rst(rst),
+//               .memory_enable(enable_in_temp),
+//               .operation(operation),
+//               .mode_in(mode_in_temp),
+//               .sew_in(sew_in_temp),
+//               .indexed_sew(indexed_sew_temp),
+//               .indexed_in(indexed_in),
+//               .wrdata_in(wrdata_in),
+//               .stride_in(stride_in),
+//               .addr_in(addr_in),
+//               .ready(ready),
+//               .rddata(rddata),
+//               .rddatavalid(rddatavalid),
+//               .wrdata(wrdata),
+//               .addr(addr),
+//               .length(length),
+//               .mode(mode),
+//               .wr(wr),
+//               .rd(rd),
+//               .rddataready(rddataready),
+//               .rddata_out(rddata_out),
+//               .valid_read(valid_read),
+//               .store_done(store_done),
 
-completer #(.ADDR_RANGE(ADDR_RANGE),
-            .LENGTH_RANGE(LENGTH_RANGE),
-            .BUS_WIDTH(BUS_WIDTH),
-            .MEMORY_BITS(MEMORY_BITS),
-            .LANES_DATA_WIDTH(LANES_DATA_WIDTH),
-            .VREG_BITS(VREG_BITS),
-            .NUMBER_VECTOR_LANES(NUMBER_VECTOR_LANES))
-          comp(.clk(clk),
-               .rst(rst),
-               .wrdata(wrdata),
-               .addr(addr),
-               .length(length),
-               .mode_in(mode),
-               .wr(wr),
-               .rd(rd),
-               .rddataready(rddataready),
-               .ready(ready),
-               .rddatavalid(rddatavalid),
-               .rddata(rddata),
-               // Vector Memory interface
-              .mem_valid_rd(mem_valid_rd),
-              .mem_valid_wr(mem_valid_wr),
-              .mem_address (mem_address),
-              .mem_data_wr (mem_data_wr),
-              .mem_valid_o (mem_valid_o),
-              .mem_data_o  (mem_data_o),
+//               .mem_ready  (mem_ready));
 
-              .mem_ready    (mem_ready));
+// //////////////////////////////////////////////////////////////
+// /////                    completer                       /////
+// /////                                                    /////
+// //////////////////////////////////////////////////////////////
+
+// completer #(.ADDR_RANGE(ADDR_RANGE),
+//             .LENGTH_RANGE(LENGTH_RANGE),
+//             .BUS_WIDTH(BUS_WIDTH),
+//             .MEMORY_BITS(MEMORY_BITS),
+//             .LANES_DATA_WIDTH(LANES_DATA_WIDTH),
+//             .VREG_BITS(VREG_BITS),
+//             .NUMBER_VECTOR_LANES(NUMBER_VECTOR_LANES))
+//           comp(.clk(clk),
+//                .rst(rst),
+//                .wrdata(wrdata),
+//                .addr(addr),
+//                .length(length),
+//                .mode_in(mode),
+//                .wr(wr),
+//                .rd(rd),
+//                .rddataready(rddataready),
+//                .ready(ready),
+//                .rddatavalid(rddatavalid),
+//                .rddata(rddata),
+//                // Vector Memory interface
+//               .mem_valid_rd(mem_valid_rd),
+//               .mem_valid_wr(mem_valid_wr),
+//               .mem_address (mem_address),
+//               .mem_data_wr (mem_data_wr),
+//               .mem_valid_o (mem_valid_o),
+//               .mem_data_o  (mem_data_o),
+
+//               .mem_ready    (mem_ready));
 
 endmodule

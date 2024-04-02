@@ -30,7 +30,8 @@ module data_cache #(
     parameter ASSOCIATIVITY = 4,
     parameter ENTRIES       = 256,
     parameter BLOCK_WIDTH   = 256,
-    parameter BUFFER_SIZES  = 4
+    parameter BUFFER_SIZES  = 4,
+    parameter VLEN          = 256
 ) (
     input  logic                   clk                ,
     input  logic                   rst_n              ,
@@ -63,7 +64,10 @@ module data_cache #(
     output logic                 cache_will_block,
     output ex_update             served_output,
 
-    input logic mem_ready
+    input logic mem_ready,
+
+    input logic invalidate,
+    input logic [ADDR_BITS-1:0] invalidate_address
 );
     //Local Parameter
     localparam OUTPUT_BITS = $clog2(ASSOCIATIVITY);
@@ -87,10 +91,10 @@ module data_cache #(
     logic [ASSOCIATIVITY-1 : 0][TAG_BITS-1 : 0]     tag, overwritten_tag;
     logic [ASSOCIATIVITY-1 : 0][ENTRIES-1:0]        validity, dirty;
     logic [$clog2(ASSOCIATIVITY)-1 : 0]             entry_used;
-    logic [   INDEX_BITS-1 : 0] read_line_select, write_line_select;
+    logic [   INDEX_BITS-1 : 0] read_line_select, write_line_select, line_select_invalidate;
     logic [  OUTPUT_BITS-1 : 0] lru_way, new_valid_entry;
     logic [ASSOCIATIVITY-1 : 0] write_en_tag, write_en_data, all_valid_temp, entry_found;
-    logic [     TAG_BITS-1 : 0] new_tag, update_l2_tag, new_modded_tag, tag_usearch, tag_picked;
+    logic [     TAG_BITS-1 : 0] new_tag, update_l2_tag, new_modded_tag, tag_usearch, tag_picked, tag_invalidate;
     logic [  BLOCK_WIDTH-1 : 0] new_data, new_modded_block, block_picked;
     logic [   DATA_WIDTH-1 : 0] data_picked;
     logic [              3 : 0] served_exc;
@@ -106,12 +110,14 @@ module data_cache #(
 
     //Create the Line selectors for the Data Banks Indexing
     assign read_line_select  = served_address[OFFSET_BITS+INDEX_BITS-1 : OFFSET_BITS];
+    assign line_select_invalidate  = invalidate_address[OFFSET_BITS+INDEX_BITS-1 : OFFSET_BITS];
     assign write_line_select = update_l2_valid ? update_l2_addr[OFFSET_BITS+INDEX_BITS-1 : OFFSET_BITS] : served_address[OFFSET_BITS+INDEX_BITS-1 : OFFSET_BITS];
     assign offset_select     = served_address[OFFSET_BITS-1 : 0];
     assign new_data          = update_l2_valid ? update_l2_data : new_modded_block;
     assign new_tag           = update_l2_valid ? update_l2_tag : new_modded_tag;                    //- same as the saved/read tag
     assign update_l2_tag     = update_l2_addr[OFFSET_BITS+INDEX_BITS +: TAG_BITS];
     assign tag_usearch       = served_address[OFFSET_BITS+INDEX_BITS +: TAG_BITS];
+    assign tag_invalidate    = invalidate_address[OFFSET_BITS+INDEX_BITS +: TAG_BITS];
     //Create the Read Requests towards the L2
     assign request_l2_valid = (serve==LD_IN & ~served & ~ld_s_phit & ~st_s_phit) | (serve==ST_IN & ~served & ~st_s_phit & ~ld_s_phit & ~hit);
     assign request_l2_addr  = served_address;
@@ -171,7 +177,7 @@ module data_cache #(
     genvar i;
     generate
         assign read_address[0] = read_line_select;
-        assign read_address[1] = write_line_select;
+        assign read_address[1] = line_select_invalidate;
         for (i = 0; i < ASSOCIATIVITY ; i = i + 1) begin
             assign tag[i]             = read_tag[i][0];
             assign overwritten_tag[i] = read_tag[i][1];
@@ -402,6 +408,7 @@ module data_cache #(
     endgenerate
 
     //VALIDITY Management
+    localparam int RATIO = VLEN < BLOCK_WIDTH ? 1 :VLEN/BLOCK_WIDTH;
     generate
         if(ASSOCIATIVITY>1) begin
             always_ff @(posedge clk or negedge rst_n) begin : ValidityManagement
@@ -417,6 +424,13 @@ module data_cache #(
                         end else begin
                             //Store new Data into the LRU Entry
                             validity[lru_way][write_line_select] <= 1'b1;
+                        end
+                    end
+                    if (invalidate) begin
+                        for (int j = 0; j < RATIO; ++j) begin
+                            for (int i = 0; i < ASSOCIATIVITY; i++) begin
+                                /*if (tag_invalidate == overwritten_tag[i])*/ validity[i][line_select_invalidate + j] <= 1'b0;
+                            end
                         end
                     end
                 end

@@ -150,12 +150,15 @@ assign rddata = mem_data_o;
 
 assign ready=(state==IDLE || state==WRITE) && mem_ready;
 
+
 always_ff @(posedge clk or posedge rst) begin
     if(rst)
         mem_valid_rd <=0;
     else begin
-        mem_valid_rd <= valid_read || (state == IDLE && rddataready);
+        mem_valid_rd <= (valid_read & ~comp) || (state == IDLE && rddataready);
     end
 end
+
+// assign mem_valid_rd = valid_read || (state == IDLE && rddataready);
 
 endmodule

@@ -20,9 +20,21 @@ module simd_adder #(
     logic [MAX_WIDTH - 1 : 0] opB_real;
     assign opB_real = sub ? ~correct_opB : correct_opB;
 
-    logic [MAX_WIDTH/MIN_WIDTH - 1 : 0] carries;
-    assign carries =    carry   ? mask :
+    logic [MAX_WIDTH/MIN_WIDTH - 1 : 0] carries, selected_carries_temp;
+    logic [SEW_WIDTH-1:0][MAX_WIDTH/MIN_WIDTH-1:0] carries_temp;
+    assign carries =    carry   ? selected_carries_temp :
                         sub     ? {MAX_WIDTH/MIN_WIDTH{1'b1}} : {MAX_WIDTH/MIN_WIDTH{1'b0}};
+
+    always_comb begin
+        carries_temp = 0;
+        for (int i = 0; i < SEW_WIDTH; ++i) begin
+            for (int j = 0; j < (MAX_WIDTH/MIN_WIDTH)/(2**(SEW_WIDTH - i - 1)); ++j) begin
+                carries_temp[i][j*(2**(SEW_WIDTH - i - 1))] = mask[j];
+            end
+        end
+    end
+    mux #(.INPUTS(SEW_WIDTH), .WIDTH(MAX_WIDTH/MIN_WIDTH)) mux (.sel(sew), .data_i(carries_temp), .data_o(selected_carries_temp));
+
 
     simd_internal_add #(
         .MIN_WIDTH(MIN_WIDTH),

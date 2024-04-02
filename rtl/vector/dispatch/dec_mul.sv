@@ -20,8 +20,8 @@ module dec_mul #(parameter int INSTRUCTION_BITS=32,
                  output logic [2:0] indexed_sew,
                  output logic load_operation_memory,
                  output logic store_operation_memory,
-                 output logic [$clog2(ADDR_RANGE)+1:0] stride,
-                 output logic [$clog2(ADDR_RANGE)+1:0] addr,
+                 output logic [31:0] stride,
+                 output logic [31:0] addr,
                  output logic [1:0] mode_memory,
                  output logic memory_enable,
                  output logic [4:0] destination_id,
@@ -299,8 +299,8 @@ always_ff @(posedge clk or posedge rst) begin
    end
    else begin
       if(valid_instruction && ready_vector) begin
-         stride<=scalar_op_2_sign_extended[$clog2(ADDR_RANGE)+1:0];
-         addr<=scalar_op_1_sign_extended[$clog2(ADDR_RANGE)+1:0];
+         stride<=scalar_op_2_sign_extended[31:0];
+         addr<=scalar_op_1_sign_extended[31:0];
       end
    end
 end

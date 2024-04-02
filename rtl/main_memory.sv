@@ -16,6 +16,8 @@ typedef struct packed {
     logic           write_dcache;
     logic           read_vector ;
     logic           write_vector;
+    logic           unitstride  ;
+    logic [1:0]     sew         ;
     logic [ 32-1:0] address     ;
     logic [256-1:0] data        ;
 } SavedEntry;
@@ -45,8 +47,10 @@ module main_memory #(
     // Inputs from vector
     input logic vector_valid_rd,
     input logic vector_valid_wr,
+    input logic vector_unit,
+    input logic [1:0] vector_sew,
     input logic [31 : 0] vector_address,
-    input logic [31 : 0] vector_data_wr,
+    input logic [255 : 0] vector_data_wr,
     //Output to ICache
     output logic                       icache_valid_o   ,
     output logic [ICACHE_BLOCK_DW-1:0] icache_data_o    ,
@@ -56,7 +60,7 @@ module main_memory #(
     output logic [DCACHE_BLOCK_DW-1:0] dcache_data_o,
     // Outputs to vector
     output logic vector_valid_o,
-    output logic [31 : 0] vector_data_o,
+    output logic [255 : 0] vector_data_o,
     // Output to all
     output logic ready
 );
@@ -66,20 +70,28 @@ module main_memory #(
     localparam TAG_BITS      = ADDRESS_BITS-OFFSET_BITS-INDEX_BITS;
     localparam DBLOCK_OFFSET = $clog2(L2_BLOCK_DW/DCACHE_BLOCK_DW);
     localparam IBLOCK_OFFSET = $clog2(L2_BLOCK_DW/ICACHE_BLOCK_DW);
-    localparam VBLOCK_OFFSET = $clog2(L2_BLOCK_DW/32);
+    localparam VBLOCK_OFFSET_8  = $clog2(L2_BLOCK_DW/8 );
+    localparam VBLOCK_OFFSET_16 = $clog2(L2_BLOCK_DW/16);
+    localparam VBLOCK_OFFSET_32 = $clog2(L2_BLOCK_DW/32);
+    localparam VBLOCK_OFFSET_64 = $clog2(L2_BLOCK_DW/64);
+    localparam UNITVBLOCK_OFFSET = $clog2(L2_BLOCK_DW/256);
     // #Internal Signals#
     logic      [    L2_BLOCK_DW-1:0] ram               [L2_ENTRIES-1:0];
     logic      [ICACHE_BLOCK_DW-1:0] data_picked_icache                ;
     logic      [DCACHE_BLOCK_DW-1:0] data_picked_dcache                ;
-    logic      [31:0]                data_picked_vector                ;
+    logic      [255:0]                data_picked_vector                ;
     SavedEntry                       input_entry_1, input_entry_2, output_entry;
     logic                            push_1, push_2, ready_1, ready_2, valid, pop, counter_active;
     logic      [   DELAY_CYCLES-1:0] delay_counter                     ;
     logic      [     INDEX_BITS-1:0] line_selector                     ;
     logic      [  DBLOCK_OFFSET-1:0] dblock_offset                     ;
     logic      [  IBLOCK_OFFSET-1:0] iblock_offset                     ;
-    logic      [  VBLOCK_OFFSET-1:0] vblock_offset                     ;
-    logic      [    L2_BLOCK_DW-1:0] block_selected, starting_bit_ic, starting_bit_dc, starting_bit_v;
+    logic      [  VBLOCK_OFFSET_8 -1:0] vblock_offset8                 ;
+    logic      [  VBLOCK_OFFSET_16-1:0] vblock_offset16                ;
+    logic      [  VBLOCK_OFFSET_32-1:0] vblock_offset32                ;
+    logic      [  VBLOCK_OFFSET_64-1:0] vblock_offset64                ;
+    logic      [  UNITVBLOCK_OFFSET-1:0] unitvblock_offset                     ;
+    logic      [    L2_BLOCK_DW-1:0] block_selected, starting_bit_ic, starting_bit_dc, starting_bit_v8, starting_bit_v16, starting_bit_v32, starting_bit_v64, starting_bit_unitv;
     logic                            delayed_valid                     ;
     initial begin
         //Load the memory
@@ -92,8 +104,12 @@ module main_memory #(
 
     assign ready = ready_1 & ready_2;
     //Create the New Inputs
-    assign input_entry_1.data = vector_valid_wr ? {224'b0, vector_data_wr} : dcache_data_wr;
-    assign input_entry_2.data = vector_valid_wr ? {224'b0, vector_data_wr} : dcache_data_wr;
+    assign input_entry_1.data = vector_valid_wr ? vector_data_wr : dcache_data_wr;
+    assign input_entry_2.data = vector_valid_wr ? vector_data_wr : dcache_data_wr;
+    assign input_entry_1.unitstride = vector_unit;
+    assign input_entry_2.unitstride = vector_unit;
+    assign input_entry_1.sew = vector_sew;
+    assign input_entry_2.sew = vector_sew;
     always_comb begin : CreateNewEntries
         if(icache_valid_i) begin
             push_1 = 1;
@@ -199,7 +215,7 @@ module main_memory #(
     //FiFo to store the Requests
     fifo_dual_ported #(
         .DW         ($bits(input_entry_1)),
-        .DEPTH      (8)
+        .DEPTH      (32)
         )
     instruction_queue  (
         .clk            (clk),
@@ -265,19 +281,45 @@ module main_memory #(
 
     assign iblock_offset      = output_entry.address[OFFSET_BITS-1:OFFSET_BITS-IBLOCK_OFFSET];
     assign dblock_offset      = output_entry.address[OFFSET_BITS-1:OFFSET_BITS-DBLOCK_OFFSET];
-    assign vblock_offset      = output_entry.address[OFFSET_BITS-1:OFFSET_BITS-VBLOCK_OFFSET];
+    assign vblock_offset8       = output_entry.address[OFFSET_BITS-1:OFFSET_BITS-VBLOCK_OFFSET_8];
+    assign vblock_offset16      = output_entry.address[OFFSET_BITS-1:OFFSET_BITS-VBLOCK_OFFSET_16];
+    assign vblock_offset32      = output_entry.address[OFFSET_BITS-1:OFFSET_BITS-VBLOCK_OFFSET_32];
+    assign vblock_offset64      = output_entry.address[OFFSET_BITS-1:OFFSET_BITS-VBLOCK_OFFSET_64];
+    assign unitvblock_offset  = output_entry.address[OFFSET_BITS-1:OFFSET_BITS-UNITVBLOCK_OFFSET];
     assign starting_bit_ic    = iblock_offset << $clog2(ICACHE_BLOCK_DW);
     assign starting_bit_dc    = dblock_offset << $clog2(DCACHE_BLOCK_DW);
-    assign starting_bit_v     = vblock_offset << $clog2(32);
+    assign starting_bit_v8      = vblock_offset8  << $clog2(8);
+    assign starting_bit_v16     = vblock_offset16 << $clog2(16);
+    assign starting_bit_v32     = vblock_offset32 << $clog2(32);
+    assign starting_bit_v64     = vblock_offset64 << $clog2(64);
+    assign starting_bit_unitv = unitvblock_offset << $clog2(256);
     assign data_picked_icache = block_selected[starting_bit_ic +: ICACHE_BLOCK_DW];
     assign data_picked_dcache = block_selected[starting_bit_dc +: DCACHE_BLOCK_DW];
-    assign data_picked_vector = block_selected[starting_bit_v +: 32];
+    // assign data_picked_vector = output_entry.unitstride ? block_selected[starting_bit_unitv +: 256]  : {224'b0, block_selected[starting_bit_v +: 32]};
+
+    always_comb begin
+        data_picked_vector = 0;
+        if (output_entry.unitstride) data_picked_vector = block_selected[starting_bit_unitv +: 256];
+        else case (output_entry.sew)
+            2'b00: data_picked_vector = block_selected[starting_bit_v8 +: 8];
+            2'b01: data_picked_vector = block_selected[starting_bit_v16 +: 16];
+            2'b10: data_picked_vector = block_selected[starting_bit_v32 +: 32];
+            2'b11: data_picked_vector = block_selected[starting_bit_v64 +: 64];
+        endcase
+    end
 
     always_ff @(posedge clk) begin : RamManagement
         if(delayed_valid & output_entry.write_dcache) begin
             ram[line_selector][starting_bit_dc +: DCACHE_BLOCK_DW] <= output_entry.data;
         end else if (delayed_valid & output_entry.write_vector) begin
-            ram[line_selector][starting_bit_v +: 32] <= output_entry.data[31:0];
+            if (output_entry.unitstride)
+                ram[line_selector][starting_bit_unitv +: 255] <= output_entry.data[255:0];
+            else case (output_entry.sew)
+                2'b00: ram[line_selector][starting_bit_v8 +: 8]   <= output_entry.data[7:0];
+                2'b01: ram[line_selector][starting_bit_v16 +: 16] <= output_entry.data[15:0];
+                2'b10: ram[line_selector][starting_bit_v32 +: 32] <= output_entry.data[31:0];
+                2'b11: ram[line_selector][starting_bit_v64 +: 64] <= output_entry.data[63:0];
+            endcase
         end
     end
 

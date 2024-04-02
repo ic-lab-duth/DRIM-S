@@ -70,7 +70,8 @@ module issue #(
 
 	input logic vector_mem_op_done,
 	input logic scalar_load_done,
-	input logic scalar_store_done
+	input logic scalar_store_done,
+	input logic [4:0] mem_if_counter
 );
     logic wr_en_1;
     logic wr_en_2;
@@ -180,7 +181,7 @@ module issue #(
                 if(!pr_update.valid_jump) begin
                     branch_if <= branch_if << 1;
                 end
-            end else if (pr_update.valid_jump && |branch_if) begin // No Branch Issued
+            end else if (pr_update.valid_jump && !branch_if[0]) begin // No Branch Issued
                 branch_if <= branch_if >> 1;
             end
         end
@@ -196,6 +197,8 @@ module issue #(
 		if (~rst_n) begin
 			mem_counter <= 0;
 			mem_owner <= 1'b1;
+		end else if (flush_valid && mem_owner) begin
+			mem_counter <= mem_if_counter;
 		end else begin
 			mem_counter <= next_mem_counter;
 
@@ -209,18 +212,18 @@ module issue #(
 		if (mem_owner) begin // scalar is owner
 			if (Instruction1.functional_unit == 0 && !Instruction1.is_vector && wr_en_1) next_mem_counter += 1;
 			if (Instruction2.functional_unit == 0 && !Instruction2.is_vector && wr_en_2) next_mem_counter += 1;
-			if (scalar_load_done) next_mem_counter -= 1;
-			if (scalar_store_done) next_mem_counter -= 1;
+			if (scalar_load_done && next_mem_counter != 0) next_mem_counter -= 1;
+			if (scalar_store_done && next_mem_counter != 0) next_mem_counter -= 1;
 		end else begin // vector is owner
 			if (Instruction1.functional_unit == 0 && Instruction1.is_vector && wr_en_1) next_mem_counter += 1;
 			if (Instruction2.functional_unit == 0 && Instruction2.is_vector && wr_en_2) next_mem_counter += 1;
-			if (vector_mem_op_done) next_mem_counter -= 1;
+			if (vector_mem_op_done && next_mem_counter != 0) next_mem_counter -= 1;
 		end
 	end
 
 	logic block_mem_1, block_mem_2;
-	assign block_mem_1 = Instruction1.functional_unit == 0 && ((!Instruction1.is_vector && !mem_owner) || (Instruction1.is_vector && mem_owner));
-	assign block_mem_2 = Instruction2.functional_unit == 0 && ((!Instruction2.is_vector && !mem_owner) || (Instruction2.is_vector && mem_owner));
+	assign block_mem_1 = Instruction1.functional_unit == 0 && valid_1 && Instruction1.is_valid && ((!Instruction1.is_vector && !mem_owner) || (Instruction1.is_vector && mem_owner));
+	assign block_mem_2 = Instruction2.functional_unit == 0 && valid_2 && Instruction2.is_valid && ((!Instruction2.is_vector && !mem_owner) || (Instruction2.is_vector && mem_owner));
 
 
 	//*----------------------------------------------------------------*//
@@ -237,7 +240,7 @@ module issue #(
 
     logic [STATIONS - 1:0][1:0] valid_signals;
 	assign valid_signals[0] = {Instruction2.functional_unit == 0 && !Instruction2.is_vector && !block_mem_2 && !block_mem_1, Instruction1.functional_unit == 0 && !Instruction1.is_vector && !block_mem_1}; // to memory station
-	assign valid_signals[1] = {	(Instruction2.functional_unit == 2 || Instruction2.functional_unit == 3)  && !Instruction2.is_vector,
+	assign valid_signals[1] = {	(Instruction2.functional_unit == 2 || Instruction2.functional_unit == 3)  && !Instruction2.is_vector && !Instruction2.is_branch,
 								(Instruction1.functional_unit == 2 || Instruction1.functional_unit == 3) && !Instruction1.is_vector}; // to integer station
 	assign valid_signals[2] = {Instruction2.functional_unit == 1 && !Instruction2.is_vector, Instruction1.functional_unit == 1 && !Instruction1.is_vector}; // to floating station
 	assign valid_signals[3] = {Instruction2.is_vector && branch_if[0] && !Instruction1.is_branch && !block_mem_2 && !block_mem_1, Instruction1.is_vector && branch_if[0] && !block_mem_1}; // to vector station
@@ -257,12 +260,12 @@ module issue #(
 		rs2_2_found = 0;
 		rs3_2_found = 0;
 		for (int i = 0; i < FU_NUMBER; ++i) begin
-			if (fu_update[i].destination == Instruction1.source1)  rs1_1_found = 1'b1;
-			if (fu_update[i].destination == Instruction1.source2)  rs2_1_found = 1'b1;
-			if (fu_update[i].destination == Instruction1.source3)  rs3_1_found = 1'b1;
-			if (fu_update[i].destination == Instruction2.source1)  rs1_2_found = 1'b1;
-			if (fu_update[i].destination == Instruction2.source2)  rs2_2_found = 1'b1;
-			if (fu_update[i].destination == Instruction2.source3)  rs3_2_found = 1'b1;
+			if (fu_update[i].valid && fu_update[i].destination == Instruction1.source1)  rs1_1_found = 1'b1;
+			if (fu_update[i].valid && fu_update[i].destination == Instruction1.source2)  rs2_1_found = 1'b1;
+			if (fu_update[i].valid && fu_update[i].destination == Instruction1.source3)  rs3_1_found = 1'b1;
+			if (fu_update[i].valid && fu_update[i].destination == Instruction2.source1)  rs1_2_found = 1'b1;
+			if (fu_update[i].valid && fu_update[i].destination == Instruction2.source2)  rs2_2_found = 1'b1;
+			if (fu_update[i].valid && fu_update[i].destination == Instruction2.source3)  rs3_2_found = 1'b1;
 		end
 	end
 
@@ -342,6 +345,7 @@ module issue #(
 		branch_resolved <= pr_update.valid_jump;
 	end
 
+		logic[STATIONS-1:0] is_flushed;
 	genvar gv;
 	generate
 		for (gv = 0; gv < STATIONS - 1; ++gv) begin : create_stations
@@ -362,11 +366,12 @@ module issue #(
 								.data_in		(res_data_in[gv]),
 								.extra_in		(res_extra_in[gv]),
 								.valid_out		(res_valid_out[gv]),
-								.ready_in		(t_execution[gv].valid),
+								.ready_in		(t_execution[gv].valid | (res_valid_out[gv] & is_flushed[gv])),
 								.data_out		(res_data_out[gv]),
 								.extra_out		(res_extra_out[gv]),
 								.search_valid	({fu_update[3].valid, fu_update[2].valid, fu_update[1].valid, fu_update[0].valid}),
-								.search_tags	({fu_update[3].destination, fu_update[2].destination, fu_update[1].destination, fu_update[0].destination})
+								.search_tags	({fu_update[3].destination, fu_update[2].destination, fu_update[1].destination, fu_update[0].destination}),
+								.flushed_out(is_flushed[gv])
 							);
 		end
 	endgenerate
@@ -392,7 +397,8 @@ module issue #(
 						.data_out		(res_data_out[STATIONS - 1]),
 						.extra_out		(res_extra_out[STATIONS - 1]),
 						.search_valid	({fu_update[3].valid, fu_update[2].valid, fu_update[1].valid, fu_update[0].valid}),
-						.search_tags	({fu_update[3].destination, fu_update[2].destination, fu_update[1].destination, fu_update[0].destination})
+						.search_tags	({fu_update[3].destination, fu_update[2].destination, fu_update[1].destination, fu_update[0].destination}),
+						.flushed_out()
 					);
 	logic [STATIONS - 1 : 0] rs1_pc;
 	logic [STATIONS - 1 : 0] rs2_imm;
@@ -418,6 +424,7 @@ module issue #(
 		t_execution[i].valid &= ~(res_data_out[i].pending1 | res_data_out[i].pending2 | res_data_out[i].pending3);
 		t_execution[i].valid &= res_valid_out[i] & ~flush_valid;
 		t_execution[i].valid &= ~busy_fu[t_execution[i].functional_unit];
+		t_execution[i].valid &= ~is_flushed[i];
 
 		t_execution[i].data1 = rs1_pc[i] 	? t_execution[i].pc 		: rs1_data[i];
 		t_execution[i].data2 = rs2_imm[i] 	? t_execution[i].immediate 	: rs2_data[i];

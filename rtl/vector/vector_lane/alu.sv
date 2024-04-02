@@ -148,7 +148,7 @@ assign unsigned_high=(alu_op[5:0]==6'b100100);
 assign high_su=(alu_op[5:0]==6'b100110);
 
 assign high=(sign_high | unsigned_high | high_su);
-assign sign=(sign_high | high_su | ((~sign_high) & (~unsigned_high) & (~high_su)));
+assign sign=(sign_high | ((~sign_high) & (~unsigned_high) & (~high_su)));
 assign diff=high_su;
 
 //
@@ -159,7 +159,7 @@ logic addition;
 logic [1:0] addition_flags;
 
 assign adc=(alu_op[5:0]==6'b010000);
-assign addition=(alu_op[5:0]==6'b000000 | vmacc | vmadd);
+assign addition=(alu_op[5:0]==6'b000000 | vmacc | vmadd | adc);
 
 assign carry_enable=(adc | (~addition));
 

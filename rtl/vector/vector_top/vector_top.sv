@@ -21,10 +21,12 @@ module vector_top #(parameter int LANES_DATA_WIDTH=64,
                     // Vector memory interface
                     output  logic mem_valid_rd,
                     output  logic mem_valid_wr,
+                    output  logic mem_unit,
+                    output  logic [1:0] mem_sew,
                     output  logic [31 : 0] mem_address,
-                    output  logic [31 : 0] mem_data_wr,
+                    output  logic [255 : 0] mem_data_wr,
                     input   logic mem_valid_o,
-                    input   logic [31 : 0] mem_data_o,
+                    input   logic [255 : 0] mem_data_o,
 
                     input logic mem_ready,
 
@@ -36,8 +38,8 @@ logic [2:0] memory_sew;
 logic [2:0] indexed_sew;
 logic load_operation_memory;
 logic store_operation_memory;
-logic [$clog2(ADDR_RANGE)+1:0] stride;
-logic [$clog2(ADDR_RANGE)+1:0] addr;
+logic [31:0] stride;
+logic [31:0] addr;
 logic [1:0] mode_memory;
 logic memory_enable;
 logic [MICROOP_BIT-1:0] alu_op_out [0:NUMBER_VECTOR_LANES-1];
@@ -237,6 +239,8 @@ mem_mod (.clk(clk),
          // Vector Memory interface
         .mem_valid_rd(mem_valid_rd),
         .mem_valid_wr(mem_valid_wr),
+        .mem_unit    (mem_unit),
+        .mem_sew     (mem_sew),
         .mem_address (mem_address),
         .mem_data_wr (mem_data_wr),
         .mem_valid_o (mem_valid_o),

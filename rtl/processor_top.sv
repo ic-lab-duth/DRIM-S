@@ -75,10 +75,12 @@ module processor_top #(
     // Vector memory interface
     output  logic mem_vector_valid_rd,
     output  logic mem_vector_valid_wr,
+    output  logic mem_vector_unit,
+    output  logic [1:0] mem_vector_sew,
     output  logic [31 : 0] mem_vector_address,
-    output  logic [31 : 0] mem_vector_data_wr,
+    output  logic [255 : 0] mem_vector_data_wr,
     input   logic mem_vector_valid_o,
-    input   logic [31 : 0] mem_vector_data_o,
+    input   logic [255 : 0] mem_vector_data_o,
 
     input logic mem_ready,
 
@@ -378,6 +380,24 @@ module processor_top #(
     logic scalar_load_done;
 
     assign scalar_load_done = cache_fu_update.valid;
+    logic cache_wb_valid;
+
+    logic [4 : 0] mem_if_counter, next_mem_if_counter;
+    always_ff @(posedge clk) begin
+		if (~rst_n) begin
+			mem_if_counter <= 0;
+		end else begin
+			mem_if_counter <= next_mem_if_counter;
+		end
+	end
+
+    always_comb begin
+		next_mem_if_counter = mem_if_counter;
+        if (cache_load_valid) next_mem_if_counter += 1;
+        if (cache_wb_valid) next_mem_if_counter += 1;
+        if (scalar_load_done) next_mem_if_counter -= 1;
+        if (scalar_store_done) next_mem_if_counter -= 1;
+	end
 
     issue #(
         .SCOREBOARD_SIZE(128           ),
@@ -426,7 +446,8 @@ module processor_top #(
 
         .vector_mem_op_done(vector_mem_op_done),
         .scalar_load_done(scalar_load_done),
-        .scalar_store_done(scalar_store_done)
+        .scalar_store_done(scalar_store_done),
+        .mem_if_counter(mem_if_counter)
     );
 
 	//////////////////////////////////////////////////
@@ -533,10 +554,9 @@ module processor_top #(
     logic           [    ADDR_BITS-1:0] cache_wb_addr      ;
     logic           [   DATA_WIDTH-1:0] cache_wb_data      ;
     logic           [MICROOP_WIDTH-1:0] cache_wb_microop   ;
-    logic                               cache_wb_valid     ;
     writeback_toARF                     retired_instruction, retired_instruction_2;
 
-    assign data_ex_merged_i = {pr_update,fu_update[3],fu_update[2],fu_update[1],fu_update[0]};
+    assign data_ex_merged_i = {pr_update, fu_update[3],fu_update[2],fu_update[1],fu_update[0]};
     eb_buff_generic #(
         .DW         (EX_MERGED_DW),
         .BUFF_TYPE  (1),
@@ -717,7 +737,7 @@ module processor_top #(
             // );
             logic vector_ready_o;
             logic vector_push;
-            assign vector_push = t_vector.valid & ~flush_valid;
+            assign vector_push = t_vector.valid;
             assign vector_pop = vector_ready_o & valid_vector;
 
             fifo_duth #(
@@ -765,6 +785,8 @@ module processor_top #(
                 //Memory Interface
                 .mem_valid_rd(mem_vector_valid_rd),
                 .mem_valid_wr(mem_vector_valid_wr),
+                .mem_unit    (mem_vector_unit),
+                .mem_sew     (mem_vector_sew),
                 .mem_address (mem_vector_address),
                 .mem_data_wr (mem_vector_data_wr),
                 .mem_valid_o (mem_vector_valid_o),
