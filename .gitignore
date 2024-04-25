@@ -3,6 +3,8 @@ images
 rig_tb
 transcript
 sim/work
+rtl/work
 sim/transcript
 sim/vsim.wlf
 sim/wlf*
+work

@@ -33,13 +33,15 @@ module requestor #(
     output  logic [255 : 0] mem_data_wr
 );
 
-logic [VREG_BITS-1:0] wrdata_inserted, indexed_value, data_temp;
+logic [VREG_BITS-1:0] wrdata_inserted, indexed_value, data_temp, data_comb_temp;
 logic unitstride_load_done;
+
 always_comb begin
 	for(int i=0;i<NUMBER_VECTOR_LANES;i++) begin
 		wrdata_inserted[LANES_DATA_WIDTH*i+:LANES_DATA_WIDTH] = wrdata_in[i];
         if (unitstride_load_done) rddata_out[i] = mem_data_o[LANES_DATA_WIDTH*i+:LANES_DATA_WIDTH];
-        else rddata_out[i] = data_temp[LANES_DATA_WIDTH*i+:LANES_DATA_WIDTH];
+        else rddata_out[i] = data_comb_temp[LANES_DATA_WIDTH*i+:LANES_DATA_WIDTH];
+
 	end
 end
 
@@ -93,6 +95,12 @@ logic [31:0] strided_value;
 logic [2:0] sew_temp;
 logic [2:0] indexed_sew_temp;
 assign mem_sew = sew_temp;
+always_comb case(sew_temp[1:0])
+    2'b00: data_comb_temp = {mem_data_o[7:0],   data_temp[VREG_BITS-1:8]};
+    2'b01: data_comb_temp = {mem_data_o[15:0],  data_temp[VREG_BITS-1:16]};
+    2'b10: data_comb_temp = {mem_data_o[31:0],  data_temp[VREG_BITS-1:32]};
+    2'b11: data_comb_temp = {mem_data_o[63:0],  data_temp[VREG_BITS-1:64]};
+endcase
 always_ff @(posedge clk) begin : control_save_logic
     if (rst) begin
         sew_temp            <= 0;

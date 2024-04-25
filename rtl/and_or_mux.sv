@@ -10,7 +10,7 @@
  * @param INPUTS number of inputs
  * @param DW common data width for each input and the output
  */
- 
+
 module and_or_mux
 #(
     parameter int INPUTS    = 4,

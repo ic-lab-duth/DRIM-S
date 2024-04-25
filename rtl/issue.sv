@@ -197,8 +197,8 @@ module issue #(
 		if (~rst_n) begin
 			mem_counter <= 0;
 			mem_owner <= 1'b1;
-		end else if (flush_valid && mem_owner) begin
-			mem_counter <= mem_if_counter;
+		// end else if (flush_valid && mem_owner) begin
+		// 	mem_counter <= mem_if_counter;
 		end else begin
 			mem_counter <= next_mem_counter;
 
@@ -239,7 +239,8 @@ module issue #(
 
 
     logic [STATIONS - 1:0][1:0] valid_signals;
-	assign valid_signals[0] = {Instruction2.functional_unit == 0 && !Instruction2.is_vector && !block_mem_2 && !block_mem_1, Instruction1.functional_unit == 0 && !Instruction1.is_vector && !block_mem_1}; // to memory station
+	assign valid_signals[0] = {Instruction2.functional_unit == 0 && !Instruction2.is_vector && !block_mem_2 && !block_mem_1 && branch_if[0] && !Instruction1.is_branch,
+                               Instruction1.functional_unit == 0 && !Instruction1.is_vector && !block_mem_1 && branch_if[0]}; // to memory station
 	assign valid_signals[1] = {	(Instruction2.functional_unit == 2 || Instruction2.functional_unit == 3)  && !Instruction2.is_vector && !Instruction2.is_branch,
 								(Instruction1.functional_unit == 2 || Instruction1.functional_unit == 3) && !Instruction1.is_vector}; // to integer station
 	assign valid_signals[2] = {Instruction2.functional_unit == 1 && !Instruction2.is_vector, Instruction1.functional_unit == 1 && !Instruction1.is_vector}; // to floating station

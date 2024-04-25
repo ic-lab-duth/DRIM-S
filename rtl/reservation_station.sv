@@ -112,7 +112,11 @@ module reservation_station   #(
     always_ff @ (posedge clk) begin : final_data
         for (int i = 0; i < DEPTH; i += 1) begin
             data[i].branch_if <= data[i].branch_if >> branch_resolved;
-            if (flush) flushed[i] <= |data[i].branch_if;
+        end
+        if (flush) for (int i = 0; i < DEPTH; i += 1) begin
+            flushed[i] <= |data[i].branch_if;
+        end
+        for (int i = 0; i < DEPTH; i += 1) begin
             for (int k = 0; k < SEARCH_PORTS; k += 1) begin
                 if (data[i].rs1 == search_tags[k] && search_valid[k] && data[i].pending1) begin
                     data[i].pending1    <= 0;

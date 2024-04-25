@@ -1,9 +1,9 @@
 module sew_register #(parameter int DATA_FROM_SCALAR=96,
                       parameter int INSTRUCTION_BITS=32
-                    )(input logic clk,
-                      input logic rst,
-                      input logic valid_fifo,
-                      input logic [DATA_FROM_SCALAR-1:0] instruction_in,
+                    )(input logic  clk,
+                      input logic  rst,
+                      input logic  valid_fifo,
+                      input logic  [DATA_FROM_SCALAR-1:0] instruction_in,
                       output logic [2:0] sew);
 
 logic [INSTRUCTION_BITS-1:0] instruction;

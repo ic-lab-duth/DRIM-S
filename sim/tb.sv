@@ -54,7 +54,7 @@ int   cycles_pc_unchanged;
 
 // Detect simulation end when PC hangs, since that is what the bootstrap is using
 assign pc_still_unchanged = (old_pc == tb.module_top.current_pc);
-assign sim_finished       = (cycles_pc_unchanged == 1000) & rst_n;
+assign sim_finished       = (cycles_pc_unchanged == 2000) & rst_n;
 
 always_ff @(posedge clk or negedge rst_n) begin
     if(~rst_n) begin
