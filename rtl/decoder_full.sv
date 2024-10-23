@@ -241,7 +241,7 @@ module decoder_full #(INSTR_BITS=32, PC_BITS=32) (
             end
             // * VECTOR ->
             5'b10101 : begin
-                outputs.source1           = {1'b0,source1};
+                outputs.source1           = {instruction_in[14:12] == 3'b101,source1};
                 outputs.source1_pc        = 1'b0;
                 outputs.immediate         = instruction_in;
                 outputs.source2           = {1'b0,source2};

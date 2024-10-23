@@ -13,7 +13,7 @@
 ../rtl/idecode.sv
 ../rtl/ifetch.sv
 ../rtl/int_alu.sv
-../rtl/issue.sv
+../rtl/issue2.sv
 ../rtl/load_store_unit.sv
 ../rtl/multiply.sv
 ../rtl/predictor.sv
@@ -51,6 +51,8 @@
 ../rtl/main_memory.sv
 ../rtl/structs.sv
 
+../rtl/vector/crossbar.sv
+../rtl/vector/permutation.sv
 ../rtl/vector/dispatch/*.sv
 ../rtl/vector/memory_interface/*.sv
 ../rtl/vector/vector_lane/*.sv

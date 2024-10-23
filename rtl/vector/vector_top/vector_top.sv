@@ -135,6 +135,17 @@ logic [4:0] load_data_destination_in [0:NUMBER_VECTOR_LANES-1];
 logic [LANES_DATA_WIDTH-1:0] operand_3 [0:NUMBER_VECTOR_LANES-1];
 logic [NUMBER_VECTOR_LANES-1:0] read_done_in;
 
+
+logic [NUMBER_VECTOR_LANES-1:0] lane_perm_slideup;
+logic [NUMBER_VECTOR_LANES-1:0] lane_perm_slidedown;
+logic [NUMBER_VECTOR_LANES-1:0] lane_perm_compress;
+logic [NUMBER_VECTOR_LANES-1:0] lane_perm_sgather;
+logic [NUMBER_VECTOR_LANES-1:0] lane_perm_vgather;
+logic [NUMBER_VECTOR_LANES-1:0][LANES_DATA_WIDTH-1:0] lane_perm_opA;
+logic [NUMBER_VECTOR_LANES-1:0][LANES_DATA_WIDTH-1:0] lane_perm_opB;
+logic [NUMBER_VECTOR_LANES-1:0][LANES_DATA_WIDTH/8-1:0] lane_perm_mask;
+logic [NUMBER_VECTOR_LANES-1:0][LANES_DATA_WIDTH-1:0] lane_perm_result;
+
 genvar i;
 
 //////////////////////////////////////////////////////////////
@@ -180,9 +191,49 @@ generate
                       .destination_write(destination_write[i]),
                       .read_done_in(read_done_in[i]),
                       .data_from_load_in(data_from_load_in[i]),
-                      .load_data_destination_in(load_data_destination_in[i]));
+                      .load_data_destination_in(load_data_destination_in[i]),
+                      .lane_perm_slideup(lane_perm_slideup[i]),
+                      .lane_perm_slidedown(lane_perm_slidedown[i]),
+                      .lane_perm_compress(lane_perm_compress[i]),
+                      .lane_perm_sgather(lane_perm_sgather[i]),
+                      .lane_perm_vgather(lane_perm_vgather[i]),
+                      .lane_perm_opA(lane_perm_opA[i]),
+                      .lane_perm_opB(lane_perm_opB[i]),
+                      .lane_perm_mask(lane_perm_mask[i]),
+                      .lane_perm_result(lane_perm_result[i]));
     end
 endgenerate
+
+
+    logic perm_slideup;
+    logic perm_slidedown;
+    logic perm_compress;
+    logic perm_sgather;
+    logic perm_vgather;
+    logic [VREG_BITS-1:0] perm_opA;
+    logic [VREG_BITS-1:0] perm_opB;
+    logic [VREG_BITS/8-1:0] perm_mask;
+    logic [VREG_BITS-1:0] perm_result;
+    assign perm_mask = 0;
+always_comb for (int i = 0; i < NUMBER_VECTOR_LANES; ++i) begin
+    perm_opA[LANES_DATA_WIDTH*i +: LANES_DATA_WIDTH] = lane_perm_opA[i];
+    perm_opB[LANES_DATA_WIDTH*i +: LANES_DATA_WIDTH] = lane_perm_opB[i];
+    lane_perm_result[i] = perm_result[LANES_DATA_WIDTH*i +: LANES_DATA_WIDTH];
+end
+
+permutation_unit #(.VL(VREG_BITS)) i_permutation (
+    .slideup  (perm_slideup  ),
+    .slidedown(perm_slidedown),
+    .compress (perm_compress ),
+    .sgather  (perm_sgather  ),
+    .vgather  (perm_vgather  ),
+    .sew      (perm_mem_sew  ),
+    .opA      (perm_opA      ),
+    .opB      (perm_opB      ),
+    .mask     (perm_mask     ),
+    .result   (perm_result   )
+);
+
 
 assign register_to_write=data_destination[0];
 assign operation_done=write_enable_out[0];

@@ -1,0 +1,40 @@
+without optimization
+
+axpy : 272431
+jacobi_2d : 16318
+pathfinder : 72115
+
+with optimization
+
+axpy : 272431 (no difference)
+jacobi_2d : 16081 (1.4% less cycles)
+pathdinder : 67299 (6.6% less cycles)
+
+
+asxpy 1024  issue 1 : 36095
+asxpy 1024  issue 2 : 36092
+
+asxpy 2048  issue 1 : 70143
+asxpy 2048  issue 2 : 70143
+
+asxpy 4096  issue 1 : 138239
+asxpy 4096  issue 2 : 138239
+
+jacovi 16 issue 1 : 15938
+jacovi 16 issue 2 : 15570
+
+jacovi 32 issue 1 : 53096
+jacovi 32 issue 2 : 48438
+
+jacovi 64 issue 1 : 197340
+jacovi 64 issue 2 : 180996
+
+
+pathfinder 16 issue 1 : 14881
+pathfinder 16 issue 2 : 14909
+
+pathfinder 32 issue 1 : 59303
+pathfinder 32 issue 2 : 59215
+
+pathfinder 64 issue 1 : 232361
+pathfinder 64 issue 2 : 228043

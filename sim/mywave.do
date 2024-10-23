@@ -9,10 +9,6 @@ add wave -noupdate -label reset /tb/rst_n
 
 add wave -noupdate -radix unsigned -group statistics -label "cycle counter" /tb/module_top/top_processor/execution/csr_registers/cycle_counter
 add wave -noupdate -radix unsigned -group statistics -label "instruction counter" /tb/module_top/top_processor/execution/csr_registers/instr_counter
-add wave -noupdate -radix unsigned -group statistics -label "total issues" /tb/module_top/top_processor/issue/total_issues
-add wave -noupdate -radix unsigned -group statistics -label "dual issues" /tb/module_top/top_processor/issue/dual_issues
-add wave -noupdate -radix unsigned -group statistics -label "hazards" /tb/module_top/top_processor/issue/hazards
-add wave -noupdate -radix unsigned -group statistics -label "stalls" /tb/module_top/top_processor/issue/stalls
 add wave -noupdate -radix unsigned -group statistics -label ""reclaim stalls /tb/module_top/top_processor/rr/reclaim_stalls
 add wave -noupdate -radix unsigned -group statistics -label "redirect prediction" /tb/module_top/top_processor/ifetch/redir_prediction
 add wave -noupdate -radix unsigned -group statistics -label "redirect return" /tb/module_top/top_processor/ifetch/redir_return
@@ -58,11 +54,6 @@ add wave -noupdate -label "hit" /tb/module_top/hit_icache
 add wave -noupdate -label "miss" /tb/module_top/miss_icache
 add wave -noupdate -label "partial access"  /tb/module_top/partial_access
 add wave -noupdate -label "partial type" /tb/module_top/partial_type
-
-add wave -noupdate -group "icache tags" -label "way0" -radix hexadecimal {/tb/module_top/icache/gen_sram[0]/SRAM_TAG/Memory_Array}
-add wave -noupdate -group "icache tags" -label "way1" -radix hexadecimal {/tb/module_top/icache/gen_sram[1]/SRAM_TAG/Memory_Array}
-add wave -noupdate -group "icache tags" -label "way2" -radix hexadecimal {/tb/module_top/icache/gen_sram[2]/SRAM_TAG/Memory_Array}
-add wave -noupdate -group "icache tags" -label "way3" -radix hexadecimal {/tb/module_top/icache/gen_sram[3]/SRAM_TAG/Memory_Array}
 
 add wave -noupdate -group "icache data" -label "way0" -radix hexadecimal {/tb/module_top/icache/gen_sram[0]/SRAM_DATA/Memory_Array}
 add wave -noupdate -group "icache data" -label "way1" -radix hexadecimal {/tb/module_top/icache/gen_sram[1]/SRAM_DATA/Memory_Array}
@@ -187,7 +178,6 @@ add wave -noupdate -label "instruction queue" /tb/module_top/top_processor/instr
 
 add wave -noupdate -divider ISSUE
 
-add wave -noupdate -label "scoreboard" -radix unsigned  /tb/module_top/top_processor/issue/scoreboard
 
 add wave -noupdate -group "issued instruction A" -label pc -radix hexadecimal {/tb/module_top/top_processor/t_execution_o[0].pc}
 add wave -noupdate -group "issued instruction A" -label opA -radix unsigned -color blue {/tb/module_top/top_processor/t_execution_o[0].data1}
@@ -260,7 +250,6 @@ add wave -noupdate -group "predictor update" -label "jump address" -radix hexade
 
 add wave -noupdate -divider WRITEBACK
 
-add wave -noupdate -label "reorder buffer data" -radix unsigned  /tb/module_top/top_processor/rob/sram/Memory_Array
 
 add wave -noupdate -divider REGISTERS
 
@@ -412,7 +401,6 @@ add wave -noupdate -label "lane 1 registers" -radix hexadecimal {/tb/module_top/
 add wave -noupdate -label "lane 2 registers" -radix hexadecimal {/tb/module_top/top_processor/genblk1/vector_top/vector_lanes[2]/vec_lane/vis_mod/vrf/vector_register}
 add wave -noupdate -label "lane 3 registers" -radix hexadecimal {/tb/module_top/top_processor/genblk1/vector_top/vector_lanes[3]/vec_lane/vis_mod/vrf/vector_register}
 
-add wave -noupdate -label "memory" -radix hexadecimal /tb/module_top/top_processor/genblk1/vector_top/mem_mod/comp/mem/memory
 
 
 TreeUpdate [SetDefaultTree]

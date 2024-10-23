@@ -43,7 +43,18 @@ module vector_lane #(parameter int LANES_DATA_WIDTH=64,
                      input logic [4:0] destination_write,
                      input logic read_done_in,
                      input logic [LANES_DATA_WIDTH-1:0] data_from_load_in,
-                     input logic [4:0] load_data_destination_in);
+                     input logic [4:0] load_data_destination_in,
+
+
+                     output logic lane_perm_slideup,
+                     output logic lane_perm_slidedown,
+                     output logic lane_perm_compress,
+                     output logic lane_perm_sgather,
+                     output logic lane_perm_vgather,
+                     output logic [LANES_DATA_WIDTH-1:0] lane_perm_opA,
+                     output logic [LANES_DATA_WIDTH-1:0] lane_perm_opB,
+                     output logic [LANES_DATA_WIDTH/8-1:0] lane_perm_mask,
+                     input  logic [LANES_DATA_WIDTH-1:0] lane_perm_result);
 
 to_vector_execution is_ex;
 
@@ -105,7 +116,16 @@ vex #(.DATA_WIDTH(LANES_DATA_WIDTH),
             .data_in(is_ex),
             .data_out(ex_wb),
             .wait_load_signal_out(wait_load_signal_out),
-            .load_destination_out(load_destination_out));
+            .load_destination_out(load_destination_out),
+            .lane_perm_slideup(lane_perm_slideup),
+            .lane_perm_slidedown(lane_perm_slidedown),
+            .lane_perm_compress(lane_perm_compress),
+            .lane_perm_sgather(lane_perm_sgather),
+            .lane_perm_vgather(lane_perm_vgather),
+            .lane_perm_opA(lane_perm_opA),
+            .lane_perm_opB(lane_perm_opB),
+            .lane_perm_mask(lane_perm_mask),
+            .lane_perm_result(lane_perm_result));
 
 //////////////////////////////////////////////////////////////
 /////                   WRITEBACK_STAGE                  /////

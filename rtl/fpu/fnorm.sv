@@ -1,8 +1,8 @@
 module fnorm #(
                 parameter int FW1   = 26,
                 parameter int FW2   = 23,
-                parameter int EW1    = 10,
-                parameter int EW2    = 8
+                parameter int EW1   = 10,
+                parameter int EW2   = 8
             )(
                 input logic clk,
 
@@ -45,13 +45,11 @@ module fnorm #(
     assign {significant_temp, guard, round, sticky_temp} = norm_significant;
     assign sticky = |sticky_temp;
 
-    //TODO ROUNDING
     logic plus_one;
-    assign plus_one =   (rm == 3'b000 && guard && (round || sticky || significant_temp[0])) ||
-                        (rm == 3'b010 && signA && (guard || round || sticky)) ||
-                        (rm == 3'b011 && !signA && (guard || round || sticky)) ||
+    assign plus_one =   (rm == 3'b000 && guard && (round  || sticky || significant_temp[0])) ||
+                        (rm == 3'b010 && signA && (guard  || round  || sticky)) ||
+                        (rm == 3'b011 && !signA && (guard || round  || sticky)) ||
                         (rm == 3'b100 && guard);
-
 
     always_ff @( posedge clk ) begin
         significantR    <= significant_temp + plus_one;

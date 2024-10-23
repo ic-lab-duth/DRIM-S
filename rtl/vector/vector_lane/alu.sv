@@ -15,8 +15,25 @@ module alu #(parameter int DATA_WIDTH=64,
 			 input logic [MICROOP_BIT-1:0] alu_op,
 			 //output of alu
 			 output logic [EXECUTION_OUTPUT-1:0] result,
-		     output logic masked_write_back);
+		     output logic masked_write_back,
 
+             output logic lane_perm_slideup,
+             output logic lane_perm_slidedown,
+             output logic lane_perm_compress,
+             output logic lane_perm_sgather,
+             output logic lane_perm_vgather,
+             output logic [DATA_WIDTH-1:0] lane_perm_opA,
+             output logic [DATA_WIDTH-1:0] lane_perm_opB,
+             output logic [DATA_WIDTH/8-1:0] lane_perm_mask,
+             input  logic [DATA_WIDTH-1:0] lane_perm_result
+             );
+
+
+assign lane_perm_slideup   = alu_op[5:0] == 6'b001110;
+assign lane_perm_slidedown = alu_op[5:0] == 6'b001111;
+assign lane_perm_compress  = 0;
+assign lane_perm_sgather   = alu_op[5:0] == 6'b001100;
+assign lane_perm_vgather   = 0;
 
 logic [DATA_WIDTH-1:0] operand_1;
 logic [DATA_WIDTH-1:0] operand_2;
@@ -136,6 +153,10 @@ always_comb begin
 		operand_2_mul=operand_2_vector;
 end
 //
+
+assign lane_perm_opA = operand_2;
+assign lane_perm_opB = operand_1;
+assign lane_perm_mask = mask_bits;
 
 //setting multiplication flags
 logic sign_high;

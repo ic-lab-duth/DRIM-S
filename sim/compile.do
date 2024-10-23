@@ -8,9 +8,9 @@ vlib work
 #set cmd "vlog -F files.f +incdir+../rtl/"
 #eval $cmd
 
-vlog -f files_rtl.f -f files_sim.f +incdir+../rtl/ +incdir+../sim/ +incdir+../sva/ +define+INCLUDE_SVAS
+vlog -f files_rtl.f -f files_sim.f +incdir+../rtl/ +incdir+../sim/ +incdir+../sva/ +define+INCLUDE_SVAS -suppress 2583 -suppress 2597
 
-vsim work.tb -novopt -onfinish "stop"
+vsim work.tb -novopt -onfinish "stop" -suppress 8315
 log -r /*
 do mywave.do
 onbreak {wave zoom full}

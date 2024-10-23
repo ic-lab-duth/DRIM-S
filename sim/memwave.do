@@ -8,17 +8,6 @@ add wave -noupdate -label reset /memory_tb/rst_n
 
 add wave -noupdate -divider "DATA CACHE"
 
-add wave -noupdate -group "tags" -label "way0" -radix hexadecimal {/memory_tb/data_cache/genblk1[0]/SRAM_TAG/Memory_Array}
-add wave -noupdate -group "tags" -label "way1" -radix hexadecimal {/memory_tb/data_cache/genblk1[1]/SRAM_TAG/Memory_Array}
-add wave -noupdate -group "tags" -label "way2" -radix hexadecimal {/memory_tb/data_cache/genblk1[2]/SRAM_TAG/Memory_Array}
-add wave -noupdate -group "tags" -label "way3" -radix hexadecimal {/memory_tb/data_cache/genblk1[3]/SRAM_TAG/Memory_Array}
-
-add wave -noupdate -group "data" -label "way0" -radix hexadecimal {/memory_tb/data_cache/genblk1[0]/SRAM_DATA/Memory_Array}
-add wave -noupdate -group "data" -label "way1" -radix hexadecimal {/memory_tb/data_cache/genblk1[1]/SRAM_DATA/Memory_Array}
-add wave -noupdate -group "data" -label "way2" -radix hexadecimal {/memory_tb/data_cache/genblk1[2]/SRAM_DATA/Memory_Array}
-add wave -noupdate -group "data" -label "way3" -radix hexadecimal {/memory_tb/data_cache/genblk1[3]/SRAM_DATA/Memory_Array}
-
-
 add wave -noupdate -group "load" -label "valid" /memory_tb/data_cache/load_valid
 add wave -noupdate -group "load" -label "address" -radix hexadecimal /memory_tb/data_cache/load_address
 add wave -noupdate -group "load" -label "dest" /memory_tb/data_cache/load_dest

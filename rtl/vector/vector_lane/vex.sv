@@ -11,7 +11,18 @@ module vex #(parameter int DATA_WIDTH=64,
                 input to_vector_execution data_in,
                 output to_writeback data_out,
                 output logic wait_load_signal_out,
-                output logic [4:0] load_destination_out);
+                output logic [4:0] load_destination_out,
+
+                output logic lane_perm_slideup,
+                output logic lane_perm_slidedown,
+                output logic lane_perm_compress,
+                output logic lane_perm_sgather,
+                output logic lane_perm_vgather,
+                output logic [DATA_WIDTH-1:0] lane_perm_opA,
+                output logic [DATA_WIDTH-1:0] lane_perm_opB,
+                output logic [DATA_WIDTH/8-1:0] lane_perm_mask,
+                input  logic [DATA_WIDTH-1:0] lane_perm_result
+                );
 
 logic [DATA_WIDTH-1:0] result_temp;
 logic masked_write_back_temp;
@@ -98,7 +109,16 @@ alu #(.DATA_WIDTH(DATA_WIDTH),
       .mask_bits(mask_bits_in),
       .alu_op(alu_op_in),
       .result(result_temp),
-      .masked_write_back(masked_write_back_temp));
+      .masked_write_back(masked_write_back_temp),
+      .lane_perm_slideup(lane_perm_slideup),
+      .lane_perm_slidedown(lane_perm_slidedown),
+      .lane_perm_compress(lane_perm_compress),
+      .lane_perm_sgather(lane_perm_sgather),
+      .lane_perm_vgather(lane_perm_vgather),
+      .lane_perm_opA(lane_perm_opA),
+      .lane_perm_opB(lane_perm_opB),
+      .lane_perm_mask(lane_perm_mask),
+      .lane_perm_result(lane_perm_result));
 //
 
 //one cycle delay for multiplication

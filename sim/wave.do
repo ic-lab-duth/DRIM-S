@@ -1,3 +1,4 @@
+file delete -force vsim.wlf
 onerror {resume}
 quietly WaveActivateNextPane {} 0
 add wave -noupdate /tb/clk
@@ -14,10 +15,6 @@ add wave -noupdate -radix unsigned /tb/module_top/data_cache/wait_buffer/WT_BF_S
 add wave -noupdate -divider Statistics
 add wave -noupdate -radix unsigned /tb/module_top/top_processor/execution/csr_registers/cycle_counter
 add wave -noupdate -radix unsigned /tb/module_top/top_processor/execution/csr_registers/instr_counter
-add wave -noupdate -radix unsigned /tb/module_top/top_processor/issue/total_issues
-add wave -noupdate -radix unsigned /tb/module_top/top_processor/issue/dual_issues
-add wave -noupdate -radix unsigned /tb/module_top/top_processor/issue/hazards
-add wave -noupdate -radix unsigned /tb/module_top/top_processor/issue/stalls
 add wave -noupdate -radix unsigned /tb/module_top/top_processor/rr/reclaim_stalls
 add wave -noupdate -radix unsigned /tb/module_top/top_processor/ifetch/redir_prediction
 add wave -noupdate -radix unsigned /tb/module_top/top_processor/ifetch/redir_return
@@ -188,7 +185,6 @@ add wave -noupdate /tb/module_top/top_processor/issue/regfile/RegFile
 add wave -noupdate /tb/module_top/top_processor/issue/regfile/write_En
 add wave -noupdate -radix unsigned /tb/module_top/top_processor/issue/regfile/write_Addr
 add wave -noupdate /tb/module_top/top_processor/issue/regfile/write_Data
-add wave -noupdate /tb/module_top/top_processor/issue/scoreboard
 add wave -noupdate -divider <NULL>
 add wave -noupdate /tb/module_top/top_processor/issue/t_execution
 add wave -noupdate -divider Execution
